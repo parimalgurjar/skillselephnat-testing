@@ -1,0 +1,746 @@
+/* =====================================================
+   ADMIN SETUP PAGE
+===================================================== */
+
+.admin-setup-page {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.22), transparent 32%),
+    radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.2), transparent 30%),
+    linear-gradient(135deg, #07111f 0%, #0b1730 45%, #101b3d 100%);
+}
+
+/* =====================================================
+   BACKGROUND
+===================================================== */
+
+.admin-setup-background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.admin-setup-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  opacity: 0.65;
+  animation: adminSetupFloat 8s ease-in-out infinite;
+}
+
+.admin-setup-orb-one {
+  width: 420px;
+  height: 420px;
+  top: -180px;
+  left: -150px;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.25),
+    transparent 68%
+  );
+}
+
+.admin-setup-orb-two {
+  width: 500px;
+  height: 500px;
+  right: -220px;
+  bottom: -240px;
+  background: radial-gradient(
+    circle,
+    rgba(6, 182, 212, 0.22),
+    transparent 68%
+  );
+  animation-delay: -3s;
+}
+
+@keyframes adminSetupFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(15px, -18px, 0);
+  }
+}
+
+/* =====================================================
+   CONTAINER
+===================================================== */
+
+.admin-setup-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 850px;
+}
+
+/* =====================================================
+   BRAND
+===================================================== */
+
+.admin-setup-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  margin-bottom: 22px;
+  color: #ffffff;
+}
+
+.admin-setup-brand-icon {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  box-shadow:
+    0 12px 30px rgba(99, 102, 241, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.admin-setup-brand h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.admin-setup-brand p {
+  margin: 3px 0 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+}
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.admin-setup-card {
+  width: 100%;
+  padding: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.075);
+  box-shadow:
+    0 35px 90px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.admin-setup-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 24px;
+}
+
+.admin-setup-title-icon {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(129, 140, 248, 0.22);
+}
+
+.admin-setup-header h2 {
+  margin: 2px 0 5px;
+  color: #ffffff;
+  font-size: 27px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+}
+
+.admin-setup-header p {
+  max-width: 580px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* =====================================================
+   NOTICE
+===================================================== */
+
+.admin-setup-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: 14px;
+  background: rgba(6, 182, 212, 0.08);
+  color: #67e8f9;
+}
+
+.admin-setup-notice > svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.admin-setup-notice strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #a5f3fc;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-setup-notice span {
+  display: block;
+  color: rgba(207, 250, 254, 0.65);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* =====================================================
+   ALERTS
+===================================================== */
+
+.admin-setup-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 13px 15px;
+  border-radius: 13px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.admin-setup-alert svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.admin-setup-alert-error {
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.11);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.admin-setup-alert-success {
+  color: #bbf7d0;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.admin-setup-alert-success > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.admin-setup-alert-success a {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #86efac;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-setup-alert-success a:hover {
+  color: #bbf7d0;
+}
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.admin-setup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+}
+
+.admin-setup-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+}
+
+.admin-setup-field {
+  min-width: 0;
+}
+
+.admin-setup-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.admin-setup-field label span {
+  color: #fda4af;
+}
+
+.admin-setup-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-setup-input > svg {
+  position: absolute;
+  left: 14px;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.38);
+  pointer-events: none;
+}
+
+.admin-setup-input input {
+  width: 100%;
+  height: 50px;
+  padding: 0 43px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 13px;
+  outline: none;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.065);
+  font-family: inherit;
+  font-size: 14px;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.admin-setup-input input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.admin-setup-input input:hover {
+  background: rgba(255, 255, 255, 0.085);
+}
+
+.admin-setup-input input:focus {
+  border-color: rgba(129, 140, 248, 0.7);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.admin-setup-input input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* =====================================================
+   PASSWORD TOGGLE
+===================================================== */
+
+.admin-setup-password-toggle {
+  position: absolute;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9px;
+  color: rgba(255, 255, 255, 0.45);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-setup-password-toggle:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-setup-password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* =====================================================
+   SUBMIT BUTTON
+===================================================== */
+
+.admin-setup-submit {
+  width: 100%;
+  height: 53px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 14px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1, #4f46e5 48%, #0891b2);
+  box-shadow:
+    0 13px 30px rgba(79, 70, 229, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.admin-setup-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 17px 35px rgba(79, 70, 229, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.admin-setup-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.admin-setup-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* =====================================================
+   SPINNER
+===================================================== */
+
+.admin-setup-spinner {
+  width: 17px;
+  height: 17px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: adminSetupSpin 0.7s linear infinite;
+}
+
+@keyframes adminSetupSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.admin-setup-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 23px;
+  padding-top: 21px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 13px;
+}
+
+.admin-setup-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #a5b4fc;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-setup-footer a:hover {
+  color: #c7d2fe;
+}
+
+/* =====================================================
+   SECURITY TEXT
+===================================================== */
+
+.admin-setup-security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 18px 0 0;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 11px;
+}
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 700px) {
+  .admin-setup-page {
+    padding: 28px 16px;
+  }
+
+  .admin-setup-card {
+    padding: 27px 22px;
+    border-radius: 22px;
+  }
+
+  .admin-setup-form-row {
+    grid-template-columns: 1fr;
+    gap: 19px;
+  }
+
+  .admin-setup-header h2 {
+    font-size: 24px;
+  }
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 480px) {
+  .admin-setup-page {
+    align-items: flex-start;
+    padding: 22px 13px;
+  }
+
+  .admin-setup-container {
+    margin: auto 0;
+  }
+
+  .admin-setup-brand {
+    margin-bottom: 17px;
+  }
+
+  .admin-setup-brand-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 13px;
+  }
+
+  .admin-setup-brand h1 {
+    font-size: 19px;
+  }
+
+  .admin-setup-brand p {
+    font-size: 10px;
+  }
+
+  .admin-setup-card {
+    padding: 23px 17px;
+    border-radius: 19px;
+  }
+
+  .admin-setup-header {
+    gap: 11px;
+    margin-bottom: 19px;
+  }
+
+  .admin-setup-title-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .admin-setup-header h2 {
+    margin-top: 1px;
+    font-size: 21px;
+  }
+
+  .admin-setup-header p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .admin-setup-notice {
+    padding: 12px;
+  }
+
+  .admin-setup-notice span {
+    font-size: 11px;
+  }
+
+  .admin-setup-form {
+    gap: 16px;
+  }
+
+  .admin-setup-input input {
+    height: 48px;
+    font-size: 13px;
+  }
+
+  .admin-setup-submit {
+    height: 50px;
+    font-size: 13px;
+  }
+
+  .admin-setup-footer {
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+}
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-setup-orb,
+  .admin-setup-spinner {
+    animation: none;
+  }
+
+  .admin-setup-submit,
+  .admin-setup-input input,
+  .admin-setup-password-toggle {
+    transition: none;
+  }
+}
+/* =====================================================
+   ADMIN SETUP — SKILLSELEPHANT BRAND
+===================================================== */
+
+.admin-setup-brand {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.admin-setup-brand-logo {
+  display: block;
+
+  width: min(430px, 82%);
+  height: auto;
+
+  object-fit: contain;
+}
+
+.admin-setup-brand-message {
+  width: min(430px, 90%);
+
+  margin-top: 30px;
+}
+
+.admin-setup-brand-message h2 {
+  margin: 0 0 8px;
+
+  color: #ffffff;
+
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.admin-setup-brand-message p {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.72);
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Footer — same brand-panel style */
+
+.admin-setup-brand-footer {
+  position: absolute;
+  z-index: 3;
+
+  left: 50px;
+  bottom: 35px;
+
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.62);
+
+  font-size: 13px;
+  font-weight: 400;
+
+  line-height: 1.4;
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+  .admin-setup-brand-logo {
+    width: min(350px, 88%);
+  }
+
+  .admin-setup-brand-footer {
+    left: 30px;
+    bottom: 25px;
+
+    font-size: 11px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  .admin-setup-brand-logo {
+    width: min(300px, 86%);
+  }
+
+  .admin-setup-brand-message {
+    margin-top: 24px;
+  }
+
+  .admin-setup-brand-message h2 {
+    font-size: 20px;
+  }
+
+  .admin-setup-brand-message p {
+    font-size: 13px;
+  }
+
+  .admin-setup-brand-footer {
+    position: relative;
+
+    left: auto;
+    bottom: auto;
+
+    margin-top: 25px;
+
+    text-align: center;
+
+    font-size: 11px;
+  }
+}
+
+/* Small mobile */
+
+@media (max-width: 420px) {
+  .admin-setup-brand-logo {
+    width: min(260px, 90%);
+  }
+}

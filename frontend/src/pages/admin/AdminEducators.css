@@ -1,0 +1,691 @@
+.admin-educators-page {
+  width: 100%;
+}
+
+/* Header */
+
+.admin-educators-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.admin-educators-header h1 {
+  color: #00124f;
+  font-size: 30px;
+  margin: 8px 0;
+}
+
+.admin-educators-header p {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+.add-educator-btn {
+  height: 44px;
+  padding: 0 18px;
+  background: #f6af1d;
+  color: #00124f;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Stats */
+
+.admin-educator-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.admin-educator-stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 19px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-educator-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-educator-icon.navy {
+  background: #e8ebf5;
+  color: #00124f;
+}
+
+.admin-educator-icon.green {
+  background: #eaf8f0;
+  color: #16a34a;
+}
+
+.admin-educator-icon.red {
+  background: #fff0f0;
+  color: #dc2626;
+}
+
+.admin-educator-stat-card > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-educator-stat-card span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.admin-educator-stat-card strong {
+  color: #00124f;
+  font-size: 24px;
+}
+
+.admin-educator-stat-card small {
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+/* Table */
+
+.admin-educators-table-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.admin-educators-table-header {
+  padding: 22px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-educators-table-header h2 {
+  color: #00124f;
+  font-size: 18px;
+  margin: 0 0 5px;
+}
+
+.admin-educators-table-header p {
+  color: #94a3b8;
+  font-size: 11px;
+  margin: 0;
+}
+
+.admin-educator-search {
+  width: 220px;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: #94a3b8;
+}
+
+.admin-educator-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 12px;
+}
+
+/* Table */
+
+.admin-educators-table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-educators-table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+}
+
+.admin-educators-table th {
+  padding: 14px 20px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 10px;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.admin-educators-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #eef0f3;
+  color: #475569;
+  font-size: 11px;
+}
+
+/* Educator Profile */
+
+.admin-educator-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-educator-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e8ebf5;
+  color: #00124f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.admin-educator-profile > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-educator-profile strong {
+  color: #00124f;
+  font-size: 12px;
+}
+
+.admin-educator-profile span {
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+/* Contact */
+
+.educator-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.educator-contact span {
+  color: #475569;
+}
+
+.educator-contact small {
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+/* Badges */
+
+.specializations-badge {
+  background: #fff4dc;
+  color: #b77900;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.educator-status {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.educator-status.active {
+  background: #eaf8f0;
+  color: #16a34a;
+}
+
+.educator-status.inactive {
+  background: #fff0f0;
+  color: #dc2626;
+}
+
+/* Actions */
+
+.educator-table-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.educator-table-actions button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.educator-table-actions button:hover {
+  background: #f1f5f9;
+}
+
+.delete-educator-btn:hover {
+  color: #dc2626 !important;
+}
+
+/* Modal */
+
+.educator-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 18, 79, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.educator-modal {
+  width: 100%;
+  max-width: 600px;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.educator-modal-header {
+  padding: 22px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+}
+
+.educator-modal-header h2 {
+  color: #00124f;
+  font-size: 18px;
+  margin: 0 0 5px;
+}
+
+.educator-modal-header p {
+  color: #94a3b8;
+  font-size: 11px;
+  margin: 0;
+}
+
+.educator-modal-header button {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+/* Form */
+
+.educator-form {
+  padding: 22px;
+}
+
+.educator-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.educator-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.educator-form-group label {
+  color: #00124f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.educator-form-group input,
+.educator-form-group select {
+  height: 42px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 11px;
+  outline: none;
+  background: #ffffff;
+}
+
+/* Footer */
+
+.educator-modal-footer {
+  padding: 16px 22px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-educator-btn,
+.create-educator-btn {
+  height: 40px;
+  padding: 0 17px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-educator-btn {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #64748b;
+}
+
+.create-educator-btn {
+  border: none;
+  background: #00124f;
+  color: #ffffff;
+}
+
+/* Responsive */
+
+@media (max-width: 800px) {
+  .admin-educator-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-educators-table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-educators-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .add-educator-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-educator-search {
+    width: 100%;
+  }
+
+  .educator-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}
+/* =====================================================
+   SPECIALIZATION SELECTOR
+   Added for dynamic educator specializations
+===================================================== */
+
+.admin-specialization-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.admin-specialization-select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 42px 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #334155;
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.admin-specialization-select:hover {
+  border-color: #cbd5e1;
+  background: #fafbfc;
+}
+
+.admin-specialization-select:focus {
+  border-color: #00124f;
+  box-shadow: 0 0 0 3px rgba(0, 18, 79, 0.08);
+}
+
+.admin-specialization-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: #f8fafc;
+}
+
+.admin-specialization-arrow {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.admin-specialization-dropdown {
+  width: 100%;
+  max-height: 210px;
+  overflow-y: auto;
+  margin-top: 6px;
+  padding: 6px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(1, 20, 81, 0.12);
+}
+
+.admin-specialization-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 9px;
+  border-radius: 7px;
+  color: #334155;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-specialization-option:hover {
+  background: #f1f5f9;
+  color: #00124f;
+}
+
+.admin-specialization-option input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: #00124f;
+  cursor: pointer;
+}
+
+.admin-specialization-empty {
+  padding: 12px 10px;
+  color: #94a3b8;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* =====================================================
+   FORM ERROR
+===================================================== */
+
+.educator-form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  width: 100%;
+  margin: -5px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 11px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   SPECIALIZATION BADGE IMPROVEMENT
+===================================================== */
+
+.specializations-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =====================================================
+   MODAL RESPONSIVE IMPROVEMENT
+===================================================== */
+
+.educator-modal {
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  box-shadow: 0 24px 70px rgba(0, 18, 79, 0.2);
+}
+
+.educator-form-group input:focus,
+.educator-form-group select:focus {
+  border-color: #00124f;
+  box-shadow: 0 0 0 3px rgba(0, 18, 79, 0.07);
+}
+
+.educator-form-group input:disabled,
+.educator-form-group select:disabled {
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+  .admin-educators-table-card {
+    border-radius: 12px;
+  }
+
+  .admin-educators-table-header {
+    padding: 17px;
+  }
+
+  .admin-educators-table-header h2 {
+    font-size: 16px;
+  }
+
+  .admin-educators-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .educator-modal-overlay {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .educator-modal {
+    max-height: calc(100vh - 24px);
+    border-radius: 14px;
+  }
+
+  .educator-modal-header {
+    padding: 17px;
+  }
+
+  .educator-form {
+    padding: 17px;
+  }
+
+  .educator-modal-footer {
+    padding: 14px 17px;
+    flex-direction: column-reverse;
+  }
+
+  .cancel-educator-btn,
+  .create-educator-btn {
+    width: 100%;
+    height: 42px;
+  }
+
+  .admin-specialization-dropdown {
+    max-height: 180px;
+  }
+}
+
+@media (max-width: 400px) {
+  .admin-educators-header h1 {
+    font-size: 25px;
+  }
+
+  .admin-educator-stat-card {
+    padding: 15px;
+  }
+
+  .admin-educator-stat-card strong {
+    font-size: 21px;
+  }
+
+  .admin-educator-icon {
+    width: 42px;
+    height: 42px;
+  }
+}

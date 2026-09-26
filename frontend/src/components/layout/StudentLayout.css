@@ -1,0 +1,498 @@
+.student-layout {
+  min-height: 100vh;
+  display: flex;
+  background: #f5f7fb;
+  font-family: Inter, sans-serif;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.student-sidebar {
+  width: 270px;
+  min-height: 100vh;
+  background: #00124f;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 16px;
+}
+
+.student-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.student-logo-icon {
+  width: 48px;
+  height: 48px;
+  background: #f6af1d;
+  color: #00124f;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 17px;
+}
+
+.student-sidebar-logo h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.student-sidebar-logo span {
+  font-size: 11px;
+  color: #b8c2df;
+}
+
+.sidebar-menu-title {
+  color: #92a0c7;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  margin: 25px 10px 12px;
+}
+
+/* =========================
+   MENU
+========================= */
+
+.student-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.student-menu-item {
+  text-decoration: none;
+  color: #c4cde5;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.student-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.student-menu-item.active {
+  background: rgba(246, 175, 29, 0.16);
+  color: #f6af1d;
+  border-left: 3px solid #f6af1d;
+}
+
+/* =========================
+   COURSE CARD
+========================= */
+
+.student-course-card {
+  margin-top: auto;
+  border: 1px solid rgba(246, 175, 29, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  gap: 10px;
+  color: #f6af1d;
+}
+
+.student-course-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.student-course-card strong {
+  font-size: 13px;
+}
+
+.student-course-card span {
+  font-size: 11px;
+  color: #b9c3dd;
+}
+
+/* =========================
+   SIDEBAR BOTTOM
+========================= */
+
+.student-sidebar-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 16px;
+  padding-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.student-role {
+  color: #b9c3dd;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.role-dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.student-logout-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.student-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* =========================
+   TOPBAR
+========================= */
+
+.student-topbar {
+  height: 76px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.portal-label {
+  color: #00124f;
+  background: #fff7e6;
+  border: 1px solid #f6af1d;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.student-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.notification-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  position: relative;
+  cursor: pointer;
+}
+
+.notification-btn span {
+  position: absolute;
+  top: -8px;
+  right: -9px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #f6af1d;
+  color: #00124f;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #00124f;
+  border: 3px solid #f6af1d;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.student-profile div:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-profile strong {
+  color: #00124f;
+  font-size: 13px;
+}
+
+.student-profile span {
+  color: #f6af1d;
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.student-page-content {
+  padding: 30px;
+  max-width: 1600px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .student-sidebar {
+    width: 80px;
+    padding: 18px 10px;
+  }
+
+  .student-sidebar-logo div:last-child,
+  .sidebar-menu-title,
+  .student-menu-item span,
+  .student-course-card,
+  .student-role {
+    display: none;
+  }
+
+  .student-sidebar-logo {
+    justify-content: center;
+    padding: 0 0 25px;
+  }
+
+  .student-menu-item {
+    justify-content: center;
+    padding: 14px;
+  }
+
+  .student-menu-item.active {
+    border-left: none;
+    border-bottom: 3px solid #f6af1d;
+  }
+}
+
+@media (max-width: 600px) {
+  .student-sidebar {
+    display: none;
+  }
+
+  .student-topbar {
+    padding: 0 18px;
+  }
+
+  .student-page-content {
+    padding: 18px;
+  }
+}
+/* Responsive polish */
+.student-page-content {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.student-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+@media (max-width: 600px) {
+  .student-layout {
+    display: block;
+  }
+
+  .student-sidebar {
+    display: flex;
+    position: relative;
+    width: 100%;
+    min-height: auto;
+    padding: 12px;
+    z-index: 30;
+  }
+
+  .student-sidebar-logo {
+    justify-content: flex-start;
+    padding: 0 4px 12px;
+  }
+
+  .student-sidebar-logo div:last-child {
+    display: block;
+  }
+
+  .sidebar-menu-title,
+  .student-course-card,
+  .student-sidebar-bottom {
+    display: none;
+  }
+
+  .student-sidebar-menu {
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 10px 0 2px;
+    scrollbar-width: thin;
+  }
+
+  .student-menu-item {
+    flex: 0 0 auto;
+    justify-content: center;
+    padding: 10px 12px;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  .student-menu-item span {
+    display: inline;
+  }
+
+  .student-menu-item.active {
+    border-left: none;
+    border-bottom: 3px solid #f6af1d;
+  }
+
+  .student-main {
+    width: 100%;
+  }
+
+  .student-topbar {
+    height: 68px;
+    padding: 0 14px;
+  }
+
+  .student-topbar-right {
+    gap: 12px;
+  }
+
+  .student-profile > div:last-child {
+    display: none;
+  }
+}
+/* =====================================================
+   REAL SKILLSELEPHANT LOGO
+===================================================== */
+
+.student-sidebar-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  gap: 10px;
+
+  min-height: 150px;
+  padding: 22px 20px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.student-logo-image {
+  display: block;
+
+  width: 190px;
+  max-width: 100%;
+  height: auto;
+
+  object-fit: contain;
+}
+
+.student-logo-portal {
+  color: rgba(255, 255, 255, 0.58);
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 0.8px;
+}
+
+/* Old logo */
+
+.student-logo-icon {
+  display: none;
+}
+
+.student-sidebar-logo h2,
+.student-sidebar-logo span {
+  display: none;
+}
+
+/* =====================================================
+   TABLET / COLLAPSED SIDEBAR
+===================================================== */
+
+@media (max-width: 900px) {
+  .student-sidebar-logo {
+    min-height: 90px;
+
+    align-items: center;
+
+    padding: 14px 8px;
+  }
+
+  .student-logo-image {
+    width: 58px;
+    height: auto;
+  }
+
+  .student-logo-portal {
+    display: none;
+  }
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+  .student-sidebar-logo {
+    flex-direction: row;
+
+    min-height: auto;
+
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 12px;
+
+    padding: 0 4px 12px;
+  }
+
+  .student-logo-image {
+    width: 145px;
+  }
+
+  .student-logo-portal {
+    display: block;
+
+    font-size: 10px;
+  }
+}

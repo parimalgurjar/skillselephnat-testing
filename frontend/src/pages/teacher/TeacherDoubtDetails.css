@@ -1,0 +1,588 @@
+.teacher-doubt-details-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ================= HEADER ================= */
+
+.teacher-doubt-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-doubts-button,
+.resolve-doubt-button {
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+
+.back-doubts-button {
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.resolve-doubt-button {
+  background: #16a34a;
+  color: white;
+}
+
+.resolve-doubt-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ================= DOUBT CARD ================= */
+
+.teacher-doubt-main-card,
+.teacher-conversation-card {
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.teacher-doubt-info-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.teacher-detail-topic {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.teacher-doubt-info-top h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #111827;
+}
+
+.teacher-detail-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.teacher-detail-status.pending {
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.teacher-detail-status.in_progress {
+  color: #2563eb;
+  background: #dbeafe;
+}
+
+.teacher-detail-status.resolved {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.teacher-doubt-description {
+  margin: 22px 0;
+  color: #4b5563;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.teacher-doubt-student-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid #eeeeee;
+}
+
+.teacher-detail-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+}
+
+.teacher-doubt-student-info div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.teacher-doubt-student-info strong {
+  color: #111827;
+  font-size: 14px;
+}
+
+.teacher-doubt-student-info span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* ================= CONVERSATION ================= */
+
+.teacher-conversation-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.teacher-conversation-header svg {
+  color: #2563eb;
+}
+
+.teacher-conversation-header h2 {
+  margin: 0;
+  font-size: 19px;
+  color: #111827;
+}
+
+.teacher-conversation-header p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.teacher-conversation-messages {
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.no-replies {
+  text-align: center;
+  padding: 30px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* ================= MESSAGES ================= */
+
+.conversation-message {
+  max-width: 75%;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.student-message {
+  align-self: flex-start;
+  background: #f3f4f6;
+}
+
+.teacher-message {
+  align-self: flex-end;
+  background: #eff6ff;
+}
+
+.conversation-sender {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.conversation-message p {
+  margin: 0;
+  color: #1f2937;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.conversation-message span {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* ================= REPLY FORM ================= */
+
+.teacher-reply-form {
+  border-top: 1px solid #eeeeee;
+  padding-top: 20px;
+}
+
+.teacher-reply-form textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.teacher-reply-form textarea:focus {
+  border-color: #2563eb;
+}
+
+.teacher-reply-form button {
+  margin-top: 12px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: #011451;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.teacher-reply-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= RESOLVED ================= */
+
+.resolved-message {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .teacher-doubt-details-header,
+  .teacher-doubt-info-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .conversation-message {
+    max-width: 90%;
+  }
+
+  .teacher-doubt-main-card,
+  .teacher-conversation-card {
+    padding: 18px;
+  }
+}
+.message-attachment {
+  margin-top: 8px;
+  max-width: 100%;
+}
+
+.attachment-image {
+  display: block;
+  max-width: 280px;
+  max-height: 300px;
+  border-radius: 10px;
+  object-fit: contain;
+}
+
+.attachment-video {
+  display: block;
+  width: 100%;
+  max-width: 350px;
+  max-height: 300px;
+  border-radius: 10px;
+}
+
+.attachment-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  word-break: break-word;
+}
+/* ================= ORIGINAL ATTACHMENTS ================= */
+
+.original-doubt-attachments {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.original-doubt-attachments h3 {
+  margin: 0 0 14px;
+  font-size: 15px;
+  color: #111827;
+}
+
+.original-attachments-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.original-attachment-link {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 180px;
+  text-decoration: none;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.original-attachment-image {
+  width: 180px;
+  height: 130px;
+  object-fit: cover;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.original-attachment-image:hover {
+  transform: scale(1.03);
+}
+/* =========================================================
+   PREMIUM TEACHER CONVERSATION POLISH
+========================================================= */
+.teacher-doubt-details-page {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.teacher-doubt-main-card,
+.teacher-conversation-card {
+  box-shadow: 0 4px 18px rgba(1, 20, 81, 0.045);
+}
+
+.teacher-doubt-info-top h1 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.teacher-doubt-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.teacher-conversation-header > svg {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  padding: 11px;
+  border-radius: 12px;
+  background: #fff5d9;
+  color: #011451;
+  border: 1px solid rgba(246, 175, 29, 0.28);
+}
+
+.teacher-conversation-messages {
+  padding: 24px 0;
+  gap: 14px;
+  max-height: 620px;
+  overflow-y: auto;
+}
+
+.teacher-conversation-messages .conversation-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: fit-content;
+  max-width: min(78%, 720px);
+  padding: 14px 16px;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(1, 20, 81, 0.035);
+}
+
+.teacher-conversation-messages .conversation-message.student-message {
+  align-self: flex-start;
+  background: #f7f9fd;
+  border-color: #e6ebf4;
+  border-bottom-left-radius: 4px;
+}
+
+.teacher-conversation-messages .conversation-message.teacher-message {
+  align-self: flex-end;
+  background: #edf4ff;
+  border-color: #dbe8ff;
+  border-bottom-right-radius: 4px;
+}
+
+.teacher-conversation-messages .conversation-sender {
+  width: 100%;
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 750;
+  color: #011451;
+  overflow-wrap: anywhere;
+}
+
+.teacher-conversation-messages .conversation-message p {
+  width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.teacher-conversation-messages .conversation-message > span {
+  width: 100%;
+  margin-top: 9px;
+  text-align: right;
+  font-size: 10px;
+  color: #8995aa;
+}
+
+.teacher-conversation-messages .message-attachment {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.teacher-conversation-messages .attachment-image,
+.teacher-conversation-messages .attachment-video {
+  width: min(100%, 360px);
+  max-width: 100%;
+  max-height: 340px;
+  border-radius: 10px;
+  border: 1px solid rgba(1, 20, 81, 0.12);
+}
+
+.teacher-conversation-messages .attachment-file {
+  display: inline-flex;
+  max-width: 100%;
+  background: #ffffff;
+  border: 1px solid #dbe4ff;
+  color: #011451;
+  overflow-wrap: anywhere;
+}
+
+.teacher-reply-form {
+  padding-top: 22px;
+}
+
+.teacher-reply-form textarea {
+  min-height: 96px;
+  max-height: 240px;
+  background: #fbfcff;
+  border-color: #dce2ee;
+}
+
+.teacher-reply-form button {
+  min-height: 42px;
+  padding: 11px 18px;
+  border-radius: 10px;
+  box-shadow: 0 5px 12px rgba(1, 20, 81, 0.12);
+}
+
+.doubt-attachment {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  background: #f8faff;
+}
+
+.doubt-attachment input[type="file"] {
+  width: 100%;
+  max-width: 100%;
+  font-size: 12px;
+  color: #53617a;
+}
+
+.selected-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.selected-file span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #475569;
+  font-size: 12px;
+}
+
+.selected-file button {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 5px 8px;
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+@media (max-width: 768px) {
+  .teacher-conversation-messages .conversation-message {
+    max-width: 90%;
+    padding: 12px;
+  }
+
+  .teacher-conversation-messages .conversation-message p {
+    font-size: 13px;
+  }
+
+  .teacher-doubt-main-card,
+  .teacher-conversation-card {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 420px) {
+  .teacher-conversation-messages .conversation-message {
+    max-width: 97%;
+  }
+
+  .teacher-reply-form button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .selected-file {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

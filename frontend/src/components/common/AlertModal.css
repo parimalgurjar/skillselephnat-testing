@@ -1,0 +1,183 @@
+
+
+.se-alert-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 18, 48, 0.62);
+  backdrop-filter: blur(3px);
+  animation: se-alert-fade-in 0.2s ease;
+}
+
+.se-alert-modal {
+  position: relative;
+  width: min(100%, 420px);
+  padding: 36px 30px 30px;
+  border: 1px solid rgba(1, 20, 81, 0.08);
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 20px 70px rgba(1, 20, 81, 0.22);
+  text-align: center;
+  animation: se-alert-scale-in 0.22s ease;
+}
+
+.se-alert-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.se-alert-close:hover {
+  background: #f1f5f9;
+}
+
+.se-alert-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+}
+
+.se-alert-modal h2 {
+  margin: 0 0 10px;
+  color: #011451;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.se-alert-modal p {
+  margin: 0 auto 28px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.se-alert-button {
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.se-alert-button:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.se-alert-success .se-alert-icon {
+  background: #e7f6ec;
+  color: #219653;
+}
+
+.se-alert-success .se-alert-button {
+  background: #219653;
+}
+
+.se-alert-error .se-alert-icon {
+  background: #fdeaea;
+  color: #dc2626;
+}
+
+.se-alert-error .se-alert-button {
+  background: #dc2626;
+}
+
+.se-alert-warning .se-alert-icon {
+  background: #fff5d6;
+  color: #c58a00;
+}
+
+.se-alert-warning .se-alert-button {
+  background: #c58a00;
+}
+
+.se-alert-info .se-alert-icon {
+  background: #e8f1ff;
+  color: #2563eb;
+}
+
+.se-alert-info .se-alert-button {
+  background: #2563eb;
+}
+
+@keyframes se-alert-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes se-alert-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .se-alert-modal {
+    padding: 32px 22px 24px;
+    border-radius: 16px;
+  }
+
+  .se-alert-modal h2 {
+    font-size: 21px;
+  }
+
+  .se-alert-icon {
+    width: 68px;
+    height: 68px;
+  }
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}

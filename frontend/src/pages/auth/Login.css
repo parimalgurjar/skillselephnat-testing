@@ -1,0 +1,307 @@
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+}
+
+/* ================= LEFT SIDE ================= */
+
+.login-brand-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 55px 70px;
+  overflow: hidden;
+  background: #011451;
+  color: #ffffff;
+}
+
+.login-brand-section::before {
+  content: "";
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  top: -180px;
+  right: -150px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.login-brand-section::after {
+  content: "";
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  bottom: -180px;
+  left: -120px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.login-brand {
+  position: relative;
+  z-index: 1;
+}
+
+.login-logo {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.login-tagline {
+  margin-top: 8px;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.login-brand-content {
+  position: relative;
+  z-index: 1;
+  max-width: 470px;
+}
+
+.login-brand-content h1 {
+  margin: 0;
+  font-size: 42px;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+.login-brand-content p {
+  margin-top: 18px;
+  color: #cbd5e1;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ================= RIGHT SIDE ================= */
+
+.login-form-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: #ffffff;
+}
+
+.login-form-container {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-form-header {
+  margin-bottom: 32px;
+}
+
+.login-form-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.login-form-header p {
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* ================= FORM ================= */
+
+.login-form {
+  width: 100%;
+}
+
+.login-form-group {
+  margin-bottom: 20px;
+}
+
+.login-form-group label {
+  margin-bottom: 8px;
+  display: block;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.login-input-wrapper {
+  position: relative;
+}
+
+.login-input-wrapper svg {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.login-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 45px;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.login-input:focus {
+  border-color: #011451;
+  box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.1);
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.password-toggle svg {
+  position: static;
+  transform: none;
+}
+
+/* ================= BUTTON ================= */
+
+.login-button {
+  width: 100%;
+  height: 48px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 8px;
+  background: #011451;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.login-button:hover {
+  background: #021b70;
+}
+
+.login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ================= FOOTER ================= */
+
+.login-footer-text {
+  margin-top: 22px;
+  text-align: center;
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+
+  .login-brand-section {
+    min-height: 260px;
+    padding: 35px 40px;
+  }
+
+  .login-brand-content h1 {
+    font-size: 32px;
+  }
+
+  .login-brand-content {
+    margin-top: 40px;
+  }
+
+  .login-form-section {
+    padding: 50px 25px;
+  }
+}
+
+@media (max-width: 500px) {
+  .login-brand-section {
+    padding: 30px 22px;
+  }
+
+  .login-logo {
+    font-size: 25px;
+  }
+
+  .login-brand-content h1 {
+    font-size: 27px;
+  }
+
+  .login-form-header h2 {
+    font-size: 27px;
+  }
+
+  .login-form-section {
+    padding: 40px 20px;
+  }
+}
+/* ================= LOGIN BOTTOM SECTION ================= */
+
+.login-bottom-section {
+  margin-top: 22px;
+  text-align: center;
+}
+
+.login-help-text {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.login-signup-text {
+  margin-top: 12px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.login-signup-text a {
+  color: #011451;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.login-signup-text a:hover {
+  color: #f6af1d;
+  text-decoration: underline;
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}

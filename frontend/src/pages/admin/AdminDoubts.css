@@ -1,0 +1,343 @@
+.admin-doubts-page {
+  width: 100%;
+}
+
+/* HEADER */
+
+.admin-doubts-header {
+  margin-bottom: 28px;
+}
+
+.admin-page-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #c98a14;
+}
+
+.admin-doubts-header h1 {
+  margin: 8px 0 6px;
+  font-size: 32px;
+  color: #172554;
+}
+
+.admin-doubts-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+/* STATS */
+
+.admin-doubt-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.admin-doubt-stat-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-stat-icon.total {
+  background: #eef2ff;
+  color: #011451;
+}
+
+.admin-stat-icon.pending {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.admin-stat-icon.progress {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.admin-stat-icon.resolved {
+  background: #ecfdf5;
+  color: #16a34a;
+}
+
+.admin-doubt-stat-card span {
+  display: block;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.admin-doubt-stat-card strong {
+  font-size: 28px;
+  color: #172554;
+}
+
+/* MAIN CONTAINER */
+
+.admin-doubts-container {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.admin-doubts-toolbar {
+  padding: 22px 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-doubts-toolbar h2 {
+  margin: 0 0 5px;
+  font-size: 20px;
+  color: #172554;
+}
+
+.admin-doubts-toolbar p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* SEARCH */
+
+.admin-doubt-search {
+  width: 260px;
+  height: 44px;
+  border: 1px solid #dbe1ea;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  color: #94a3b8;
+}
+
+.admin-doubt-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+/* TABLE */
+
+.admin-doubts-table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-doubts-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1100px;
+}
+
+.admin-doubts-table th {
+  background: #f8fafc;
+  padding: 15px 20px;
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #64748b;
+}
+
+.admin-doubts-table td {
+  padding: 18px 20px;
+  border-top: 1px solid #eef2f7;
+  vertical-align: middle;
+}
+
+/* PERSON */
+
+.admin-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.student-avatar {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.teacher-avatar {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.admin-person strong {
+  display: block;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.admin-person span {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* DOUBT INFO */
+
+.admin-doubt-info {
+  max-width: 230px;
+}
+
+.admin-doubt-info strong {
+  display: block;
+  font-size: 14px;
+  color: #1e293b;
+  margin-bottom: 5px;
+}
+
+.admin-doubt-info span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* TOPIC */
+
+.admin-topic-badge {
+  display: inline-flex;
+  padding: 7px 11px;
+  border-radius: 20px;
+  background: #fff8e8;
+  color: #a16207;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* REPLY */
+
+.reply-count {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* STATUS */
+
+.admin-doubt-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.admin-doubt-status.pending {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.admin-doubt-status.progress {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.admin-doubt-status.resolved {
+  background: #ecfdf5;
+  color: #16a34a;
+}
+
+.not-assigned {
+  color: #ef4444;
+  font-size: 12px;
+}
+
+.doubt-date {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* EMPTY */
+
+.admin-no-doubts,
+.admin-doubts-loading {
+  padding: 70px 20px;
+  text-align: center;
+  color: #64748b;
+}
+
+.admin-no-doubts svg {
+  color: #94a3b8;
+}
+
+.admin-no-doubts h3 {
+  color: #334155;
+  margin: 14px 0 6px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+  .admin-doubt-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-doubt-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-doubts-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .admin-doubt-search {
+    width: 100%;
+  }
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}

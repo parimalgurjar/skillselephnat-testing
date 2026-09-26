@@ -1,0 +1,84 @@
+.se-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border-radius: 999px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Sizes */
+
+.se-badge-small {
+  min-height: 24px;
+  padding: 0 9px;
+  font-size: 11px;
+}
+
+.se-badge-medium {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.se-badge-large {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+/* Variants */
+
+.se-badge-default {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.se-badge-primary {
+  background: #e8ecf7;
+  color: #011451;
+}
+
+.se-badge-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.se-badge-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.se-badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.se-badge-info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.se-badge-gold {
+  background: #fef3c7;
+  color: #854d0e;
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}

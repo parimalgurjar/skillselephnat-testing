@@ -1,0 +1,630 @@
+.admin-batches-page {
+  width: 100%;
+}
+
+/* Header */
+
+.admin-batches-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.admin-batches-header h1 {
+  color: #00124f;
+  font-size: 30px;
+  margin: 8px 0;
+}
+
+.admin-batches-header p {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.add-batch-btn {
+  height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: #f6af1d;
+  color: #00124f;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* Stats */
+
+.batch-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.batch-stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 19px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.batch-stat-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.batch-stat-icon.navy {
+  background: #e8ebf5;
+  color: #00124f;
+}
+
+.batch-stat-icon.green {
+  background: #eaf8f0;
+  color: #16a34a;
+}
+
+.batch-stat-icon.yellow {
+  background: #fff4dc;
+  color: #d97706;
+}
+
+.batch-stat-card > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.batch-stat-card span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.batch-stat-card strong {
+  color: #00124f;
+  font-size: 24px;
+}
+
+.batch-stat-card small {
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+/* Section */
+
+.batches-section-header {
+  margin-bottom: 18px;
+}
+
+.batches-section-header h2 {
+  color: #00124f;
+  font-size: 19px;
+  margin: 0 0 5px;
+}
+
+.batches-section-header p {
+  color: #94a3b8;
+  font-size: 11px;
+  margin: 0;
+}
+
+/* Grid */
+
+.batches-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+/* Card */
+
+.admin-batch-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.batch-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.batch-title-section {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.batch-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #e8ebf5;
+  color: #00124f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.batch-title-section h3 {
+  color: #00124f;
+  font-size: 13px;
+  margin: 0 0 4px;
+}
+
+.batch-title-section span {
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+.batch-more-btn {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+/* Status */
+
+.batch-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.batch-status {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.batch-status.active {
+  background: #eaf8f0;
+  color: #16a34a;
+}
+
+.batch-status.upcoming {
+  background: #fff4dc;
+  color: #d97706;
+}
+
+.batch-start-date {
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+/* Info */
+
+.batch-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.batch-info-icon {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 8px;
+  background: #f5f6fa;
+  color: #00124f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.batch-info-row > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.batch-info-row span {
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+.batch-info-row strong {
+  color: #00124f;
+  font-size: 11px;
+}
+
+.batch-info-row small {
+  color: #64748b;
+  font-size: 9px;
+}
+
+/* Student Progress */
+
+.batch-student-info {
+  width: 100%;
+}
+
+.batch-student-count {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.batch-progress {
+  width: 100%;
+  height: 5px;
+  background: #eef0f3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.batch-progress div {
+  height: 100%;
+  background: #f6af1d;
+  border-radius: 10px;
+}
+
+/* Footer */
+
+.batch-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 17px;
+}
+
+.edit-batch-btn {
+  flex: 1;
+  height: 38px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #00124f;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.delete-batch-btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #fee2e2;
+  background: #fffafa;
+  color: #dc2626;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Modal */
+
+.batch-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 18, 79, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.batch-modal {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 16px;
+}
+
+.batch-modal-header {
+  padding: 22px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.batch-modal-header h2 {
+  color: #00124f;
+  font-size: 18px;
+  margin: 0 0 5px;
+}
+
+.batch-modal-header p {
+  color: #94a3b8;
+  font-size: 11px;
+  margin: 0;
+}
+
+.batch-modal-header button {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+/* Form */
+
+.batch-form {
+  padding: 22px;
+}
+
+.batch-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.batch-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.batch-form-group label {
+  color: #00124f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.batch-form-group input,
+.batch-form-group select {
+  height: 42px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0 12px;
+  outline: none;
+  font-size: 11px;
+  background: #ffffff;
+}
+
+/* Footer */
+
+.batch-modal-footer {
+  padding: 16px 22px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-batch-btn,
+.create-batch-btn {
+  height: 40px;
+  padding: 0 17px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-batch-btn {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #64748b;
+}
+
+.create-batch-btn {
+  border: none;
+  background: #00124f;
+  color: #ffffff;
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .batches-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .batch-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-batches-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .add-batch-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .batches-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}
+/* =========================================
+   Attendance Teachers Selector
+========================================= */
+
+.attendance-teachers-list {
+  width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid #e2e6ee;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+.attendance-teachers-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.attendance-teachers-list::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.attendance-teachers-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.attendance-teacher-item {
+  position: relative;
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  box-sizing: border-box;
+  border-radius: 7px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.attendance-teacher-item:hover {
+  background: #f7f8fc;
+}
+
+.attendance-teacher-item.selected {
+  background: #f8f5ee;
+  border-color: #ead8b7;
+}
+
+.attendance-teacher-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  max-width: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+
+  flex: 0 0 20px !important;
+  flex-shrink: 0 !important;
+
+  margin: 0;
+  padding: 0;
+
+  border: 1.5px solid #cbd5e1;
+  border-radius: 5px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.attendance-teacher-item input[type="checkbox"]:checked {
+  background: #00124f;
+  border-color: #00124f;
+}
+
+.attendance-teacher-item
+  input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -52%);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.attendance-teacher-item
+  input[type="checkbox"]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.attendance-teacher-name {
+  flex: 1;
+  min-width: 0;
+  color: #00124f;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.attendance-teacher-check {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #16a34a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.attendance-teachers-empty {
+  padding: 18px 12px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.attendance-teachers-count {
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 500;
+}

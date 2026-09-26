@@ -1,0 +1,501 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+:root {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+
+  color: #111827;
+  background: #f8fafc;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: #f8fafc;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Text selection */
+
+::selection {
+  background: #011451;
+  color: #ffffff;
+}
+
+/* Form focus */
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+/* Remove default number arrows */
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  appearance: textfield;
+}
+
+/* Utility */
+
+.hidden {
+  display: none !important;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+/* =========================================================
+   GLOBAL UI POLISH — Skillselephant
+   Shared tokens, focus states and responsive media defaults
+========================================================= */
+
+:root {
+  --se-navy: #011451;
+  --se-navy-soft: #14235f;
+  --se-gold: #f6af1d;
+  --se-bg: #f6f8fc;
+  --se-border: #e6eaf2;
+  --se-muted: #74809a;
+  --se-shadow-sm: 0 2px 8px rgba(1, 20, 81, 0.04);
+  --se-shadow-md: 0 10px 30px rgba(1, 20, 81, 0.07);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(246, 175, 29, 0.45);
+  outline-offset: 2px;
+}
+
+button:not(:disabled),
+a {
+  transition: background-color 180ms ease, border-color 180ms ease,
+    color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+/* Tablet */
+
+@media (max-width: 1100px) {
+  .student-page-content,
+  .teacher-content,
+  .admin-content {
+    padding: 24px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  .student-page-content,
+  .teacher-content,
+  .admin-content {
+    padding: 16px;
+  }
+}
+
+/* Small Mobile */
+
+@media (max-width: 420px) {
+  .student-page-content,
+  .teacher-content,
+  .admin-content {
+    padding: 12px;
+  }
+}
+/* =====================================================
+   PHASE 4 — RESPONSIVE FORMS, TABLES & MODALS
+===================================================== */
+
+/* ---------- GLOBAL RESPONSIVE ---------- */
+
+* {
+  box-sizing: border-box;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* ---------- FORMS ---------- */
+
+.announcement-form,
+.batch-form,
+.educator-form {
+  width: 100%;
+}
+
+.announcement-form-row,
+.batch-form-row,
+.educator-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.announcement-form-group,
+.batch-form-group,
+.educator-form-group {
+  min-width: 0;
+}
+
+.announcement-form-group input,
+.announcement-form-group select,
+.announcement-form-group textarea,
+.batch-form-group input,
+.batch-form-group select,
+.batch-form-group textarea,
+.educator-form-group input,
+.educator-form-group select,
+.educator-form-group textarea {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #dce4f1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #172554;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.announcement-form-group input:focus,
+.announcement-form-group select:focus,
+.announcement-form-group textarea:focus,
+.batch-form-group input:focus,
+.batch-form-group select:focus,
+.batch-form-group textarea:focus,
+.educator-form-group input:focus,
+.educator-form-group select:focus,
+.educator-form-group textarea:focus {
+  border-color: #4169e1;
+  box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.12);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* ---------- TABLE WRAPPERS ---------- */
+
+.attendance-table-wrapper,
+.admin-doubts-table-wrapper,
+.admin-educators-table-wrapper,
+.admin-students-table-wrapper,
+.task-table-wrapper,
+.table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+}
+
+.attendance-table-wrapper table,
+.admin-doubts-table-wrapper table,
+.admin-educators-table-wrapper table,
+.admin-students-table-wrapper table,
+.task-table-wrapper table,
+.table-wrapper table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+}
+
+table th {
+  white-space: nowrap;
+  background: #f3f6fc;
+  color: #172554;
+  font-weight: 700;
+}
+
+table td,
+table th {
+  padding: 13px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e8edf5;
+  vertical-align: middle;
+}
+
+table tbody tr {
+  transition: background 0.2s ease;
+}
+
+table tbody tr:hover {
+  background: #f8faff;
+}
+
+/* ---------- MODALS ---------- */
+
+.announcement-modal-overlay,
+.batch-modal-overlay,
+.educator-modal-overlay {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.announcement-modal,
+.batch-modal,
+.educator-modal {
+  width: min(100%, 650px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border: 1px solid #e1e8f4;
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(1, 20, 81, 0.2);
+}
+
+.announcement-modal-header,
+.batch-modal-header,
+.educator-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #ffffff;
+}
+
+.announcement-modal-footer,
+.batch-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ---------- FILTERS ---------- */
+
+.attendance-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.attendance-filters input,
+.attendance-filters select {
+  min-width: 150px;
+  max-width: 100%;
+}
+
+/* ---------- TABLET ---------- */
+
+@media (max-width: 900px) {
+  .announcement-form-row,
+  .batch-form-row,
+  .educator-form-row {
+    gap: 14px;
+  }
+
+  .announcement-modal,
+  .batch-modal,
+  .educator-modal {
+    border-radius: 16px;
+  }
+
+  table td,
+  table th {
+    padding: 11px 12px;
+  }
+}
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width: 600px) {
+  .announcement-form-row,
+  .batch-form-row,
+  .educator-form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .announcement-modal-overlay,
+  .batch-modal-overlay,
+  .educator-modal-overlay {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .announcement-modal,
+  .batch-modal,
+  .educator-modal {
+    width: 100%;
+    max-height: calc(100vh - 20px);
+    border-radius: 14px;
+  }
+
+  .announcement-modal-header,
+  .batch-modal-header,
+  .educator-modal-header {
+    padding: 14px;
+  }
+
+  .announcement-modal-footer,
+  .batch-modal-footer {
+    flex-direction: column;
+    width: 100%;
+    padding: 14px;
+  }
+
+  .announcement-modal-footer button,
+  .batch-modal-footer button {
+    width: 100%;
+  }
+
+  .attendance-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .attendance-filters input,
+  .attendance-filters select,
+  .attendance-filters button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .attendance-table-wrapper,
+  .admin-doubts-table-wrapper,
+  .admin-educators-table-wrapper,
+  .admin-students-table-wrapper,
+  .task-table-wrapper,
+  .table-wrapper {
+    border-radius: 10px;
+  }
+
+  table {
+    font-size: 13px;
+  }
+
+  table td,
+  table th {
+    padding: 10px;
+    white-space: nowrap;
+  }
+}
+
+/* ---------- EXTRA SMALL DEVICES ---------- */
+
+@media (max-width: 380px) {
+  .announcement-modal-overlay,
+  .batch-modal-overlay,
+  .educator-modal-overlay {
+    padding: 6px;
+  }
+
+  .announcement-modal,
+  .batch-modal,
+  .educator-modal {
+    border-radius: 12px;
+  }
+
+  button {
+    font-size: 13px;
+  }
+}

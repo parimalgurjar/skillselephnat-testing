@@ -1,0 +1,440 @@
+/* =====================================================
+   MAIN PAGE LAYOUT
+===================================================== */
+.teacher-task-submissions-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #1e293b;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+}
+
+/* =====================================================
+   BACK BUTTON & HEADER
+===================================================== */
+.teacher-task-submissions-page .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+}
+
+.teacher-task-submissions-page .back-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.task-submissions-header {
+  margin-bottom: 2rem;
+}
+
+.task-submissions-header span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #6366f1;
+  text-transform: uppercase;
+}
+
+.task-submissions-header h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0.25rem 0 0.5rem 0;
+}
+
+.task-submissions-header p {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* =====================================================
+   STATS CARDS
+===================================================== */
+.submission-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.submission-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #ffffff;
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.submission-stat-card svg {
+  padding: 0.6rem;
+  border-radius: 10px;
+  box-sizing: content-box;
+}
+
+/* Specific Stat Card Colors */
+.submission-stat-card:nth-child(1) svg {
+  color: #d97706;
+  background-color: #fef3c7;
+}
+
+.submission-stat-card:nth-child(2) svg {
+  color: #16a34a;
+  background-color: #dcfce7;
+}
+
+.submission-stat-card:nth-child(3) svg {
+  color: #dc2626;
+  background-color: #fee2e2;
+}
+
+.submission-stat-card div {
+  display: flex;
+  flex-direction: column;
+}
+
+.submission-stat-card span {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.submission-stat-card strong {
+  font-size: 1.5rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* =====================================================
+   SUBMISSIONS LIST & CARDS
+===================================================== */
+.submissions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.submissions-container h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.submission-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.25rem 1rem;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.submission-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Student Profile Info */
+.submission-student {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.student-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.submission-student h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.submission-student p {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0.15rem 0 0 0;
+}
+
+/* Status Badge */
+.submission-status {
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  justify-self: end;
+}
+
+.submission-status.pending {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.submission-status.approved {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.submission-status.rejected {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Details Row */
+.submission-details {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.submission-details > div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.submission-details svg {
+  color: #64748b;
+}
+
+/* Student & Teacher Remarks */
+.student-remarks,
+.teacher-feedback {
+  grid-column: 1 / -1;
+  background-color: #f1f5f9;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.student-remarks strong,
+.teacher-feedback strong {
+  display: block;
+  color: #334155;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.student-remarks p,
+.teacher-feedback p {
+  margin: 0;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.teacher-feedback {
+  background-color: #f0fdf4;
+  border-left: 4px solid #22c55e;
+}
+
+.teacher-feedback strong {
+  color: #15803d;
+}
+
+/* =====================================================
+   REVIEW FORM SECTION
+===================================================== */
+.review-section {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.review-section textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: #0f172a;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.review-section textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.review-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.review-actions button {
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.review-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.reject-btn {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.reject-btn:hover:not(:disabled) {
+  background-color: #fca5a5;
+  color: #991b1b;
+}
+
+.approve-btn {
+  background-color: #16a34a;
+  color: #ffffff;
+}
+
+.approve-btn:hover:not(:disabled) {
+  background-color: #15803d;
+}
+
+/* =====================================================
+   EMPTY & LOADING STATES
+===================================================== */
+.task-submissions-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1rem;
+  color: #64748b;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: #6366f1;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.no-submissions {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background-color: #ffffff;
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
+  color: #64748b;
+}
+
+.no-submissions svg {
+  color: #94a3b8;
+  margin-bottom: 0.75rem;
+}
+
+.no-submissions h3 {
+  font-size: 1.1rem;
+  color: #334155;
+  margin: 0 0 0.25rem 0;
+}
+
+.no-submissions p {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN
+===================================================== */
+@media (max-width: 640px) {
+  .teacher-task-submissions-page {
+    padding: 1rem;
+  }
+
+  .submission-card {
+    grid-template-columns: 1fr;
+  }
+
+  .submission-status {
+    justify-self: start;
+  }
+
+  .review-actions {
+    flex-direction: column-reverse;
+  }
+
+  .review-actions button {
+    width: 100%;
+  }
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}

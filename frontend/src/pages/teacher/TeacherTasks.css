@@ -1,0 +1,769 @@
+.teacher-tasks-page {
+  width: 100%;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.teacher-tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.teacher-tasks-header h1 {
+  color: #00124f;
+  font-size: 30px;
+  margin: 8px 0;
+}
+
+.teacher-tasks-header p {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+.create-task-btn {
+  height: 44px;
+  background: #f6af1d;
+  color: #00124f;
+  border: none;
+  padding: 0 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* =====================================================
+   STATS
+===================================================== */
+
+.task-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.task-stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.task-stat-icon {
+  width: 43px;
+  height: 43px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.task-stat-icon.blue {
+  background: #e8ebf5;
+  color: #00124f;
+}
+
+.task-stat-icon.yellow {
+  background: #fff4dc;
+  color: #d99000;
+}
+
+.task-stat-icon.green {
+  background: #eaf8f0;
+  color: #16a34a;
+}
+
+.task-stat-icon.purple {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.task-stat-card div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-stat-card span {
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.task-stat-card strong {
+  color: #00124f;
+  font-size: 23px;
+}
+
+/* =====================================================
+   TASK LIST
+===================================================== */
+
+.teacher-task-list-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.task-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.task-list-header h2 {
+  color: #00124f;
+  font-size: 18px;
+  margin: 0 0 5px;
+}
+
+.task-list-header p {
+  color: #94a3b8;
+  font-size: 11px;
+  margin: 0;
+}
+
+.task-search-box {
+  width: 230px;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: #94a3b8;
+}
+
+.task-search-box input {
+  width: 100%;
+  border: none;
+  outline: none;
+  color: #00124f;
+  font-size: 12px;
+}
+
+.task-state {
+  padding: 50px 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* =====================================================
+   TASK GRID
+===================================================== */
+
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.teacher-task-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 13px;
+  padding: 18px;
+  transition: 0.2s ease;
+}
+
+.teacher-task-card:hover {
+  box-shadow:
+    0 8px 25px
+    rgba(0, 18, 79, 0.08);
+}
+
+.task-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #e8ebf5;
+  color: #00124f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.task-card-menu {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.task-card-menu button {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.task-status {
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.task-active {
+  background: #fff4dc;
+  color: #d99000;
+}
+
+.task-completed {
+  background: #eaf8f0;
+  color: #16a34a;
+}
+
+.task-overdue {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.task-draft {
+  background: #e5e7eb;
+  color: #64748b;
+}
+
+.teacher-task-card h3 {
+  color: #00124f;
+  font-size: 15px;
+  margin: 18px 0 8px;
+}
+
+.task-description {
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.6;
+  min-height: 35px;
+}
+
+/* =====================================================
+   CHECKLIST COUNT
+===================================================== */
+
+.task-checklist-count {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* =====================================================
+   DETAILS
+===================================================== */
+
+.task-details {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.task-details div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #64748b;
+  font-size: 10px;
+}
+
+/* =====================================================
+   PROGRESS
+===================================================== */
+
+.task-progress-section {
+  border-top: 1px solid #f1f3f5;
+  padding-top: 14px;
+}
+
+.task-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 7px;
+}
+
+.task-progress-header strong {
+  color: #00124f;
+}
+
+.task-progress-bar {
+  height: 6px;
+  background: #eef0f3;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.task-progress-fill {
+  height: 100%;
+  background: #f6af1d;
+  border-radius: 20px;
+  transition: width 0.3s ease;
+}
+
+.task-progress-percent {
+  display: block;
+  margin-top: 7px;
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+/* =====================================================
+   BUTTON
+===================================================== */
+
+.view-task-btn {
+  width: 100%;
+  height: 38px;
+  margin-top: 17px;
+  border: 1px solid #00124f;
+  background: #ffffff;
+  color: #00124f;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.view-task-btn:hover {
+  background: #00124f;
+  color: #ffffff;
+}
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.task-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    rgba(0, 18, 79, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+
+.task-modal {
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 16px;
+}
+
+.task-modal-header {
+  padding: 22px;
+  border-bottom:
+    1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+}
+
+.task-modal-header h2 {
+  color: #00124f;
+  font-size: 18px;
+  margin: 0 0 5px;
+}
+
+.task-modal-header p {
+  color: #94a3b8;
+  font-size: 11px;
+  margin: 0;
+}
+
+.task-modal-header button {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.task-form {
+  padding: 22px;
+}
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.task-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.task-form-group label {
+  color: #00124f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.task-form-group input,
+.task-form-group textarea,
+.task-form-group select {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  outline: none;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.task-form-group input:focus,
+.task-form-group textarea:focus,
+.task-form-group select:focus {
+  border-color: #00124f;
+}
+
+.task-form-group textarea {
+  resize: vertical;
+}
+
+.task-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.batch-warning {
+  font-size: 11px;
+  color: #b45309;
+  margin: 0;
+}
+
+/* =====================================================
+   CHECKLIST SECTION
+===================================================== */
+
+.checklist-section {
+  margin-top: 22px;
+  border-top:
+    1px solid #e5e7eb;
+  padding-top: 20px;
+}
+
+.checklist-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.checklist-header h3 {
+  color: #00124f;
+  font-size: 14px;
+  margin: 0 0 4px;
+}
+
+.checklist-header p {
+  color: #94a3b8;
+  font-size: 10px;
+  margin: 0;
+}
+
+.checklist-header > span {
+  background: #e8ebf5;
+  color: #00124f;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fafafa;
+}
+
+.checklist-number {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #00124f;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+.checklist-inputs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.checklist-inputs input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 9px 10px;
+  outline: none;
+  font-size: 11px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.checklist-inputs input:focus {
+  border-color: #00124f;
+}
+
+.remove-checklist-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 7px;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.remove-checklist-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.add-checklist-btn {
+  margin-top: 12px;
+  width: 100%;
+  height: 40px;
+  border: 1px dashed #00124f;
+  background: #f8f9ff;
+  color: #00124f;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* =====================================================
+   MODAL FOOTER
+===================================================== */
+
+.task-modal-footer {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top:
+    1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-task-btn,
+.submit-task-btn {
+  height: 39px;
+  padding: 0 16px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-task-btn {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #64748b;
+}
+
+.submit-task-btn {
+  border: none;
+  background: #00124f;
+  color: #ffffff;
+}
+
+.submit-task-btn:disabled,
+.cancel-task-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1100px) {
+  .task-stats-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .tasks-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .teacher-tasks-header,
+  .task-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .task-search-box {
+    width: 100%;
+  }
+
+  .tasks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .task-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .create-task-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .task-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .task-modal-overlay {
+    padding: 10px;
+  }
+
+  .task-form,
+  .task-modal-header {
+    padding: 16px;
+  }
+}
+/* FIX: Task modal input interaction */
+
+.task-modal-overlay {
+  z-index: 999;
+}
+
+.task-modal {
+  position: relative;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.task-form,
+.task-form input,
+.task-form textarea,
+.task-form select,
+.checklist-inputs,
+.checklist-inputs input {
+  pointer-events: auto;
+}
+
+.checklist-inputs input {
+  position: relative;
+  z-index: 2;
+  cursor: text;
+  user-select: text;
+}
+.task-modal-overlay {
+  pointer-events: auto;
+}
+
+.task-modal {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.task-modal input,
+.task-modal textarea,
+.task-modal select {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+/* FIX: Prevent MyWork checklist CSS from affecting Teacher Tasks */
+
+.teacher-tasks-page .checklist-item input {
+  position: static !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  user-select: text !important;
+  cursor: text !important;
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 12px;
+  outline: none;
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}

@@ -1,0 +1,82 @@
+.skillselephant-logo {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.skillselephant-logo-image {
+  display: block;
+  width: 170px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* Small */
+.skillselephant-logo-small .skillselephant-logo-image {
+  width: 135px;
+}
+
+/* Medium */
+.skillselephant-logo-medium .skillselephant-logo-image {
+  width: 170px;
+}
+
+/* Large */
+.skillselephant-logo-large .skillselephant-logo-image {
+  width: 220px;
+}
+
+/*
+   The actual logo image already contains:
+   - Skillselephant mark
+   - Skillselephant name
+   - Digital Marketing tagline
+
+   So hidden text is only for accessibility and
+   must not affect the visual layout.
+*/
+
+.skillselephant-logo-hidden-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Hover */
+.skillselephant-logo {
+  transition: transform 0.2s ease;
+}
+
+.skillselephant-logo:hover {
+  transform: translateY(-1px);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .skillselephant-logo-medium .skillselephant-logo-image {
+    width: 150px;
+  }
+
+  .skillselephant-logo-large .skillselephant-logo-image {
+    width: 190px;
+  }
+}
+
+@media (max-width: 480px) {
+  .skillselephant-logo-medium .skillselephant-logo-image {
+    width: 135px;
+  }
+
+  .skillselephant-logo-large .skillselephant-logo-image {
+    width: 170px;
+  }
+}

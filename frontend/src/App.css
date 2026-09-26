@@ -1,0 +1,81 @@
+/* =========================================================
+   Skillselephant Student Portal
+   Global App Styles
+   ========================================================= */
+
+.app {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* =========================================================
+   Loading Screen
+   ========================================================= */
+
+.loading-screen {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #011451;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   Page Container
+   ========================================================= */
+
+.page-container {
+  min-height: 100vh;
+  width: 100%;
+  padding: 24px;
+}
+
+/* =========================================================
+   Common Card
+   ========================================================= */
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+}

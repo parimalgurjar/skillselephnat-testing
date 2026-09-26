@@ -1,0 +1,309 @@
+.teacher-doubts-page {
+  width: 100%;
+}
+
+/* ================= HEADER ================= */
+
+.teacher-doubts-header {
+  margin-bottom: 28px;
+}
+
+.teacher-doubts-header h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  color: #111827;
+}
+
+.teacher-doubts-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ================= STATS ================= */
+
+.teacher-doubt-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.teacher-doubt-stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+
+.teacher-doubt-stat-card span {
+  display: block;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.teacher-doubt-stat-card strong {
+  font-size: 28px;
+  color: #111827;
+}
+
+.teacher-doubt-stat-card.pending {
+  border-left: 4px solid #f59e0b;
+}
+
+.teacher-doubt-stat-card.progress {
+  border-left: 4px solid #2563eb;
+}
+
+.teacher-doubt-stat-card.resolved {
+  border-left: 4px solid #10b981;
+}
+
+/* ================= LOADING / EMPTY ================= */
+
+.teacher-doubts-loading,
+.teacher-no-doubts {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #6b7280;
+}
+
+.teacher-no-doubts svg {
+  color: #011451;
+  margin-bottom: 14px;
+}
+
+.teacher-no-doubts h3 {
+  margin: 0 0 8px;
+  color: #111827;
+}
+
+.teacher-no-doubts p {
+  max-width: 450px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ================= DOUBTS GRID ================= */
+
+.teacher-doubts-list {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(330px, 1fr)
+  );
+  gap: 20px;
+}
+
+/* ================= DOUBT CARD ================= */
+
+.teacher-doubt-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  transition: 0.2s ease;
+}
+
+.teacher-doubt-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+}
+
+.teacher-doubt-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* ================= TOPIC ================= */
+
+.teacher-doubt-topic {
+  background: #eef2ff;
+  color: #011451;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ================= STATUS ================= */
+
+.teacher-doubt-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.teacher-doubt-status.pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.teacher-doubt-status.progress {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.teacher-doubt-status.resolved {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+/* ================= CONTENT ================= */
+
+.teacher-doubt-card h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+  color: #111827;
+}
+
+.teacher-doubt-card > p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ================= STUDENT ================= */
+
+.teacher-doubt-student {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.teacher-student-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #011451;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.teacher-doubt-student div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.teacher-doubt-student strong {
+  font-size: 13px;
+  color: #111827;
+}
+
+.teacher-doubt-student span {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* ================= FOOTER ================= */
+
+.teacher-doubt-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-top: 20px;
+  padding-top: 15px;
+
+  border-top: 1px solid #f1f1f1;
+}
+
+.teacher-doubt-footer > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.teacher-doubt-footer > div svg {
+  color: #011451;
+}
+
+.teacher-doubt-footer button {
+  border: none;
+  background: transparent;
+
+  color: #011451;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.teacher-doubt-footer button:hover {
+  text-decoration: underline;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1100px) {
+  .teacher-doubt-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .teacher-doubt-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-doubts-list {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-doubt-card-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}

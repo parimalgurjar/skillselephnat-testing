@@ -1,0 +1,118 @@
+.se-select-group {
+  width: 100%;
+}
+
+.se-select-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.se-select-required {
+  margin-left: 3px;
+  color: #dc2626;
+}
+
+.se-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.se-select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 38px 0 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(
+      45deg,
+      transparent 50%,
+      #64748b 50%
+    ),
+    linear-gradient(
+      135deg,
+      #64748b 50%,
+      transparent 50%
+    );
+  background-position:
+    calc(100% - 18px) 18px,
+    calc(100% - 13px) 18px;
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.se-select:hover:not(:disabled) {
+  border-color: #94a3b8;
+}
+
+.se-select:focus {
+  border-color: #011451;
+  box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.08);
+}
+
+.se-select:disabled {
+  cursor: not-allowed;
+  background-color: #f8fafc;
+  color: #94a3b8;
+}
+
+.se-select-wrapper-error .se-select {
+  border-color: #dc2626;
+}
+
+.se-select-wrapper-error .se-select:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+.se-select-error {
+  margin: 6px 0 0;
+  color: #dc2626;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.se-select-hint {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .se-select {
+    min-height: 42px;
+  }
+}
+/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
+:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
+:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
+:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
+:where(.form-group, .field-group, .input-group) { min-width: 0; }
+:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
+@media (max-width: 768px) {
+  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
+  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
+  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
+}
+@media (max-width: 480px) {
+  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
+  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
+  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
+}
