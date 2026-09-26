@@ -14,6 +14,9 @@ import {
   LogOut,
   CircleHelp,
   ClipboardCheck,
+  BookOpen,
+  GraduationCap,
+  UsersRound,
   Menu,
   X,
 } from "lucide-react";
@@ -50,17 +53,17 @@ const AdminLayout = () => {
     {
       path: "/admin/specializations",
       name: "Specializations",
-      icon: Layers,
+      icon: GraduationCap,
     },
     {
       path: "/admin/course-modules",
       name: "Course Modules",
-      icon: Layers,
+      icon: BookOpen,
     },
     {
       name: "Batches",
       path: "/admin/batches",
-      icon: Layers3,
+      icon: UsersRound,
     },
     {
       name: "Attendance",
