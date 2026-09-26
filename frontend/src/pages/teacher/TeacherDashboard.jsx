@@ -18,6 +18,23 @@ import { useAuth } from "../../context/AuthContext";
 import "./TeacherDashboard.css";
 
 const TeacherDashboard = () => {
+  const getGreeting = () => {
+  const hour = new Date().getHours();
+
+  if (hour >= 5 && hour < 12) {
+    return "Good Morning";
+  }
+
+  if (hour >= 12 && hour < 17) {
+    return "Good Afternoon";
+  }
+
+  if (hour >= 17 && hour < 21) {
+    return "Good Evening";
+  }
+
+  return "Good Night";
+};
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -134,8 +151,7 @@ const TeacherDashboard = () => {
           </span>
 
           <h1>
-            Good Morning,{" "}
-            {user?.name || "Teacher"}! 👋
+            {getGreeting()}, {user?.name || "Teacher"}! 👋
           </h1>
 
           <p>
