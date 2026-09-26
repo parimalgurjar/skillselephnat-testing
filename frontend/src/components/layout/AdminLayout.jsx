@@ -1,4 +1,5 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -11,9 +12,10 @@ import {
   Layers,
   User,
   LogOut,
-
   CircleHelp,
-  ClipboardCheck
+  ClipboardCheck,
+  Menu,
+  X,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import "./AdminLayout.css";
@@ -21,6 +23,7 @@ import "./AdminLayout.css";
 const AdminLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -44,17 +47,16 @@ const AdminLayout = () => {
       path: "/admin/educators",
       icon: UserRoundCog,
     },
- 
     {
-  path: "/admin/specializations",
-  name: "Specializations",
-  icon: Layers,
-},
-   {
-  path: "/admin/course-modules",
-  name: "Course Modules",
-  icon: Layers,
-},
+      path: "/admin/specializations",
+      name: "Specializations",
+      icon: Layers,
+    },
+    {
+      path: "/admin/course-modules",
+      name: "Course Modules",
+      icon: Layers,
+    },
     {
       name: "Batches",
       path: "/admin/batches",
@@ -71,15 +73,15 @@ const AdminLayout = () => {
       icon: ClipboardList,
     },
     {
-  name: "Task Report",
-  path: "/admin/task-report",
-  icon: ClipboardCheck,
-},
+      name: "Task Report",
+      path: "/admin/task-report",
+      icon: ClipboardCheck,
+    },
     {
-  name: "Student Doubts",
-  path: "/admin/doubts",
-  icon: CircleHelp,
-},
+      name: "Student Doubts",
+      path: "/admin/doubts",
+      icon: CircleHelp,
+    },
     {
       name: "Announcements",
       path: "/admin/announcements",
@@ -104,23 +106,19 @@ const AdminLayout = () => {
     <div className="admin-layout">
       {/* ================= SIDEBAR ================= */}
 
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar ${mobileMenuOpen ? "mobile-open" : ""}`}>
         <div className="admin-logo">
-  <img
-    src="/logo/skillselephant-logo-white.png"
-    alt="Skillselephant"
-    className="admin-logo-image"
-  />
+          <img
+            src="/logo/skillselephant-logo-white.png"
+            alt="Skillselephant"
+            className="admin-logo-image"
+          />
 
-  <div className="admin-logo-portal">
-    Admin Portal
-  </div>
-</div>
+          <div className="admin-logo-portal">Admin Portal</div>
+        </div>
 
         <nav className="admin-nav">
-          <span className="admin-nav-label">
-            MANAGEMENT
-          </span>
+          <span className="admin-nav-label">MANAGEMENT</span>
 
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -130,10 +128,9 @@ const AdminLayout = () => {
                 key={item.name}
                 to={item.path}
                 end={item.end}
+                onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  `admin-nav-item ${
-                    isActive ? "active" : ""
-                  }`
+                  `admin-nav-item ${isActive ? "active" : ""}`
                 }
               >
                 <Icon size={19} />
@@ -160,13 +157,37 @@ const AdminLayout = () => {
         </div>
       </aside>
 
+      {/* Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <button
+          type="button"
+          className="admin-mobile-overlay"
+          aria-label="Close navigation"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* ================= MAIN AREA ================= */}
 
       <main className="admin-main">
         <header className="admin-topbar">
-          <div>
-            <span>ADMINISTRATION PORTAL</span>
-            <h3>Welcome back, {adminName}</h3>
+          <div className="admin-topbar-left">
+            <button
+              type="button"
+              className="admin-mobile-menu-btn"
+              aria-label={
+                mobileMenuOpen ? "Close navigation" : "Open navigation"
+              }
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+            >
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+
+            <div>
+              <span>ADMINISTRATION PORTAL</span>
+              <h3>Welcome back, {adminName}</h3>
+            </div>
           </div>
 
           <div className="admin-profile-top">
@@ -175,9 +196,7 @@ const AdminLayout = () => {
               <span>ADMIN</span>
             </div>
 
-            <div className="admin-avatar">
-              {initial}
-            </div>
+            <div className="admin-avatar">{initial}</div>
           </div>
         </header>
 

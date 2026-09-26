@@ -1,4 +1,5 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import {
   LayoutDashboard,
@@ -10,6 +11,8 @@ import {
   User,
   ClipboardCheck,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -18,6 +21,7 @@ import "./TeacherLayout.css";
 const TeacherLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -75,23 +79,23 @@ const TeacherLayout = () => {
     <div className="teacher-layout">
       {/* ================= SIDEBAR ================= */}
 
-      <aside className="teacher-sidebar">
-       <div className="teacher-logo">
-  <img
-    src="/logo/skillselephant-logo-white.png"
-    alt="Skillselephant"
-    className="teacher-logo-image"
-  />
+      <aside
+        className={`teacher-sidebar ${
+          mobileMenuOpen ? "mobile-open" : ""
+        }`}
+      >
+        <div className="teacher-logo">
+          <img
+            src="/logo/skillselephant-logo-white.png"
+            alt="Skillselephant"
+            className="teacher-logo-image"
+          />
 
-  <div className="teacher-logo-portal">
-    Teacher Portal
-  </div>
-</div>
+          <div className="teacher-logo-portal">Teacher Portal</div>
+        </div>
 
         <nav className="teacher-nav">
-          <span className="teacher-nav-label">
-            MAIN MENU
-          </span>
+          <span className="teacher-nav-label">MAIN MENU</span>
 
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -101,10 +105,9 @@ const TeacherLayout = () => {
                 key={item.name}
                 to={item.path}
                 end={item.end}
+                onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  `teacher-nav-item ${
-                    isActive ? "active" : ""
-                  }`
+                  `teacher-nav-item ${isActive ? "active" : ""}`
                 }
               >
                 <Icon size={19} />
@@ -126,13 +129,37 @@ const TeacherLayout = () => {
         </div>
       </aside>
 
+      {/* Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <button
+          type="button"
+          className="teacher-mobile-overlay"
+          aria-label="Close navigation"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* ================= MAIN AREA ================= */}
 
       <main className="teacher-main">
         <header className="teacher-topbar">
-          <div>
-            <span>WELCOME BACK</span>
-            <h3>Educator Dashboard</h3>
+          <div className="teacher-topbar-left">
+            <button
+              type="button"
+              className="teacher-mobile-menu-btn"
+              aria-label={
+                mobileMenuOpen ? "Close navigation" : "Open navigation"
+              }
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+            >
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+
+            <div>
+              <span>WELCOME BACK</span>
+              <h3>Educator Dashboard</h3>
+            </div>
           </div>
 
           <div className="teacher-profile-top">
@@ -141,9 +168,7 @@ const TeacherLayout = () => {
               <span>EDUCATOR</span>
             </div>
 
-            <div className="teacher-avatar">
-              {initial}
-            </div>
+            <div className="teacher-avatar">{initial}</div>
           </div>
         </header>
 

@@ -19,34 +19,53 @@
   z-index: 100;
 }
 
+/* =====================================================
+   REAL SKILLSELEPHANT LOGO
+===================================================== */
+
 .admin-logo {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 25px 22px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 150px;
+  padding: 22px 20px;
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.admin-logo-icon {
-  display: flex;
-  width: 42px;
-  height: 42px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: #f6af1d;
-  color: #011451;
+.admin-logo-image {
+  display: block;
+
+  width: 190px;
+  max-width: 100%;
+  height: auto;
+
+  object-fit: contain;
 }
 
-.admin-logo h2 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-}
+/* Portal label below the logo */
 
-.admin-logo span {
-  color: rgba(255, 255, 255, 0.55);
+.admin-logo-portal {
+  color: rgba(255, 255, 255, 0.58);
+
   font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 0.8px;
+}
+
+/* Remove old logo styles */
+
+.admin-logo-icon {
+  display: none;
+}
+
+.admin-logo h2,
+.admin-logo span {
+  display: none;
 }
 
 /* ================= NAVIGATION ================= */
@@ -192,163 +211,63 @@
   padding: 28px;
 }
 
-/* ================= RESPONSIVE ================= */
+/* =====================================================
+   RESPONSIVE LAYOUT
+===================================================== */
 
-@media (max-width: 900px) {
-  .admin-sidebar {
-    width: 220px;
-  }
-
-  .admin-main {
-    width: calc(100% - 220px);
-    margin-left: 220px;
-  }
-}
-
-@media (max-width: 700px) {
-  .admin-sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-  }
-
-  .admin-layout {
-    flex-direction: column;
-  }
-
-  .admin-main {
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .admin-nav {
-    display: none;
-  }
-
-  .admin-topbar {
-    padding: 0 18px;
-  }
-
-  .admin-content {
-    padding: 18px;
-  }
-}
-/* Responsive polish */
 .admin-topbar {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 40;
 }
 
-@media (max-width: 700px) {
+.admin-topbar-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 12px;
+}
+
+.admin-mobile-menu-btn {
+  display: none;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #011451;
+  cursor: pointer;
+}
+
+.admin-mobile-overlay {
+  display: none;
+}
+
+/* ---------- TABLET ---------- */
+@media (max-width: 1100px) {
   .admin-sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    min-height: auto;
-  }
-
-  .admin-layout {
-    display: block;
-  }
-
-  .admin-logo {
-    padding: 14px 18px;
-  }
-
-  .admin-nav {
-    flex-direction: row;
-    gap: 6px;
-    padding: 10px 12px;
-    overflow-x: auto;
-  }
-
-  .admin-nav-label {
-    display: none;
-  }
-
-  .admin-nav-item {
-    flex: 0 0 auto;
-    padding: 10px 12px;
-    white-space: nowrap;
-    font-size: 12px;
-  }
-
-  .admin-sidebar-bottom {
-    display: none;
+    width: 240px;
   }
 
   .admin-main {
-    width: 100%;
-    margin-left: 0;
+    width: calc(100% - 240px);
+    margin-left: 240px;
   }
 
-  .admin-topbar {
-    height: 68px;
-    padding: 0 14px;
+  .admin-content {
+    padding: 24px;
   }
-}
-/* =====================================================
-   REAL SKILLSELEPHANT LOGO
-===================================================== */
 
-.admin-logo {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 10px;
-
-  min-height: 150px;
-  padding: 22px 20px;
-
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.admin-logo-image {
-  display: block;
-
-  width: 190px;
-  max-width: 100%;
-  height: auto;
-
-  object-fit: contain;
-}
-
-/* Portal label below the logo */
-
-.admin-logo-portal {
-  color: rgba(255, 255, 255, 0.58);
-
-  font-size: 11px;
-  font-weight: 600;
-
-  letter-spacing: 0.8px;
-}
-
-/* Remove old logo styles */
-
-.admin-logo-icon {
-  display: none;
-}
-
-.admin-logo h2,
-.admin-logo span {
-  display: none;
-}
-
-/* =====================================================
-   TABLET
-===================================================== */
-
-@media (max-width: 900px) {
   .admin-logo {
     min-height: 135px;
     padding: 18px 16px;
   }
 
   .admin-logo-image {
-    width: 165px;
+    width: 175px;
   }
 
   .admin-logo-portal {
@@ -356,27 +275,176 @@
   }
 }
 
-/* =====================================================
-   MOBILE
-===================================================== */
+/* ---------- MOBILE ---------- */
+@media (max-width: 768px) {
+  .admin-layout {
+    display: block;
+    min-height: 100dvh;
+  }
 
-@media (max-width: 700px) {
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: min(86vw, 300px);
+    height: 100dvh;
+    min-height: 100dvh;
+
+    padding: 0;
+
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+
+    overflow: hidden;
+    z-index: 1000;
+  }
+
+  .admin-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
   .admin-logo {
-    min-height: auto;
-
-    flex-direction: row;
-    align-items: center;
-
-    gap: 12px;
-
-    padding: 14px 18px;
+    min-height: 110px;
+    padding: 18px;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .admin-logo-image {
-    width: 145px;
+    width: min(190px, 100%);
   }
 
   .admin-logo-portal {
     font-size: 10px;
+  }
+
+  .admin-nav {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+
+    padding: 16px 12px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .admin-nav-label {
+    display: block;
+  }
+
+  .admin-nav-item {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 12px 14px;
+    white-space: normal;
+  }
+
+  .admin-sidebar-bottom {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .admin-main {
+    width: 100%;
+    margin-left: 0;
+    min-width: 0;
+  }
+
+  .admin-topbar {
+    width: 100%;
+    height: 68px;
+    min-height: 68px;
+    padding: 0 14px;
+    gap: 10px;
+  }
+
+  .admin-mobile-menu-btn {
+    display: flex;
+  }
+
+  .admin-topbar-left > div {
+    min-width: 0;
+  }
+
+  .admin-topbar > .admin-topbar-left span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
+  }
+
+  .admin-topbar h3 {
+    max-width: 100%;
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+
+  .admin-profile-top {
+    flex-shrink: 0;
+  }
+
+  .admin-info {
+    display: none;
+  }
+
+  .admin-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+
+  .admin-content {
+    width: 100%;
+    min-width: 0;
+    padding: 16px;
+    overflow-x: hidden;
+  }
+
+  .admin-mobile-overlay {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 0;
+    border: 0;
+
+    background: rgba(1, 20, 81, 0.45);
+
+    z-index: 900;
+  }
+}
+
+/* ---------- SMALL PHONES ---------- */
+@media (max-width: 420px) {
+  .admin-topbar {
+    padding: 0 10px;
+  }
+
+  .admin-mobile-menu-btn {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  .admin-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .admin-content {
+    padding: 12px;
   }
 }

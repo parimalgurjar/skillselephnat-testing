@@ -19,34 +19,52 @@
   bottom: 0;
 }
 
+/* =====================================================
+   REAL SKILLSELEPHANT LOGO
+===================================================== */
+
 .teacher-logo {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
   gap: 10px;
-  padding: 8px 10px 28px;
+
+  min-height: 150px;
+  padding: 22px 20px;
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.teacher-logo-image {
+  display: block;
+
+  width: 190px;
+  max-width: 100%;
+  height: auto;
+
+  object-fit: contain;
+}
+
+.teacher-logo-portal {
+  color: rgba(255, 255, 255, 0.58);
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 0.8px;
+}
+
+/* Old logo elements */
+
 .teacher-logo-icon {
-  width: 42px;
-  height: 42px;
-  background: #f6af1d;
-  color: #00124f;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: none;
 }
 
-.teacher-logo h2 {
-  color: #ffffff;
-  font-size: 16px;
-  margin: 0;
-}
-
+.teacher-logo h2,
 .teacher-logo span {
-  color: #f6af1d;
-  font-size: 10px;
+  display: none;
 }
 
 /* Navigation */
@@ -191,198 +209,226 @@
   padding: 30px;
 }
 
-/* Responsive */
+/* =====================================================
+   RESPONSIVE LAYOUT
+===================================================== */
 
-@media (max-width: 850px) {
-  .teacher-sidebar {
-    width: 80px;
-    padding: 20px 10px;
-  }
-
-  .teacher-logo {
-    justify-content: center;
-  }
-
-  .teacher-logo > div:last-child,
-  .teacher-nav-label,
-  .teacher-nav-item span,
-  .teacher-logout-btn {
-    font-size: 0;
-  }
-
-  .teacher-nav-item {
-    justify-content: center;
-    padding: 0;
-  }
-
-  .teacher-main {
-    margin-left: 80px;
-    width: calc(100% - 80px);
-  }
-}
-
-@media (max-width: 600px) {
-  .teacher-topbar {
-    padding: 0 18px;
-  }
-
-  .teacher-content {
-    padding: 20px 15px;
-  }
-
-  .teacher-info {
-    display: none;
-  }
-}
-/* Responsive polish */
 .teacher-topbar {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 40;
 }
 
-@media (max-width: 600px) {
+.teacher-topbar-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 12px;
+}
+
+.teacher-mobile-menu-btn {
+  display: none;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #00124f;
+  cursor: pointer;
+}
+
+.teacher-mobile-overlay {
+  display: none;
+}
+
+/* ---------- TABLET ---------- */
+@media (max-width: 1100px) {
   .teacher-sidebar {
-    position: relative;
-    width: 100%;
-    min-height: auto;
-    height: auto;
-    padding: 12px;
+    width: 240px;
   }
 
+  .teacher-main {
+    width: calc(100% - 240px);
+    margin-left: 240px;
+  }
+
+  .teacher-content {
+    padding: 24px;
+  }
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 768px) {
   .teacher-layout {
     display: block;
+    min-height: 100dvh;
+  }
+
+  .teacher-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: min(86vw, 300px);
+    height: 100dvh;
+    min-height: 100dvh;
+
+    padding: 0;
+
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+
+    overflow: hidden;
+    z-index: 1000;
+  }
+
+  .teacher-sidebar.mobile-open {
+    transform: translateX(0);
   }
 
   .teacher-logo {
-    padding: 6px 8px 12px;
+    min-height: 110px;
+    padding: 18px;
+    flex-shrink: 0;
+  }
+
+  .teacher-logo-image {
+    width: min(190px, 100%);
+  }
+
+  .teacher-logo-portal {
+    font-size: 10px;
   }
 
   .teacher-nav {
-    flex-direction: row;
-    overflow-x: auto;
-    margin-top: 10px;
-    padding-bottom: 4px;
+    flex: 1;
+    flex-direction: column;
+
+    margin-top: 0;
+    padding: 16px 12px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .teacher-nav-label {
-    display: none;
+    display: block;
   }
 
   .teacher-nav-item {
-    flex: 0 0 auto;
-    height: 40px;
-    padding: 0 12px;
-    white-space: nowrap;
-    font-size: 12px;
+    width: 100%;
+    height: auto;
+    min-height: 44px;
+    padding: 12px 14px;
+
+    white-space: normal;
   }
 
   .teacher-nav-item span {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .teacher-sidebar-bottom {
-    display: none;
+    display: block;
+    flex-shrink: 0;
   }
 
   .teacher-main {
     width: 100%;
     margin-left: 0;
+    min-width: 0;
   }
 
   .teacher-topbar {
+    width: 100%;
     height: 68px;
+    min-height: 68px;
     padding: 0 14px;
-  }
-}
-/* =====================================================
-   REAL SKILLSELEPHANT LOGO
-===================================================== */
-
-.teacher-logo {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-
-  gap: 10px;
-
-  min-height: 150px;
-  padding: 22px 20px;
-
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.teacher-logo-image {
-  display: block;
-
-  width: 190px;
-  max-width: 100%;
-  height: auto;
-
-  object-fit: contain;
-}
-
-.teacher-logo-portal {
-  color: rgba(255, 255, 255, 0.58);
-
-  font-size: 11px;
-  font-weight: 600;
-
-  letter-spacing: 0.8px;
-}
-
-/* Old logo elements */
-
-.teacher-logo-icon {
-  display: none;
-}
-
-.teacher-logo h2,
-.teacher-logo span {
-  display: none;
-}
-
-/* =====================================================
-   TABLET
-===================================================== */
-
-@media (max-width: 900px) {
-  .teacher-logo {
-    min-height: 135px;
-    padding: 18px 16px;
+    gap: 10px;
   }
 
-  .teacher-logo-image {
-    width: 165px;
+  .teacher-mobile-menu-btn {
+    display: flex;
   }
 
-  .teacher-logo-portal {
-    font-size: 10px;
+  .teacher-topbar-left > div {
+    min-width: 0;
+  }
+
+  .teacher-topbar-left span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
+  }
+
+  .teacher-topbar h3 {
+    max-width: 100%;
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+
+  .teacher-info {
+    display: none;
+  }
+
+  .teacher-avatar {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+
+  .teacher-content {
+    width: 100%;
+    min-width: 0;
+    padding: 16px;
+    overflow-x: hidden;
+  }
+
+  .teacher-mobile-overlay {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    border: 0;
+    padding: 0;
+
+    background: rgba(1, 20, 81, 0.45);
+
+    z-index: 900;
   }
 }
 
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media (max-width: 700px) {
-  .teacher-logo {
-    min-height: auto;
-
-    flex-direction: row;
-    align-items: center;
-
-    gap: 12px;
-
-    padding: 14px 18px;
+/* ---------- SMALL PHONES ---------- */
+@media (max-width: 420px) {
+  .teacher-topbar {
+    padding: 0 10px;
   }
 
-  .teacher-logo-image {
-    width: 145px;
+  .teacher-mobile-menu-btn {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
   }
 
-  .teacher-logo-portal {
-    font-size: 10px;
+  .teacher-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .teacher-content {
+    padding: 12px;
   }
 }
