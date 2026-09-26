@@ -18,9 +18,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem(
-      TOKEN_KEY
-    );
+   const token = localStorage.getItem(
+  TOKEN_KEY
+);
 
     if (token) {
       config.headers.Authorization =
@@ -76,13 +76,8 @@ api.interceptors.response.use(
           Clear persistent authentication data.
         */
 
-        sessionStorage.removeItem(
-          TOKEN_KEY
-        );
-
-        sessionStorage.removeItem(
-          USER_KEY
-        );
+      localStorage.removeItem(TOKEN_KEY);
+localStorage.removeItem(USER_KEY);
 
         /*
           AuthContext stores the authenticated user

@@ -27,8 +27,8 @@ export const AuthProvider = ({ children }) => {
   ===================================================== */
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+localStorage.removeItem(USER_KEY);
 
     setUser(null);
   }, []);
@@ -50,15 +50,15 @@ export const AuthProvider = ({ children }) => {
       );
     }
 
-    sessionStorage.setItem(
-      TOKEN_KEY,
-      response.token
-    );
+    localStorage.setItem(
+  TOKEN_KEY,
+  response.token
+);
 
-    sessionStorage.setItem(
-      USER_KEY,
-      JSON.stringify(response.user)
-    );
+localStorage.setItem(
+  USER_KEY,
+  JSON.stringify(response.user)
+);
 
     setUser(response.user);
 
@@ -78,10 +78,10 @@ export const AuthProvider = ({ children }) => {
         ...updatedUser,
       };
 
-      sessionStorage.setItem(
-        USER_KEY,
-        JSON.stringify(newUser)
-      );
+     localStorage.setItem(
+  USER_KEY,
+  JSON.stringify(newUser)
+);
 
       return newUser;
     });
@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
   ===================================================== */
 
   const loadCurrentUser = useCallback(async () => {
-    const token = sessionStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
 
     if (!token) {
       setUser(null);
@@ -107,10 +107,10 @@ export const AuthProvider = ({ children }) => {
         response?.success &&
         response?.user
       ) {
-        sessionStorage.setItem(
-          USER_KEY,
-          JSON.stringify(response.user)
-        );
+        localStorage.setItem(
+  USER_KEY,
+  JSON.stringify(response.user)
+);
 
         setUser(response.user);
       } else {
