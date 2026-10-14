@@ -210,7 +210,7 @@ const StudentDashboard = () => {
           </span>
 
           <h1>
-            Welcome back, {student.name || "Student"}!
+            Welcome Back, {student.name || "Student"}!
           </h1>
 
           <p>
