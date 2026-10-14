@@ -1,8 +1,15 @@
 import api from "./api";
 
-/* =====================================================
-   LOGIN USER
-===================================================== */
+/* Preserve Axios HTTP status and friendly error messages. */
+const prepareError = (error, fallback) => {
+  error.message =
+    error.response?.data?.message ||
+    error.userMessage ||
+    error.message ||
+    fallback;
+
+  return error;
+};
 
 export const loginUser = async (credentials) => {
   try {
@@ -13,18 +20,9 @@ export const loginUser = async (credentials) => {
 
     return response.data;
   } catch (error) {
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      "Login failed";
-
-    throw new Error(message);
+    throw prepareError(error, "Login failed");
   }
 };
-
-/* =====================================================
-   REGISTER USER
-===================================================== */
 
 export const registerUser = async (userData) => {
   try {
@@ -35,39 +33,22 @@ export const registerUser = async (userData) => {
 
     return response.data;
   } catch (error) {
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      "Registration failed";
-
-    throw new Error(message);
+    throw prepareError(error, "Registration failed");
   }
 };
-
-/* =====================================================
-   GET CURRENT USER
-===================================================== */
 
 export const getCurrentUser = async () => {
   try {
-    const response = await api.get(
-      "/auth/me"
-    );
+    const response = await api.get("/auth/me");
 
     return response.data;
   } catch (error) {
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      "Unable to fetch current user";
-
-    throw new Error(message);
+    throw prepareError(
+      error,
+      "Unable to fetch current user"
+    );
   }
 };
-
-/* =====================================================
-   UPDATE PROFILE
-===================================================== */
 
 export const updateProfile = async (userData) => {
   try {
@@ -78,18 +59,12 @@ export const updateProfile = async (userData) => {
 
     return response.data;
   } catch (error) {
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      "Unable to update profile";
-
-    throw new Error(message);
+    throw prepareError(
+      error,
+      "Unable to update profile"
+    );
   }
 };
-
-/* =====================================================
-   CHANGE PASSWORD
-===================================================== */
 
 export const changePassword = async (passwordData) => {
   try {
@@ -100,11 +75,9 @@ export const changePassword = async (passwordData) => {
 
     return response.data;
   } catch (error) {
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      "Unable to change password";
-
-    throw new Error(message);
+    throw prepareError(
+      error,
+      "Unable to change password"
+    );
   }
 };

@@ -177,18 +177,27 @@ const AdminCourseModules = () => {
   // =========================
   // FORM
   // =========================
+const resetForm = () => {
+  const highestModuleNumber = modules.reduce(
+    (highest, module) => {
+      const number = Number(module.moduleNumber);
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      description: "",
-      moduleNumber:
-        modules.length + 1,
-      durationDays: "",
-    });
+      return Number.isFinite(number)
+        ? Math.max(highest, number)
+        : highest;
+    },
+    0
+  );
 
-    setEditingModule(null);
-  };
+  setFormData({
+    name: "",
+    description: "",
+    moduleNumber: highestModuleNumber + 1,
+    durationDays: "",
+  });
+
+  setEditingModule(null);
+};
 
   const openAddModal = () => {
     setSuccess("");

@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -16,6 +17,8 @@ import {
   Clock,
 } from "lucide-react";
 
+import { useAuth } from "../../context/AuthContext";
+
 import Card from "../../components/common/Card";
 import Badge from "../../components/common/Badge";
 
@@ -24,128 +27,205 @@ import api from "../../services/api";
 import "./MyCourse.css";
 
 const MyCourse = () => {
+  const { user, loading: authLoading } = useAuth();
+
+  const userId = user?.id || user?._id || null;
+
+  const courseId =
+    typeof user?.courseId === "string"
+      ? user.courseId
+      : user?.courseId?._id || null;
+
   const [course, setCourse] = useState(null);
+  const [modules, setModules] = useState([]);
   const [tasks, setTasks] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const requestRef = useRef(null);
+
   /* =====================================================
-     LOAD COURSE + STUDENT TASKS
+     LOAD ASSIGNED COURSE, MODULES AND STUDENT TASKS
   ===================================================== */
 
   const loadCourseData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError("");
+    if (authLoading) return;
 
-      const [courseResult, taskResult] =
-        await Promise.allSettled([
-          api.get("/courses/active"),
-          api.get("/tasks/student"),
-        ]);
+    requestRef.current?.abort();
 
-      /* ===============================================
-         COURSE
-      =============================================== */
+    if (!userId) {
+      setCourse(null);
+      setModules([]);
+      setTasks([]);
+      setError("Please sign in again to load your course.");
+      setLoading(false);
+      return;
+    }
 
-      if (courseResult.status === "fulfilled") {
-        const courseData =
-          courseResult.value?.data;
+    const controller = new AbortController();
+    requestRef.current = controller;
 
-        if (courseData?.success) {
-          const courses =
-            Array.isArray(courseData.courses)
-              ? courseData.courses
-              : [];
+    const config = {
+      signal: controller.signal,
+    };
 
-          setCourse(
-            courses.length > 0
-              ? courses[0]
-              : null
-          );
-        } else {
-          setCourse(null);
-        }
-      } else {
-        console.error(
-          "Course API Error:",
-          courseResult.reason
-        );
+    setLoading(true);
+    setError("");
 
-        setCourse(null);
-      }
+    const fetchCourse = async () => {
+      if (!courseId) return null;
 
-      /* ===============================================
-         STUDENT TASKS
-      =============================================== */
-
-      if (taskResult.status === "fulfilled") {
-        const taskData =
-          taskResult.value?.data;
-
-        if (taskData?.success) {
-          setTasks(
-            Array.isArray(taskData.tasks)
-              ? taskData.tasks
-              : []
-          );
-        } else {
-          setTasks([]);
-        }
-      } else {
-        console.error(
-          "Student Tasks API Error:",
-          taskResult.reason
-        );
-
-        setTasks([]);
-      }
-
-      /*
-        Only show full page error when BOTH APIs fail.
-      */
+      const response = await api.get(
+        `/courses/${courseId}`,
+        config
+      );
 
       if (
-        courseResult.status === "rejected" &&
-        taskResult.status === "rejected"
+        !response.data?.success ||
+        !response.data.course
       ) {
-        setError(
-          "Unable to load course information. Please try again."
+        throw new Error(
+          "Invalid course response from server."
         );
       }
-    } catch (err) {
-      console.error(
-        "My Course Load Error:",
-        err
+
+      return response.data.course;
+    };
+
+    const fetchModules = async () => {
+      if (!courseId) return [];
+
+      const response = await api.get(
+        `/modules/course/${courseId}/active`,
+        config
       );
 
+      if (
+        !response.data?.success ||
+        !Array.isArray(response.data.modules)
+      ) {
+        throw new Error(
+          "Invalid modules response from server."
+        );
+      }
+
+      return response.data.modules;
+    };
+
+    const fetchTasks = async () => {
+      const response = await api.get(
+        "/tasks/my-work",
+        config
+      );
+
+      if (
+        !response.data?.success ||
+        !Array.isArray(response.data.tasks)
+      ) {
+        throw new Error(
+          "Invalid tasks response from server."
+        );
+      }
+
+      return response.data.tasks;
+    };
+
+    const getErrorMessage = (reason, fallback) =>
+      reason?.response?.data?.message ||
+      reason?.userMessage ||
+      reason?.message ||
+      fallback;
+
+    try {
+      const [
+        courseResult,
+        modulesResult,
+        tasksResult,
+      ] = await Promise.allSettled([
+        fetchCourse(),
+        fetchModules(),
+        fetchTasks(),
+      ]);
+
+      if (controller.signal.aborted) return;
+
+      const failures = [];
+
+      /* ================= COURSE ================= */
+
+      if (courseResult.status === "fulfilled") {
+        setCourse(courseResult.value);
+      } else {
+        setCourse(null);
+
+        failures.push(
+          `Course: ${getErrorMessage(
+            courseResult.reason,
+            "Unable to load assigned course."
+          )}`
+        );
+      }
+
+      /* ================= MODULES ================= */
+
+      if (modulesResult.status === "fulfilled") {
+        setModules(modulesResult.value);
+      } else {
+        setModules([]);
+
+        failures.push(
+          `Modules: ${getErrorMessage(
+            modulesResult.reason,
+            "Unable to load course modules."
+          )}`
+        );
+      }
+
+      /* ================= STUDENT TASKS ================= */
+
+      if (tasksResult.status === "fulfilled") {
+        setTasks(tasksResult.value);
+      } else {
+        setTasks([]);
+
+        failures.push(
+          `Tasks: ${getErrorMessage(
+            tasksResult.reason,
+            "Unable to load assigned tasks."
+          )}`
+        );
+      }
+
+      // Show failures instead of misleading empty counts.
+      setError(failures.join(" "));
+    } catch (err) {
+      if (controller.signal.aborted) return;
+
       setError(
-        "Unable to load course information."
+        getErrorMessage(
+          err,
+          "Unable to load course information."
+        )
       );
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+
+        if (requestRef.current === controller) {
+          requestRef.current = null;
+        }
+      }
     }
-  }, []);
+  }, [authLoading, userId, courseId]);
 
   useEffect(() => {
     loadCourseData();
+
+    return () => {
+      requestRef.current?.abort();
+    };
   }, [loadCourseData]);
-
-  /* =====================================================
-     GET MODULES FROM COURSE
-
-     Supports multiple possible backend structures.
-  ===================================================== */
-
-  const modules =
-    Array.isArray(course?.modules)
-      ? course.modules
-      : Array.isArray(course?.curriculum)
-      ? course.curriculum
-      : Array.isArray(course?.topics)
-      ? course.topics
-      : [];
 
   /* =====================================================
      TASK STATUS
@@ -200,14 +280,9 @@ const MyCourse = () => {
       return "No due date";
     }
 
-    const parsedDate =
-      new Date(date);
+    const parsedDate = new Date(date);
 
-    if (
-      Number.isNaN(
-        parsedDate.getTime()
-      )
-    ) {
+    if (Number.isNaN(parsedDate.getTime())) {
       return "No due date";
     }
 
@@ -234,9 +309,7 @@ const MyCourse = () => {
             className="my-course-spinner"
           />
 
-          <p>
-            Loading your course...
-          </p>
+          <p>Loading your course...</p>
         </div>
       </div>
     );
@@ -253,9 +326,7 @@ const MyCourse = () => {
           <AlertCircle size={28} />
 
           <div>
-            <h3>
-              Unable to load course
-            </h3>
+            <h3>Unable to load course information</h3>
 
             <p>{error}</p>
 
@@ -279,7 +350,6 @@ const MyCourse = () => {
 
   return (
     <div className="my-course-page">
-
       {/* PAGE HEADING */}
 
       <div className="my-course-heading">
@@ -305,29 +375,27 @@ const MyCourse = () => {
       {/* COURSE HERO */}
 
       <div className="course-hero">
-
         <div className="course-hero-icon">
           <BookOpen size={30} />
         </div>
 
         <div className="course-hero-content">
-
           <Badge variant="gold">
             SKILLSELEPHANT
           </Badge>
 
           <h2>
-            {course?.name ||
-              "Course Not Assigned"}
+            {course?.name || "Course Not Assigned"}
           </h2>
 
           <p>
-            {course?.description ||
-              "Your course information will be available once a course is assigned."}
+            {course
+              ? course.description ||
+                "Access your assigned course modules and learning notes."
+              : "Your course information will be available once a course is assigned."}
           </p>
 
           <div className="course-hero-meta">
-
             <span>
               <Layers size={16} />
               {modules.length} Modules
@@ -337,96 +405,74 @@ const MyCourse = () => {
               <ClipboardList size={16} />
               {tasks.length} Assigned Tasks
             </span>
-
           </div>
-
         </div>
       </div>
 
       {/* MAIN CONTENT */}
 
       <div className="my-course-grid">
-
         {/* COURSE MODULES */}
 
         <Card
           title="Course Modules"
           subtitle="Your complete learning curriculum"
         >
-
           {modules.length === 0 ? (
-
             <div className="course-empty-state">
               <BookOpen size={32} />
 
               <h4>
-                No modules available
+                {course
+                  ? "No modules available"
+                  : "Course not assigned"}
               </h4>
 
               <p>
-                Course modules have not been added yet.
+                {course
+                  ? "No active modules are available for your course yet."
+                  : "Your modules will appear once a course is assigned."}
               </p>
             </div>
-
           ) : (
-
             <div className="modules-list">
+              {modules.map((module, index) => {
+                const moduleTitle =
+                  module.name ||
+                  `Module ${index + 1}`;
 
-              {modules.map(
-                (module, index) => {
-                  const moduleTitle =
-                    typeof module === "string"
-                      ? module
-                      : module?.title ||
-                        module?.name ||
-                        `Module ${index + 1}`;
+                const moduleDescription =
+                  module.description ||
+                  "Course Module";
 
-                  const moduleDescription =
-                    typeof module === "object"
-                      ? module?.description ||
-                        "Course Module"
-                      : "Course Module";
-
-                  return (
-                    <div
-                      className="module-item"
-                      key={
-                        module?._id ||
-                        `${moduleTitle}-${index}`
-                      }
-                    >
-
-                      <div className="module-number">
-                        {String(
+                return (
+                  <div
+                    className="module-item"
+                    key={module._id}
+                  >
+                    <div className="module-number">
+                      {String(
+                        module.moduleNumber ||
                           index + 1
-                        ).padStart(
-                          2,
-                          "0"
-                        )}
-                      </div>
-
-                      <div className="module-info">
-                        <h4>
-                          {moduleTitle}
-                        </h4>
-
-                        <span>
-                          {moduleDescription}
-                        </span>
-                      </div>
-
-                      <CheckCircle2
-                        className="module-check"
-                        size={20}
-                      />
-
+                      ).padStart(2, "0")}
                     </div>
-                  );
-                }
-              )}
 
+                    <div className="module-info">
+                      <h4>{moduleTitle}</h4>
+
+                      <span>
+                        {moduleDescription}
+                      </span>
+                    </div>
+
+                    <CheckCircle2
+                      className="module-check"
+                      size={20}
+                    />
+                  </div>
+                );
+              })}
             </div>
-
           )}
 
           <a
@@ -441,7 +487,6 @@ const MyCourse = () => {
 
             <ExternalLink size={16} />
           </a>
-
         </Card>
 
         {/* MY WORK */}
@@ -450,122 +495,84 @@ const MyCourse = () => {
           title="My Work"
           subtitle="Assignments and practical tasks"
         >
-
           {tasks.length === 0 ? (
-
             <div className="course-empty-state">
-
               <ClipboardList size={32} />
 
-              <h4>
-                No tasks assigned
-              </h4>
+              <h4>No tasks assigned</h4>
 
               <p>
                 Tasks assigned to your batch
                 will appear here.
               </p>
-
             </div>
-
           ) : (
-
             <div className="work-list">
+              {tasks.slice(0, 6).map((task) => {
+                const taskStatus =
+                  getTaskStatus(task);
 
-              {tasks.slice(0, 6).map(
-                (task) => {
-                  const taskStatus =
-                    getTaskStatus(task);
+                const completedCount =
+                  task?.submission
+                    ?.completedCount || 0;
 
-                  const completedCount =
-                    task?.submission
-                      ?.completedCount || 0;
+                const totalTasks =
+                  task?.totalTasks ||
+                  task?.tasks?.length ||
+                  0;
 
-                  const totalTasks =
-                    task?.totalTasks ||
-                    task?.tasks?.length ||
-                    0;
-
-                  return (
-                    <div
-                      className="work-item"
-                      key={task._id}
-                    >
-
-                      <div className="work-icon">
-
-                        {taskStatus.label ===
-                        "Completed" ? (
-
-                          <CheckCircle2
-                            size={20}
-                          />
-
-                        ) : (
-
-                          <Clock size={20} />
-
-                        )}
-
-                      </div>
-
-                      <div className="work-content">
-
-                        <div className="work-header">
-
-                          <h4>
-                            {task.title}
-                          </h4>
-
-                          <Badge
-                            variant={
-                              taskStatus.variant
-                            }
-                            size="small"
-                          >
-                            {taskStatus.label}
-                          </Badge>
-
-                        </div>
-
-                        {task.description && (
-                          <p>
-                            {task.description}
-                          </p>
-                        )}
-
-                        <div className="work-meta">
-
-                          <span className="work-date">
-                            {formatDate(
-                              task.dueDate
-                            )}
-                          </span>
-
-                          <span className="work-progress">
-                            {completedCount}
-                            {" / "}
-                            {totalTasks}
-                            {" completed"}
-                          </span>
-
-                        </div>
-
-                      </div>
-
+                return (
+                  <div
+                    className="work-item"
+                    key={task._id}
+                  >
+                    <div className="work-icon">
+                      {taskStatus.label ===
+                      "Completed" ? (
+                        <CheckCircle2 size={20} />
+                      ) : (
+                        <Clock size={20} />
+                      )}
                     </div>
-                  );
-                }
-              )}
 
+                    <div className="work-content">
+                      <div className="work-header">
+                        <h4>{task.title}</h4>
+
+                        <Badge
+                          variant={
+                            taskStatus.variant
+                          }
+                          size="small"
+                        >
+                          {taskStatus.label}
+                        </Badge>
+                      </div>
+
+                      {task.description && (
+                        <p>{task.description}</p>
+                      )}
+
+                      <div className="work-meta">
+                        <span className="work-date">
+                          {formatDate(task.dueDate)}
+                        </span>
+
+                        <span className="work-progress">
+                          {completedCount}
+                          {" / "}
+                          {totalTasks}
+                          {" completed"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-
           )}
-
         </Card>
-
       </div>
-
     </div>
   );
 };

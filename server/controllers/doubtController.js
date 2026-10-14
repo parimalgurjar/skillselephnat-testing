@@ -1,16 +1,15 @@
 const Doubt = require("../models/Doubt");
 const User = require("../models/User");
 const mongoose = require("mongoose");
+
 const uploadToCloudinary = require("../utils/uploadToCloudinary");
+
 /* =====================================================
    ESCAPE REGEX
 ===================================================== */
 
 const escapeRegex = (text) => {
-  return text.replace(
-    /[.*+?^${}()|[\]\\]/g,
-    "\\$&"
-  );
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
 
 /* =====================================================
@@ -28,45 +27,41 @@ const createDoubt = async (req, res) => {
     } = req.body;
 
     if (
-  typeof topic !== "string" ||
-  typeof title !== "string" ||
-  typeof description !== "string" ||
-  !topic.trim() ||
-  !title.trim() ||
-  !description.trim()
-) {
-  return res.status(400).json({
-    success: false,
-    message:
-      "Topic, title and description are required and must be strings",
-  });
-}
+      typeof topic !== "string" ||
+      typeof title !== "string" ||
+      typeof description !== "string" ||
+      !topic.trim() ||
+      !title.trim() ||
+      !description.trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Topic, title and description are required and must be strings",
+      });
+    }
 
     const cleanedTopic = topic.trim();
     const cleanedTitle = title.trim();
-    const cleanedDescription =
-      description.trim();
+    const cleanedDescription = description.trim();
 
+    /* FIND ASSIGNED TEACHER */
 
-    /* ================= FIND ASSIGNED TEACHER ================= */
+    const topicRegex = new RegExp(
+      escapeRegex(cleanedTopic),
+      "i"
+    );
 
-   const topicRegex = new RegExp(
-  escapeRegex(cleanedTopic),
-  "i"
-);
-
-    const assignedTeacher =
-      await User.findOne({
-        role: "TEACHER",
-        status: "ACTIVE",
-        isActive: true,
-        specializations: {
-          $elemMatch: {
-            $regex: topicRegex,
-          },
+    const assignedTeacher = await User.findOne({
+      role: "TEACHER",
+      status: "ACTIVE",
+      isActive: true,
+      specializations: {
+        $elemMatch: {
+          $regex: topicRegex,
         },
-      });
-
+      },
+    });
 
     if (!assignedTeacher) {
       return res.status(404).json({
@@ -75,34 +70,34 @@ const createDoubt = async (req, res) => {
           "No active teacher is assigned to this topic",
       });
     }
-let uploadedAttachments = [];
 
-if (Array.isArray(attachments)) {
-  uploadedAttachments = attachments;
-}
+    /* PREPARE ATTACHMENTS */
 
-if (req.file) {
-  const uploadedFile = await uploadToCloudinary(
-    req.file.buffer,
-    {
-      resource_type: "image",
-      folder: "skillselephant/doubts",
+    const uploadedAttachments = Array.isArray(attachments)
+      ? [...attachments]
+      : [];
+
+    if (req.file) {
+      const uploadedFile = await uploadToCloudinary(
+        req.file.buffer,
+        {
+          resource_type: "image",
+          folder: "skillselephant/doubts",
+        }
+      );
+
+      uploadedAttachments.push(uploadedFile.secure_url);
     }
-  );
 
-  uploadedAttachments.push(uploadedFile.secure_url);
-}
-    /* ================= CREATE DOUBT ================= */
+    /* CREATE DOUBT */
 
     const doubt = await Doubt.create({
       studentId: req.user._id,
       topic: cleanedTopic,
       title: cleanedTitle,
-      description:
-        cleanedDescription,
+      description: cleanedDescription,
       attachments: uploadedAttachments,
-      assignedTeacher:
-        assignedTeacher._id,
+      assignedTeacher: assignedTeacher._id,
       status: "PENDING",
     });
 
@@ -113,21 +108,17 @@ if (req.file) {
       doubt,
     });
   } catch (error) {
-    console.error(
-      "Create Doubt Error:",
-      error
-    );
+    console.error("Create Doubt Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Unable to submit doubt",
+      message: "Unable to submit doubt",
     });
   }
 };
 
 /* =====================================================
-   GET DOUBTS
+   GET ACCESSIBLE DOUBTS
 ===================================================== */
 
 const getDoubts = async (req, res) => {
@@ -143,25 +134,16 @@ const getDoubts = async (req, res) => {
           "name email specializations"
         )
         .sort({ createdAt: -1 });
-    }
-
-    else if (
-      req.user.role === "TEACHER"
-    ) {
+    } else if (req.user.role === "TEACHER") {
       doubts = await Doubt.find({
-        assignedTeacher:
-          req.user._id,
+        assignedTeacher: req.user._id,
       })
         .populate(
           "studentId",
           "name email phone batchTiming"
         )
         .sort({ createdAt: -1 });
-    }
-
-    else if (
-      req.user.role === "ADMIN"
-    ) {
+    } else if (req.user.role === "ADMIN") {
       doubts = await Doubt.find()
         .populate(
           "studentId",
@@ -180,15 +162,11 @@ const getDoubts = async (req, res) => {
       doubts,
     });
   } catch (error) {
-    console.error(
-      "Get Doubts Error:",
-      error
-    );
+    console.error("Get Doubts Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Unable to fetch doubts",
+      message: "Unable to fetch doubts",
     });
   }
 };
@@ -197,20 +175,16 @@ const getDoubts = async (req, res) => {
    GET SINGLE DOUBT
 ===================================================== */
 
-const getDoubtById = async (
-  req,
-  res
-) => {
+const getDoubtById = async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid doubt ID",
-  });
-}
-    const doubt = await Doubt.findById(
-      req.params.id
-    )
+      return res.status(400).json({
+        success: false,
+        message: "Invalid doubt ID",
+      });
+    }
+
+    const doubt = await Doubt.findById(req.params.id)
       .populate(
         "studentId",
         "name email phone batchTiming"
@@ -231,7 +205,7 @@ const getDoubtById = async (
       });
     }
 
-    /* ================= ADMIN ACCESS ================= */
+    /* ADMIN ACCESS */
 
     if (req.user.role === "ADMIN") {
       return res.status(200).json({
@@ -240,12 +214,13 @@ const getDoubtById = async (
       });
     }
 
-    /* ================= STUDENT ACCESS ================= */
+    /* STUDENT OWNERSHIP CHECK */
 
     if (
       req.user.role === "STUDENT" &&
-      doubt.studentId._id.toString() !==
-        req.user._id.toString()
+      (!doubt.studentId ||
+        doubt.studentId._id.toString() !==
+          req.user._id.toString())
     ) {
       return res.status(403).json({
         success: false,
@@ -254,7 +229,7 @@ const getDoubtById = async (
       });
     }
 
-    /* ================= TEACHER ACCESS ================= */
+    /* ASSIGNED TEACHER CHECK */
 
     if (
       req.user.role === "TEACHER" &&
@@ -274,42 +249,42 @@ const getDoubtById = async (
       doubt,
     });
   } catch (error) {
-    console.error(
-      "Get Doubt By ID Error:",
-      error
-    );
+    console.error("Get Doubt By ID Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Unable to fetch doubt",
+      message: "Unable to fetch doubt",
     });
   }
 };
 
 /* =====================================================
    ADD REPLY
+   OWNER STUDENT / ASSIGNED TEACHER
 ===================================================== */
 
-const addDoubtReply = async (
-  req,
-  res
-) => {
+const addDoubtReply = async (req, res) => {
   try {
-    const { message, attachments } =
-      req.body;
+    const { message, attachments } = req.body;
 
-    if (!message || !message.trim()) {
+    if (!mongoose.isValidObjectId(req.params.id)) {
       return res.status(400).json({
         success: false,
-        message:
-          "Reply message is required",
+        message: "Invalid doubt ID",
       });
     }
 
-    const doubt = await Doubt.findById(
-      req.params.id
-    );
+    if (
+      typeof message !== "string" ||
+      !message.trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Reply message is required",
+      });
+    }
+
+    const doubt = await Doubt.findById(req.params.id);
 
     if (!doubt) {
       return res.status(404).json({
@@ -318,12 +293,13 @@ const addDoubtReply = async (
       });
     }
 
-    /* ================= STUDENT SECURITY ================= */
+    /* STUDENT OWNERSHIP CHECK */
 
     if (
       req.user.role === "STUDENT" &&
-      doubt.studentId.toString() !==
-        req.user._id.toString()
+      (!doubt.studentId ||
+        doubt.studentId.toString() !==
+          req.user._id.toString())
     ) {
       return res.status(403).json({
         success: false,
@@ -332,7 +308,7 @@ const addDoubtReply = async (
       });
     }
 
-    /* ================= TEACHER SECURITY ================= */
+    /* ASSIGNED TEACHER CHECK */
 
     if (
       req.user.role === "TEACHER" &&
@@ -347,18 +323,25 @@ const addDoubtReply = async (
       });
     }
 
-    /* ================= ADD REPLY ================= */
+    /* BLOCK REPLIES TO RESOLVED DOUBTS */
+
+    if (doubt.status === "RESOLVED") {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Resolved doubts cannot receive new messages",
+      });
+    }
+
+    /* ADD REPLY */
 
     doubt.replies.push({
       senderId: req.user._id,
       message: message.trim(),
-      attachments:
-        Array.isArray(attachments)
-          ? attachments
-          : [],
+      attachments: Array.isArray(attachments)
+        ? attachments
+        : [],
     });
-
-    /* ================= UPDATE STATUS ================= */
 
     if (doubt.status === "PENDING") {
       doubt.status = "IN_PROGRESS";
@@ -368,20 +351,15 @@ const addDoubtReply = async (
 
     return res.status(201).json({
       success: true,
-      message:
-        "Reply added successfully",
+      message: "Reply added successfully",
       doubt,
     });
   } catch (error) {
-    console.error(
-      "Add Reply Error:",
-      error
-    );
+    console.error("Add Reply Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Unable to add reply",
+      message: "Unable to add reply",
     });
   }
 };
@@ -391,14 +369,16 @@ const addDoubtReply = async (
    ASSIGNED TEACHER ONLY
 ===================================================== */
 
-const resolveDoubt = async (
-  req,
-  res
-) => {
+const resolveDoubt = async (req, res) => {
   try {
-    const doubt = await Doubt.findById(
-      req.params.id
-    );
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid doubt ID",
+      });
+    }
+
+    const doubt = await Doubt.findById(req.params.id);
 
     if (!doubt) {
       return res.status(404).json({
@@ -407,7 +387,7 @@ const resolveDoubt = async (
       });
     }
 
-    /* ================= TEACHER SECURITY ================= */
+    /* ASSIGNED TEACHER CHECK */
 
     if (
       !doubt.assignedTeacher ||
@@ -421,17 +401,12 @@ const resolveDoubt = async (
       });
     }
 
-    /* ================= ALREADY RESOLVED ================= */
-
     if (doubt.status === "RESOLVED") {
       return res.status(400).json({
         success: false,
-        message:
-          "This doubt is already resolved",
+        message: "This doubt is already resolved",
       });
     }
-
-    /* ================= RESOLVE ================= */
 
     doubt.status = "RESOLVED";
     doubt.resolvedAt = new Date();
@@ -440,20 +415,15 @@ const resolveDoubt = async (
 
     return res.status(200).json({
       success: true,
-      message:
-        "Doubt marked as resolved successfully",
+      message: "Doubt marked as resolved successfully",
       doubt,
     });
   } catch (error) {
-    console.error(
-      "Resolve Doubt Error:",
-      error
-    );
+    console.error("Resolve Doubt Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Unable to resolve doubt",
+      message: "Unable to resolve doubt",
     });
   }
 };

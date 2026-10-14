@@ -1,21 +1,494 @@
 /* =====================================================
-   RESPONSIVE LAYOUT
+   STUDENT LAYOUT — BASE / DESKTOP
 ===================================================== */
 
-.student-topbar {
+.student-layout {
+  --student-sidebar-width: 270px;
+
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  background: #f8fafc;
+  color: #111827;
+}
+
+.student-layout,
+.student-layout *,
+.student-layout *::before,
+.student-layout *::after {
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
+
+.student-layout .student-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  width: var(--student-sidebar-width);
+  height: 100vh;
+  height: 100dvh;
+
+  background: #00124f;
+  color: #ffffff;
+
+  overflow: hidden;
+  z-index: 100;
+}
+
+.student-layout .student-sidebar-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  min-height: 130px;
+  padding: 24px 20px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  flex-shrink: 0;
+}
+
+.student-layout .student-logo-image {
+  display: block;
+  width: 200px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.student-layout .student-logo-portal {
+  display: block;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.student-layout .sidebar-menu-title {
+  margin: 22px 20px 12px;
+
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 1.2px;
+
+  flex-shrink: 0;
+}
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+.student-layout .student-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  flex: 1;
+  min-height: 0;
+
+  padding: 0 14px 20px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.student-layout .student-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+
+  border-left: 3px solid transparent;
+  border-radius: 10px;
+
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-decoration: none;
+
+  flex: 0 0 auto;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.student-layout .student-menu-item svg {
+  flex-shrink: 0;
+}
+
+.student-layout .student-menu-item span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.student-layout .student-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.student-layout .student-menu-item.active {
+  border-left-color: #f6af1d;
+
+  background: rgba(246, 175, 29, 0.13);
+  color: #f6af1d;
+
+  font-weight: 600;
+}
+
+.student-layout .student-menu-item:focus-visible {
+  outline: 2px solid #f6af1d;
+  outline-offset: -2px;
+}
+
+/* =====================================================
+   SIDEBAR COURSE CARD
+===================================================== */
+
+.student-layout .student-course-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin: 0 14px 16px;
+  padding: 14px;
+
+  border: 1px solid rgba(246, 175, 29, 0.25);
+  border-radius: 12px;
+
+  background: rgba(246, 175, 29, 0.08);
+
+  flex-shrink: 0;
+}
+
+.student-layout .student-course-card > svg {
+  color: #f6af1d;
+  flex-shrink: 0;
+}
+
+.student-layout .student-course-card > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.student-layout .student-course-card strong {
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.student-layout .student-course-card span {
+  color: rgba(255, 255, 255, 0.6);
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* =====================================================
+   SIDEBAR FOOTER
+===================================================== */
+
+.student-layout .student-sidebar-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin: 0 14px;
+  padding: 16px 0;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  flex-shrink: 0;
+}
+
+.student-layout .student-role {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: rgba(255, 255, 255, 0.75);
+
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.student-layout .role-dot {
+  display: inline-block;
+
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+
+  background: #22c55e;
+
+  flex-shrink: 0;
+}
+
+.student-layout .student-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+
+  cursor: pointer;
+  flex-shrink: 0;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.student-layout .student-logout-btn:hover {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* =====================================================
+   MAIN CONTENT
+===================================================== */
+
+.student-layout .student-main {
+  flex: 1;
+  min-width: 0;
+
+  margin-left: var(--student-sidebar-width);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.student-layout .student-page-content {
+  width: 100%;
+  min-width: 0;
+  padding: 30px;
+}
+
+/* =====================================================
+   TOPBAR
+===================================================== */
+
+.student-layout .student-topbar {
   position: sticky;
   top: 0;
   z-index: 40;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  width: 100%;
+  min-height: 78px;
+  padding: 16px 30px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  background: #ffffff;
 }
 
-.student-mobile-menu-btn {
-  display: none;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
+.student-layout .student-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 
+  min-width: 0;
+}
+
+.student-layout .portal-label {
+  display: inline-block;
+
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+
+  background: #f8fafc;
+  color: #00124f;
+
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.student-layout .student-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+
+  flex-shrink: 0;
+}
+
+/* =====================================================
+   NOTIFICATION
+===================================================== */
+
+.student-layout .notification-btn {
+  position: relative;
+
+  display: flex;
   align-items: center;
   justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  padding: 0;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #00124f;
+
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.student-layout .notification-btn:hover {
+  background: #f8fafc;
+}
+
+.student-layout .notification-btn > span {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+
+  background: #f6af1d;
+  color: #00124f;
+
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+.student-layout .student-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.student-layout .student-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+
+  background: #00124f;
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  flex-shrink: 0;
+}
+
+.student-layout .student-profile > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 0;
+}
+
+.student-layout .student-profile strong {
+  display: block;
+  max-width: 180px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #00124f;
+
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.student-layout .student-profile span {
+  color: #64748b;
+
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+}
+
+/* =====================================================
+   MOBILE CONTROLS
+===================================================== */
+
+.student-layout .student-mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+  padding: 0;
 
   border: 1px solid #e5e7eb;
   border-radius: 10px;
@@ -24,25 +497,38 @@
   color: #00124f;
 
   cursor: pointer;
+  flex: 0 0 42px;
 }
 
-.student-mobile-overlay {
+.student-layout .student-mobile-overlay {
   display: none;
 }
 
-/* ---------- TABLET ---------- */
+/* =====================================================
+   TABLET
+===================================================== */
 
 @media (max-width: 1100px) {
-  .student-sidebar {
-    width: 240px;
+  .student-layout {
+    --student-sidebar-width: 240px;
   }
 
-  .student-page-content {
+  .student-layout .student-page-content {
     padding: 24px;
+  }
+
+  .student-layout .student-topbar {
+    padding: 16px 24px;
+  }
+
+  .student-layout .student-logo-image {
+    width: 180px;
   }
 }
 
-/* ---------- MOBILE ---------- */
+/* =====================================================
+   MOBILE
+===================================================== */
 
 @media (max-width: 768px) {
   .student-layout {
@@ -50,7 +536,7 @@
     min-height: 100dvh;
   }
 
-  .student-sidebar {
+  .student-layout .student-sidebar {
     position: fixed;
     top: 0;
     left: 0;
@@ -58,11 +544,8 @@
 
     width: min(86vw, 300px);
     height: 100dvh;
-    min-height: 100dvh;
 
     padding: 0;
-
-    background: #00124f;
 
     transform: translateX(-105%);
     transition: transform 0.25s ease;
@@ -71,100 +554,77 @@
     z-index: 1000;
   }
 
-  .student-sidebar.mobile-open {
+  .student-layout .student-sidebar.mobile-open {
     transform: translateX(0);
   }
 
-  .student-sidebar-logo {
+  .student-layout .student-sidebar-logo {
     min-height: 110px;
     padding: 18px;
-
-    flex-shrink: 0;
   }
 
-  .student-logo-image {
+  .student-layout .student-logo-image {
     width: min(190px, 100%);
   }
 
-  .student-logo-portal {
-    display: block;
+  .student-layout .student-logo-portal {
     font-size: 10px;
   }
 
-  .sidebar-menu-title {
-    display: block;
+  .student-layout .sidebar-menu-title {
     margin: 18px 12px 10px;
   }
 
-  .student-sidebar-menu {
-    flex: 1;
-    flex-direction: column;
-
+  .student-layout .student-sidebar-menu {
     gap: 5px;
-
     padding: 0 12px 16px;
-
-    overflow-x: hidden;
-    overflow-y: auto;
   }
 
-  .student-menu-item {
+  .student-layout .student-menu-item {
     width: 100%;
-    flex: 0 0 auto;
-
-    justify-content: flex-start;
-
     padding: 12px 14px;
 
     white-space: normal;
     font-size: 13px;
   }
 
-  .student-menu-item.active {
+  .student-layout .student-menu-item.active {
     border-left: 3px solid #f6af1d;
     border-bottom: none;
   }
 
-  .student-course-card {
-    display: flex;
+  .student-layout .student-course-card {
     margin: 0 12px 12px;
   }
 
-  .student-sidebar-bottom {
-    display: flex;
+  .student-layout .student-sidebar-bottom {
     margin: 0 12px;
     padding: 14px 0;
-
-    flex-shrink: 0;
   }
 
-  .student-main {
+  .student-layout .student-main {
     width: 100%;
     min-width: 0;
+    margin-left: 0;
   }
 
-  .student-topbar {
+  .student-layout .student-topbar {
     width: 100%;
-    height: 68px;
     min-height: 68px;
 
-    padding: 0 14px;
-
+    padding: 12px 14px;
     gap: 10px;
   }
 
-  .student-topbar-left {
-    display: flex;
-    align-items: center;
-    min-width: 0;
+  .student-layout .student-topbar-left {
     gap: 10px;
   }
 
-  .student-mobile-menu-btn {
+  .student-layout .student-mobile-menu-btn {
     display: flex;
   }
 
-  .portal-label {
+  .student-layout .portal-label {
     max-width: 130px;
 
     overflow: hidden;
@@ -175,30 +635,28 @@
     font-size: 9px;
   }
 
-  .student-topbar-right {
+  .student-layout .student-topbar-right {
     gap: 10px;
-    flex-shrink: 0;
   }
 
-  .student-profile > div:last-child {
+  .student-layout .student-profile > div:last-child {
     display: none;
   }
 
-  .student-avatar {
+  .student-layout .student-avatar {
     width: 38px;
     height: 38px;
   }
 
-  .student-page-content {
+  .student-layout .student-page-content {
     width: 100%;
     min-width: 0;
 
     padding: 16px;
-
     overflow-x: hidden;
   }
 
-  .student-mobile-overlay {
+  .student-layout .student-mobile-overlay {
     display: block;
 
     position: fixed;
@@ -206,35 +664,52 @@
 
     width: 100%;
     height: 100%;
+    margin: 0;
+    padding: 0;
 
     border: 0;
-    padding: 0;
+    border-radius: 0;
 
     background: rgba(0, 18, 79, 0.45);
 
+    cursor: pointer;
     z-index: 900;
   }
 }
 
-/* ---------- SMALL PHONES ---------- */
+/* =====================================================
+   SMALL PHONES
+===================================================== */
 
 @media (max-width: 420px) {
-  .student-topbar {
-    padding: 0 10px;
+  .student-layout .student-topbar {
+    padding: 12px 10px;
   }
 
-  .student-mobile-menu-btn {
+  .student-layout .student-mobile-menu-btn {
     width: 38px;
     height: 38px;
     flex-basis: 38px;
   }
 
-  .student-page-content {
+  .student-layout .student-page-content {
     padding: 12px;
   }
 
-  .student-avatar {
+  .student-layout .student-avatar {
     width: 36px;
     height: 36px;
+  }
+}
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .student-layout .student-sidebar,
+  .student-layout .student-menu-item,
+  .student-layout .student-logout-btn {
+    transition: none;
   }
 }
