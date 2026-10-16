@@ -11,7 +11,9 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-
+import {
+  markConversationNotificationsRead,
+} from "../../services/notificationEvents";
 import {
   getDoubtById,
   getConversationMessages,
@@ -51,10 +53,15 @@ const DoubtConversation = () => {
       if (response.success) {
         setDoubt(response.doubt);
       }
-
       const msgResponse = await getConversationMessages(id);
+
       if (msgResponse.success) {
         setMessages(msgResponse.messages || []);
+
+        void markConversationNotificationsRead(
+          `/student/doubts/${id}`,
+          msgResponse.notificationReadThrough
+        );
       }
     } catch (error) {
       console.error(error);

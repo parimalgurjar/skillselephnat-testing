@@ -1,6 +1,8 @@
 const Announcement = require("../models/Announcement");
 const mongoose = require("mongoose");
 const Batch = require("../models/Batch");
+const { notify } = require("../services/notificationService");
+
 /* =====================================================
    GET ALL ANNOUNCEMENTS
    ADMIN ONLY
@@ -258,12 +260,18 @@ const createAnnouncement = async (req, res) => {
         createdBy: req.user._id,
       });
 
+    await notify("ANNOUNCEMENT", {
+      actor: req.user._id,
+      entity: announcement,
+    });
+
     return res.status(201).json({
       success: true,
       message:
         "Announcement created successfully",
       announcement,
     });
+
   } catch (error) {
     console.error(
       "Create Announcement Error:",
@@ -428,12 +436,17 @@ const updateAnnouncement = async (req, res) => {
 
     await announcement.save();
 
+    await notify("ANNOUNCEMENT", {
+      actor: req.user._id,
+      entity: announcement,
+    });
+
     return res.status(200).json({
       success: true,
-      message:
-        "Announcement updated successfully",
+      message: "Announcement updated successfully",
       announcement,
     });
+
   } catch (error) {
     console.error(
       "Update Announcement Error:",
@@ -475,6 +488,7 @@ const deleteAnnouncement = async (req, res) => {
       message:
         "Announcement deleted successfully",
     });
+
   } catch (error) {
     console.error(
       "Delete Announcement Error:",
@@ -526,6 +540,7 @@ const togglePinAnnouncement = async (
 
       announcement,
     });
+
   } catch (error) {
     console.error(
       "Toggle Pin Announcement Error:",
@@ -539,6 +554,12 @@ const togglePinAnnouncement = async (
     });
   }
 };
+
+
+/* =====================================================
+   GET MY ANNOUNCEMENTS
+===================================================== */
+
 const getMyAnnouncements = async (
   req,
   res
@@ -546,8 +567,17 @@ const getMyAnnouncements = async (
   try {
     const announcements =
       await Announcement.find({
-        createdBy:
-          req.user._id,
+        $or: [
+          {
+            createdBy: req.user._id,
+          },
+          {
+            status: "PUBLISHED",
+            audience: {
+              $in: ["TEACHERS", "EVERYONE"],
+            },
+          },
+        ],
       })
         .populate(
           "batchId",
@@ -579,6 +609,12 @@ const getMyAnnouncements = async (
     });
   }
 };
+
+
+/* =====================================================
+   CREATE TEACHER ANNOUNCEMENT
+===================================================== */
+
 const createTeacherAnnouncement = async (
   req,
   res
@@ -614,21 +650,23 @@ const createTeacherAnnouncement = async (
           "Description is required",
       });
     }
-const validPriorities = [
-  "NORMAL",
-  "IMPORTANT",
-  "URGENT",
-];
 
-if (
-  priority !== undefined &&
-  !validPriorities.includes(priority)
-) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid priority",
-  });
-}
+    const validPriorities = [
+      "NORMAL",
+      "IMPORTANT",
+      "URGENT",
+    ];
+
+    if (
+      priority !== undefined &&
+      !validPriorities.includes(priority)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid priority",
+      });
+    }
+
     /* ===============================================
        VALIDATE BATCH
     =============================================== */
@@ -718,6 +756,11 @@ if (
       },
     ]);
 
+    await notify("ANNOUNCEMENT", {
+      actor: req.user._id,
+      entity: announcement,
+    });
+
     return res.status(201).json({
       success: true,
       message:
@@ -739,10 +782,10 @@ if (
   }
 };
 
+
 /* =====================================================
    EXPORTS
 ===================================================== */
-
 
 module.exports = {
   getAnnouncements,

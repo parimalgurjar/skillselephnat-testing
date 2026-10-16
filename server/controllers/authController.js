@@ -3,7 +3,7 @@ const Batch = require("../models/Batch");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-
+const { notify } = require("../services/notificationService");
 /* =====================================================
    GENERATE JWT TOKEN
 ===================================================== */
@@ -223,6 +223,10 @@ const registerUser = async (req, res) => {
     });
 
     /* ================= RESPONSE ================= */
+        await notify("SIGNUP", {
+      actor: user._id,
+      entity: user,
+    });
 
     return res.status(201).json({
       success: true,
@@ -648,6 +652,12 @@ const getPendingUsers = async (req, res) => {
 
 const approveUser = async (req, res) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid user ID",
+  });
+}
     const user = await User.findById(req.params.id);
 
     if (!user) {

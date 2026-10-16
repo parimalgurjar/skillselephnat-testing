@@ -5,7 +5,7 @@ const Batch = require("../models/Batch");
 const User = require("../models/User");
 const TaskReportSettings = require("../models/TaskReportSettings");
 const mongoose = require("mongoose");
-
+const { notify } = require("../services/notificationService");
 /* =====================================================
 HELPER
 ESCAPE REGEX CHARACTERS
@@ -379,6 +379,12 @@ const createTaskReportTask = async (req, res) => {
       description: description?.trim() || "",
       order: Number(order) || 0,
     });
+        if (category.isActive && task.isActive) {
+      await notify("REPORT_TASK_CREATED", {
+        actor: req.user._id,
+        entity: task,
+      });
+    }
 
     return res.status(201).json({
       success: true,
@@ -771,6 +777,12 @@ const submitTaskForApproval = async (req, res) => {
 
       await progress.save();
     }
+        await notify("REPORT_SUBMITTED", {
+      actor: req.user._id,
+      entity: task,
+      studentId: req.user._id,
+      eventId: `${progress._id}:${progress.submittedAt.toISOString()}`,
+    });
 
     return res.status(200).json({
       success: true,
@@ -1149,7 +1161,11 @@ progress.rejectionReason =
   status === "REJECTED" ? normalizedRejectionReason : "";
 
     await progress.save();
-
+    await notify("REPORT_REVIEWED", {
+      actor: req.user._id,
+      entity: progress,
+      eventId: progress.reviewedAt.toISOString(),
+    });
     return res.status(200).json({
       success: true,
       message:

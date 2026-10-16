@@ -1,7 +1,7 @@
 const Doubt = require("../models/Doubt");
 const User = require("../models/User");
 const mongoose = require("mongoose");
-
+const { notify } = require("../services/notificationService");
 const uploadToCloudinary = require("../utils/uploadToCloudinary");
 
 /* =====================================================
@@ -100,7 +100,10 @@ const createDoubt = async (req, res) => {
       assignedTeacher: assignedTeacher._id,
       status: "PENDING",
     });
-
+    await notify("DOUBT_CREATED", {
+      actor: req.user._id,
+      entity: doubt,
+    });
     return res.status(201).json({
       success: true,
       message:
@@ -347,7 +350,15 @@ const addDoubtReply = async (req, res) => {
       doubt.status = "IN_PROGRESS";
     }
 
-    await doubt.save();
+        await doubt.save();
+
+    const latestReply = doubt.replies[doubt.replies.length - 1];
+
+    await notify("DOUBT_MESSAGE", {
+      actor: req.user._id,
+      entity: doubt,
+      eventId: latestReply._id,
+    });
 
     return res.status(201).json({
       success: true,
@@ -408,10 +419,15 @@ const resolveDoubt = async (req, res) => {
       });
     }
 
-    doubt.status = "RESOLVED";
+        doubt.status = "RESOLVED";
     doubt.resolvedAt = new Date();
 
     await doubt.save();
+
+    await notify("DOUBT_RESOLVED", {
+      actor: req.user._id,
+      entity: doubt,
+    });
 
     return res.status(200).json({
       success: true,

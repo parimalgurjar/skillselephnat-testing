@@ -44,6 +44,7 @@ import TeacherDashboard from "../pages/teacher/TeacherDashboard";
 import TeacherStudents from "../pages/teacher/TeacherStudents";
 import TeacherAttendance from "../pages/teacher/TeacherAttendance";
 import TeacherTasks from "../pages/teacher/TeacherTasks";
+import TeacherTaskSubmissions from "../pages/teacher/TeacherTaskSubmissions";
 import TeacherTaskReport from "../pages/teacher/TeacherTaskReports";
 import TeacherAnnouncements from "../pages/teacher/TeacherAnnouncements";
 import TeacherProfile from "../pages/teacher/TeacherProfile";
@@ -164,6 +165,10 @@ const AppRoutes = () => {
           <Route path="students" element={<TeacherStudents />} />
           <Route path="attendance" element={<TeacherAttendance />} />
           <Route path="tasks" element={<TeacherTasks />} />
+          <Route
+  path="tasks/:taskId/submissions"
+  element={<TeacherTaskSubmissions />}
+/>
           <Route path="task-report" element={<TeacherTaskReport />} />
           <Route path="doubts" element={<TeacherDoubts />} />
           <Route path="doubts/:id" element={<TeacherDoubtDetails />} />

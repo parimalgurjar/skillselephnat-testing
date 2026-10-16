@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Doubt = require("../models/Doubt");
 const DoubtMessage = require("../models/DoubtMessage");
 const uploadToCloudinary = require("../utils/uploadToCloudinary");
-
+const { notify } = require("../services/notificationService");
 const checkDoubtAccess = (doubt, user) => {
   if (user.role === "ADMIN") return true;
 
@@ -53,6 +53,8 @@ const getConversationMessages = async (req, res) => {
       });
     }
 
+        const notificationReadThrough = new Date().toISOString();
+
     const messages = await DoubtMessage.find({
       doubtId: id,
     })
@@ -62,6 +64,7 @@ const getConversationMessages = async (req, res) => {
     return res.status(200).json({
       success: true,
       messages,
+      notificationReadThrough,
     });
   } catch (error) {
     console.error("Get Conversation Messages Error:", error);
@@ -161,7 +164,13 @@ const sendMessage = async (req, res) => {
       await doubt.save();
     }
 
-    await newMessage.populate("senderId", "name email role");
+        await newMessage.populate("senderId", "name email role");
+
+    await notify("DOUBT_MESSAGE", {
+      actor: req.user._id,
+      entity: doubt,
+      eventId: newMessage._id,
+    });
 
     return res.status(201).json({
       success: true,

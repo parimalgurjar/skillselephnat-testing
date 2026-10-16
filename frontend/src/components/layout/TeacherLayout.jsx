@@ -17,7 +17,8 @@ import {
 
 import { useAuth } from "../../context/AuthContext";
 import "./TeacherLayout.css";
-
+import NotificationBell from "../common/NotificationBell";
+import NotificationBadge from "../common/NotificationBadge";
 const TeacherLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -110,8 +111,9 @@ const TeacherLayout = () => {
                   `teacher-nav-item ${isActive ? "active" : ""}`
                 }
               >
-                <Icon size={19} />
+                                <Icon size={19} />
                 <span>{item.name}</span>
+                <NotificationBadge path={item.path} />
               </NavLink>
             );
           })}
@@ -161,8 +163,9 @@ const TeacherLayout = () => {
               <h3>Educator Dashboard</h3>
             </div>
           </div>
-
           <div className="teacher-profile-top">
+            <NotificationBell />
+
             <div className="teacher-info">
               <strong>{teacherName}</strong>
               <span>EDUCATOR</span>

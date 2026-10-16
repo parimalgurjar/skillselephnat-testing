@@ -21,6 +21,8 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import NotificationBell from "../common/NotificationBell";
+import NotificationBadge from "../common/NotificationBadge";
 import "./AdminLayout.css";
 
 const AdminLayout = () => {
@@ -136,8 +138,9 @@ const AdminLayout = () => {
                   `admin-nav-item ${isActive ? "active" : ""}`
                 }
               >
-                <Icon size={19} />
+                              <Icon size={19} />
                 <span>{item.name}</span>
+                <NotificationBadge path={item.path} />
               </NavLink>
             );
           })}
@@ -192,8 +195,9 @@ const AdminLayout = () => {
               <h3>Welcome back, {adminName}</h3>
             </div>
           </div>
-
           <div className="admin-profile-top">
+            <NotificationBell />
+
             <div className="admin-info">
               <strong>{adminName}</strong>
               <span>ADMIN</span>

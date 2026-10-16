@@ -9,7 +9,9 @@ import {
   User,
   MessageSquare,
 } from "lucide-react";
-
+import {
+  markConversationNotificationsRead,
+} from "../../services/notificationEvents";
 import {
   getDoubtById,
   getConversationMessages,
@@ -50,9 +52,15 @@ const [resolveModalOpen, setResolveModalOpen] = useState(false);
         setDoubt(response.doubt);
       }
 
-      const msgResponse = await getConversationMessages(id);
+            const msgResponse = await getConversationMessages(id);
+
       if (msgResponse?.success) {
         setMessages(msgResponse.messages || []);
+
+        void markConversationNotificationsRead(
+          `/teacher/doubts/${id}`,
+          msgResponse.notificationReadThrough
+        );
       }
     } catch (error) {
       console.error("Fetch doubt error:", error);

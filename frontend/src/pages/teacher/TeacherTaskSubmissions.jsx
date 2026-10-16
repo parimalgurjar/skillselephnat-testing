@@ -58,10 +58,13 @@ const [alert, setAlert] = useState({
     try {
       setReviewingId(submissionId);
 
-      await api.put(`/tasks/${taskId}/submissions/${submissionId}/review`, {
-        status,
-        teacherRemarks: remarks[submissionId] || "",
-      });
+            await api.put(
+        `/tasks/${taskId}/submissions/${submissionId}/review`,
+        {
+          action: status,
+          teacherRemarks: remarks[submissionId] || "",
+        }
+      );
 
       await fetchTask();
     } catch (error) {

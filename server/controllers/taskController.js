@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Task = require("../models/Task");
 const User = require("../models/User");
 const Batch = require("../models/Batch");
-
+const { notify } = require("../services/notificationService");
 /* =====================================================
 HELPERS
 ===================================================== */
@@ -331,7 +331,10 @@ await task.populate(
 
 const formattedTask =
   await formatTaskWithStats(task);
-
+await notify("TASK_CREATED", {
+  actor: req.user._id,
+  entity: task,
+});
 return res.status(201).json({
   success: true,
   message:
@@ -1464,12 +1467,16 @@ submission.reviewedAt =
 
 await task.save();
 
+await notify("TASK_SUBMITTED", {
+  actor: req.user._id,
+  entity: task,
+  studentId: req.user._id,
+  eventId: `${submission._id}:${submission.submittedAt.toISOString()}`,
+});
+
 return res.status(200).json({
   success: true,
-
-  message:
-    "Task submitted for teacher review",
-
+  message: "Task submitted for teacher review",
   submission,
 });
 
@@ -1767,14 +1774,19 @@ submission.teacherRemarks =
 
 await task.save();
 
+await notify("TASK_REVIEWED", {
+  actor: req.user._id,
+  entity: task,
+  studentId: submission.studentId,
+  eventId: `${submission._id}:${submission.reviewedAt.toISOString()}`,
+});
+
 return res.status(200).json({
   success: true,
-
   message:
     action === "APPROVED"
       ? "Task approved successfully"
       : "Task rejected successfully",
-
   submission,
 });
 

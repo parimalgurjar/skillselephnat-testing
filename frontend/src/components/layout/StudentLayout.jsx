@@ -1,6 +1,5 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
-
 import {
   LayoutDashboard,
   BookOpen,
@@ -16,7 +15,8 @@ import {
   Menu,
   X,
 } from "lucide-react";
-
+import NotificationBell from "../common/NotificationBell";
+import NotificationBadge from "../common/NotificationBadge";
 import { useAuth } from "../../context/AuthContext";
 import "./StudentLayout.css";
 
@@ -134,8 +134,9 @@ const StudentLayout = () => {
                   `student-menu-item ${isActive ? "active" : ""}`
                 }
               >
-                <Icon size={19} />
+                                <Icon size={19} />
                 <span>{item.name}</span>
+                <NotificationBadge path={item.path} />
               </NavLink>
             );
           })}
@@ -196,16 +197,7 @@ const StudentLayout = () => {
           </div>
 
           <div className="student-topbar-right">
-            <button
-              type="button"
-              className="notification-btn"
-              onClick={() => navigate("/student/announcements")}
-              title="View Announcements"
-              aria-label="View Announcements"
-            >
-              🔔
-              <span>2</span>
-            </button>
+                        <NotificationBell />
 
             <div className="student-profile">
               <div className="student-avatar">{initial}</div>

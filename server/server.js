@@ -75,6 +75,7 @@ app.use(
   })
 );
 
+
 /* ================= RATE LIMIT APPLICATION ================= */
 
 app.use("/api/auth/login", authLimiter);
@@ -82,7 +83,10 @@ app.use("/api/auth/register", authLimiter);
 app.use("/api/auth/admin-setup", authLimiter);
 
 /* ================= ROUTES ================= */
-
+app.use(
+  "/api/notifications",
+  require("./routes/notificationRoutes")
+);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/students", studentRoutes);
