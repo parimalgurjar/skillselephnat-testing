@@ -47,6 +47,30 @@ const studentTaskProgressSchema =
         default: "",
         trim: true,
       },
+
+      submissionLink: {
+        type: String,
+        default: "",
+        trim: true,
+        maxlength: 2048,
+      },
+
+      submissionImages: {
+        type: [
+          {
+            url: {
+              type: String,
+              required: true,
+            },
+            publicId: {
+              type: String,
+              default: "",
+            },
+          },
+        ],
+        default: [],
+      },
+
     },
     {
       timestamps: true,

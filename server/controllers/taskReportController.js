@@ -6,6 +6,9 @@ const User = require("../models/User");
 const TaskReportSettings = require("../models/TaskReportSettings");
 const mongoose = require("mongoose");
 const { notify } = require("../services/notificationService");
+
+const uploadToCloudinary = require("../utils/uploadToCloudinary");
+
 /* =====================================================
 HELPER
 ESCAPE REGEX CHARACTERS
@@ -92,6 +95,8 @@ const buildStudentTaskReport = async (studentId) => {
           submittedAt: progress?.submittedAt || null,
           reviewedAt: progress?.reviewedAt || null,
           rejectionReason: progress?.rejectionReason || "",
+          submissionLink: progress?.submissionLink || "",
+          submissionImages: progress?.submissionImages || [],
         };
       });
 
@@ -142,7 +147,6 @@ const buildStudentTaskReport = async (studentId) => {
     },
   };
 };
-
 /* =====================================================
 ADMIN
 CREATE CATEGORY
@@ -721,6 +725,7 @@ SUBMIT TASK FOR APPROVAL
 const submitTaskForApproval = async (req, res) => {
   try {
     const { taskId } = req.params;
+    const { submissionLink = "" } = req.body || {};
 
     if (!mongoose.isValidObjectId(taskId)) {
       return res.status(400).json({
@@ -741,43 +746,78 @@ const submitTaskForApproval = async (req, res) => {
       });
     }
 
+    const normalizedLink =
+      typeof submissionLink === "string"
+        ? submissionLink.trim()
+        : "";
+
+    if (normalizedLink) {
+      try {
+        const parsedUrl = new URL(normalizedLink);
+
+        if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+          throw new Error("Invalid protocol");
+        }
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: "Please enter a valid website URL starting with https:// or http://",
+        });
+      }
+    }
+
     let progress = await StudentTaskProgress.findOne({
       studentId: req.user._id,
       taskId,
     });
 
-    if (progress && progress.status === "COMPLETED") {
+    if (progress?.status === "COMPLETED") {
       return res.status(400).json({
         success: false,
         message: "This task is already completed",
       });
     }
 
-    if (progress && progress.status === "PENDING") {
+    if (progress?.status === "PENDING") {
       return res.status(400).json({
         success: false,
         message: "Task is already pending for teacher approval",
       });
     }
 
+    const files = req.files || [];
+    const uploadedImages = [];
+
+    for (const file of files) {
+      const uploaded = await uploadToCloudinary(file.buffer, {
+        folder: "skillselephant/task-reports",
+        resource_type: "image",
+      });
+
+      uploadedImages.push({
+        url: uploaded.secure_url,
+        publicId: uploaded.public_id,
+      });
+    }
+
     if (!progress) {
-      progress = await StudentTaskProgress.create({
+      progress = new StudentTaskProgress({
         studentId: req.user._id,
         taskId,
-        status: "PENDING",
-        submittedAt: new Date(),
-        rejectionReason: "",
       });
-    } else {
-      progress.status = "PENDING";
-      progress.submittedAt = new Date();
-      progress.reviewedAt = null;
-      progress.reviewedBy = null;
-      progress.rejectionReason = "";
-
-      await progress.save();
     }
-        await notify("REPORT_SUBMITTED", {
+
+    progress.status = "PENDING";
+    progress.submittedAt = new Date();
+    progress.reviewedAt = null;
+    progress.reviewedBy = null;
+    progress.rejectionReason = "";
+    progress.submissionLink = normalizedLink;
+    progress.submissionImages = uploadedImages;
+
+    await progress.save();
+
+    await notify("REPORT_SUBMITTED", {
       actor: req.user._id,
       entity: task,
       studentId: req.user._id,
@@ -798,7 +838,6 @@ const submitTaskForApproval = async (req, res) => {
     });
   }
 };
-
 /* =====================================================
 TEACHER
 GET STUDENTS TASK REPORT SUMMARY

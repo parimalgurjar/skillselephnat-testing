@@ -9,6 +9,8 @@ import {
   Loader2,
   Send,
   ListChecks,
+  Link2,
+  ImagePlus,
 } from "lucide-react";
 
 import api from "../../services/api";
@@ -32,6 +34,9 @@ const StudentTaskReport = () => {
 
   const [submittingTaskId, setSubmittingTaskId] =
     useState(null);
+
+  const [submissionLinks, setSubmissionLinks] = useState({});
+  const [selectedImages, setSelectedImages] = useState({});
 
 
   /* =====================================================
@@ -80,33 +85,51 @@ const StudentTaskReport = () => {
      SUBMIT TASK FOR APPROVAL
   ===================================================== */
 
-  const handleSubmitTask = async (
-    taskId
-  ) => {
+  const handleSubmitTask = async (taskId) => {
     try {
       setSubmittingTaskId(taskId);
       setError("");
 
+      const formData = new FormData();
+
+      formData.append(
+        "submissionLink",
+        submissionLinks[taskId] || ""
+      );
+
+      (selectedImages[taskId] || []).forEach((file) => {
+        formData.append("images", file);
+      });
+
       const response = await api.post(
-        `/task-report/tasks/${taskId}/submit`
+        `/task-report/tasks/${taskId}/submit`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       if (!response.data?.success) {
         throw new Error(
-          response.data?.message ||
-            "Unable to submit task"
+          response.data?.message || "Unable to submit task"
         );
       }
 
-      /* Refresh report */
+      setSubmissionLinks((previous) => ({
+        ...previous,
+        [taskId]: "",
+      }));
+
+      setSelectedImages((previous) => ({
+        ...previous,
+        [taskId]: [],
+      }));
 
       await fetchMyTaskReport();
-
     } catch (error) {
-      console.error(
-        "Submit Task Error:",
-        error
-      );
+      console.error("Submit Task Error:", error);
 
       setError(
         error.response?.data?.message ||
@@ -117,6 +140,7 @@ const StudentTaskReport = () => {
       setSubmittingTaskId(null);
     }
   };
+
 
 
   /* =====================================================
@@ -534,6 +558,45 @@ const StudentTaskReport = () => {
                               </div>
                             )}
 
+
+                          {/* SUBMITTED WORK DISPLAY */}
+
+                          {(task.submissionLink ||
+                            task.submissionImages?.length > 0) && (
+                            <div className="student-task-submitted-work">
+                              {task.submissionLink && (
+                                <a
+                                  className="student-task-submitted-link"
+                                  href={task.submissionLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Link2 size={15} />
+                                  View submitted project
+                                </a>
+                              )}
+
+                              {task.submissionImages?.length > 0 && (
+                                <div className="student-task-submitted-images">
+                                  {task.submissionImages.map((image, index) => (
+                                    <a
+                                      key={image.publicId || image.url || index}
+                                      href={image.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <img
+                                        src={image.url}
+                                        alt={`Submitted work ${index + 1}`}
+                                        loading="lazy"
+                                      />
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+
                         </div>
 
 
@@ -557,6 +620,80 @@ const StudentTaskReport = () => {
 
                           </span>
 
+
+                          {canSubmit && (
+                            <div className="student-task-submission-form">
+                              <label className="student-task-field-label">
+                                <Link2 size={16} />
+                                Project / Website Link
+                                <span>Optional</span>
+                              </label>
+
+                              <input
+                                type="url"
+                                className="student-task-link-input"
+                                placeholder="https://your-project.com"
+                                value={submissionLinks[task._id] || ""}
+                                onChange={(event) =>
+                                  setSubmissionLinks((previous) => ({
+                                    ...previous,
+                                    [task._id]: event.target.value,
+                                  }))
+                                }
+                              />
+
+                              <label className="student-task-field-label">
+                                <ImagePlus size={16} />
+                                Attach Notes / Work Images
+                                <span>Optional · Max 5</span>
+                              </label>
+
+                              <input
+                                type="file"
+                                className="student-task-image-input"
+                                accept="image/jpeg,image/png,image/webp"
+                                multiple
+                                onChange={(event) => {
+                                  const files = Array.from(
+                                    event.target.files || []
+                                  );
+
+                                  if (files.length > 5) {
+                                    setError(
+                                      "You can upload a maximum of 5 images."
+                                    );
+                                    event.target.value = "";
+                                    return;
+                                  }
+
+                                  const oversizedFile = files.find(
+                                    (file) => file.size > 5 * 1024 * 1024
+                                  );
+
+                                  if (oversizedFile) {
+                                    setError(
+                                      "Each image must be 5 MB or smaller."
+                                    );
+                                    event.target.value = "";
+                                    return;
+                                  }
+
+                                  setError("");
+
+                                  setSelectedImages((previous) => ({
+                                    ...previous,
+                                    [task._id]: files,
+                                  }));
+                                }}
+                              />
+
+                              {(selectedImages[task._id] || []).length > 0 && (
+                                <p className="student-task-selected-files">
+                                  {selectedImages[task._id].length} image(s) selected
+                                </p>
+                              )}
+                            </div>
+                          )}
 
                           {/* SUBMIT BUTTON */}
 

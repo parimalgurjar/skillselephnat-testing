@@ -278,7 +278,7 @@ router.patch("/:id/read", async (req, res) => {
           },
         },
         {
-          new: true,
+            returnDocument: "after",
         }
       ).select("_id");
 

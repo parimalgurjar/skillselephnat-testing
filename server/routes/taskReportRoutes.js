@@ -1,5 +1,7 @@
 const express = require("express");
 
+const taskReportUpload = require("../middleware/taskReportUpload");
+
 const {
   createCategory,
   updateCategory,
@@ -146,12 +148,15 @@ router.get(
    SUBMIT TASK FOR APPROVAL
 ===================================================== */
 
+
 router.post(
   "/tasks/:taskId/submit",
   protect,
   authorize("STUDENT"),
+  taskReportUpload.array("images", 5),
   submitTaskForApproval
 );
+
 
 /* =====================================================
    TEACHER

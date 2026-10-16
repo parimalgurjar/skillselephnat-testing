@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
+
 import {
   ClipboardCheck,
   CheckCircle2,
@@ -10,6 +11,9 @@ import {
   ArrowLeft,
   XCircle,
   AlertTriangle,
+   Link2,
+   ExternalLink
+
 } from "lucide-react";
 
 import api from "../../services/api";
@@ -929,6 +933,52 @@ const TeacherTaskReport = () => {
                                       }
                                     </p>
                                   )}
+
+                                  {(task.submissionLink ||
+                                    task.submissionImages?.length > 0) && (
+                                    <div className="teacher-submitted-work">
+                                      <strong>Student Submission</strong>
+
+                                      {task.submissionLink && (
+                                        <a
+                                          className="teacher-submitted-link"
+                                          href={task.submissionLink}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          <Link2 size={15} />
+                                          Open Project / Website
+                                          <ExternalLink size={14} />
+                                        </a>
+                                      )}
+
+                                      {task.submissionImages?.length > 0 && (
+                                        <div className="teacher-submitted-images">
+                                          {task.submissionImages.map(
+                                            (image, index) => (
+                                              <a
+                                                key={
+                                                  image.publicId ||
+                                                  image.url ||
+                                                  index
+                                                }
+                                                href={image.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                              >
+                                                <img
+                                                  src={image.url}
+                                                  alt={`Student submission ${index + 1}`}
+                                                  loading="lazy"
+                                                />
+                                              </a>
+                                            )
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
 
                                   {task.rejectionReason && (
                                     <div className="task-rejection-reason">

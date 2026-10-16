@@ -896,3 +896,108 @@ width: 100%;
   :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
   :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
 }
+
+/* Task Report: optional student submission fields */
+.student-task-submission-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid #dfe7f3;
+  border-radius: 12px;
+  background: #f8faff;
+}
+
+.student-task-field-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #011451;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.student-task-field-label span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.student-task-link-input,
+.student-task-image-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #d5deed;
+  border-radius: 8px;
+  background: #fff;
+  color: #1e293b;
+  font-size: 13px;
+}
+
+.student-task-link-input:focus {
+  outline: 2px solid #c5d5ff;
+  border-color: #1d44fa;
+}
+
+.student-task-selected-files {
+  margin: 0;
+  color: #475569;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.student-task-submitted-work {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.student-task-submitted-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #1d44fa;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.student-task-submitted-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.student-task-submitted-images a {
+  display: block;
+  width: 76px;
+  height: 76px;
+  overflow: hidden;
+  border: 1px solid #dbe3ef;
+  border-radius: 9px;
+}
+
+.student-task-submitted-images img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 480px) {
+  .student-task-submission-form {
+    padding: 11px;
+  }
+
+  .student-task-submitted-images a {
+    width: 64px;
+    height: 64px;
+  }
+}
