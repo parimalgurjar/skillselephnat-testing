@@ -73,31 +73,74 @@ const MyCourse = () => {
     setLoading(true);
     setError("");
 
-    const fetchCourse = async () => {
-      if (!courseId) return null;
+       const fetchCourse = async () => {
+      // Existing assigned course ho toh wahi load karo.
+      if (courseId) {
+        const response = await api.get(
+          `/courses/${courseId}`,
+          config
+        );
 
+        if (
+          !response.data?.success ||
+          !response.data.course?._id
+        ) {
+          throw new Error(
+            "Invalid course response from server."
+          );
+        }
+
+        return response.data.course;
+      }
+
+      // Single-course portal:
+      // individual assignment missing ho toh active course use karo.
       const response = await api.get(
-        `/courses/${courseId}`,
+        "/courses/active",
         config
       );
 
       if (
         !response.data?.success ||
-        !response.data.course
+        !Array.isArray(response.data.courses)
       ) {
         throw new Error(
-          "Invalid course response from server."
+          "Unable to load the available course."
         );
       }
 
-      return response.data.course;
+      const activeCourses = response.data.courses;
+
+      if (activeCourses.length === 0) {
+        throw new Error(
+          "The course is currently unavailable. Please contact the administrator."
+        );
+      }
+
+      if (activeCourses.length > 1) {
+        throw new Error(
+          "Multiple active courses are available. Please contact the administrator to select your course."
+        );
+      }
+
+      if (!activeCourses[0]?._id) {
+        throw new Error(
+          "Invalid course information received."
+        );
+      }
+
+      return activeCourses[0];
     };
 
-    const fetchModules = async () => {
-      if (!courseId) return [];
+        const fetchModules = async (resolvedCourseId) => {
+      if (!resolvedCourseId) {
+        throw new Error(
+          "Course information is required to load modules."
+        );
+      }
 
       const response = await api.get(
-        `/modules/course/${courseId}/active`,
+        `/modules/course/${resolvedCourseId}/active`,
         config
       );
 
@@ -137,14 +180,25 @@ const MyCourse = () => {
       reason?.message ||
       fallback;
 
-    try {
+     try {
+      const courseRequest = fetchCourse();
+
       const [
         courseResult,
         modulesResult,
         tasksResult,
       ] = await Promise.allSettled([
-        fetchCourse(),
-        fetchModules(),
+        courseRequest,
+
+        courseRequest.then(
+          (loadedCourse) =>
+            fetchModules(loadedCourse._id),
+
+          // Course failure courseResult mein handle hogi.
+          // Us case mein modules request mat bhejo.
+          () => []
+        ),
+
         fetchTasks(),
       ]);
 
