@@ -4,7 +4,12 @@ const User = require("../models/User");
 const Attendance = require("../models/Attendance");
 const Task = require("../models/Task");
 const Batch = require("../models/Batch");
-
+const Doubt = require("../models/Doubt");
+const DoubtMessage = require("../models/DoubtMessage");
+const TaskReportSettings = require("../models/TaskReportSettings");
+const StudentTaskProgress = require("../models/StudentTaskProgress");
+const Announcement = require("../models/Announcement");
+const StudentFee = require("../models/StudentFee");
 /* =====================================================
    CREATE TEACHER
 ===================================================== */
@@ -733,8 +738,17 @@ const deactivateTeacher = async (req, res) => {
 
 const deleteTeacher = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid teacher ID",
+      });
+    }
+
     const teacher = await User.findOne({
-      _id: req.params.id,
+      _id: id,
       role: "TEACHER",
     });
 
@@ -745,9 +759,85 @@ const deleteTeacher = async (req, res) => {
       });
     }
 
-    await User.deleteOne({
-      _id: teacher._id,
+    const teacherId = teacher._id;
+
+    const linkedRecords = await Promise.all([
+      Batch.exists({
+        $or: [
+          { educator: teacherId },
+          { attendanceTeachers: teacherId },
+        ],
+      }),
+
+      User.exists({
+        role: "STUDENT",
+        $or: [
+          { teacherId },
+          { taskReportTeacherIds: teacherId },
+        ],
+      }),
+
+      TaskReportSettings.exists({
+        assignedTeachers: teacherId,
+      }),
+
+      Doubt.exists({
+        $or: [
+          { assignedTeacher: teacherId },
+          { "replies.senderId": teacherId },
+        ],
+      }),
+
+      DoubtMessage.exists({
+        senderId: teacherId,
+      }),
+
+      Task.exists({
+        $or: [
+          { createdBy: teacherId },
+          { "submissions.reviewedBy": teacherId },
+        ],
+      }),
+
+      StudentTaskProgress.exists({
+        reviewedBy: teacherId,
+      }),
+
+      Attendance.exists({
+        markedBy: teacherId,
+      }),
+
+      Announcement.exists({
+        createdBy: teacherId,
+      }),
+
+      StudentFee.exists({
+        $or: [
+          { "installments.recordedBy": teacherId },
+          { lastAccessRestoredBy: teacherId },
+        ],
+      }),
+    ]);
+
+    if (linkedRecords.some(Boolean)) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "This teacher has linked assignments or history records and cannot be permanently deleted. Use Edit to set the teacher's status to INACTIVE.",
+      });
+    }
+
+    const result = await User.deleteOne({
+      _id: teacherId,
+      role: "TEACHER",
     });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Teacher no longer exists",
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -758,7 +848,7 @@ const deleteTeacher = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Server error while deleting teacher",
+      message: "Unable to delete teacher",
     });
   }
 };

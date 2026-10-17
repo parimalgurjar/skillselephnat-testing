@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, Users, Mail, MoreVertical, TrendingUp } from "lucide-react";
+import { Search, Users, Mail, TrendingUp } from "lucide-react";
 
 import api from "../../services/api";
 import "./TeacherStudents.css";
@@ -399,7 +399,7 @@ const TeacherStudents = () => {
                 <th>Attendance</th>
                 <th>Performance</th>
                 <th>Status</th>
-                <th></th>
+              
               </tr>
             </thead>
 
@@ -477,18 +477,14 @@ const TeacherStudents = () => {
                       </td>
 
                       {/* ACTION */}
-                      <td>
-                        <button className="student-more-btn" type="button">
-                          <MoreVertical size={18} />
-                        </button>
-                      </td>
+                      
                     </tr>
                   );
                 })
               ) : (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="6"
                     style={{
                       textAlign: "center",
                       padding: "30px",

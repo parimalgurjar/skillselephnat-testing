@@ -9,7 +9,6 @@ import {
   CalendarDays,
   Users,
   Pin,
-  MoreVertical,
   X,
   Send,
 } from "lucide-react";
@@ -769,12 +768,7 @@ return;
                       </div>
 
 
-                      <button
-                        className="announcement-menu"
-                        type="button"
-                      >
-                        <MoreVertical size={18} />
-                      </button>
+                      
 
                     </div>
 

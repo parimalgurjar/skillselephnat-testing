@@ -331,6 +331,13 @@ const addInstallment = async (req, res) => {
       message: "Installment recorded successfully",
     });
   } catch (error) {
+    if (error.name === "VersionError") {
+  return res.status(409).json({
+    success: false,
+    message:
+      "Fee record changed while you were saving. Refresh the fee list, check the latest balance and try again.",
+  });
+}
     console.error("Add Fee Installment:", error);
     return res.status(500).json({
       success: false,

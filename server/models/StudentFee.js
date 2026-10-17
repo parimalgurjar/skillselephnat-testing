@@ -70,7 +70,7 @@ const studentFeeSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+studentFeeSchema.set("optimisticConcurrency", true);
 studentFeeSchema.virtual("paidAmount").get(function () {
   return this.installments.reduce(
     (total, installment) => total + installment.amount,

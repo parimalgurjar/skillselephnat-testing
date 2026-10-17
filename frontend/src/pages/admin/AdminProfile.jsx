@@ -9,7 +9,6 @@ import {
   Camera,
   Save,
   Lock,
-  Bell,
   ShieldCheck,
 } from "lucide-react";
 import AlertModal from "../../components/common/AlertModal";
@@ -48,8 +47,8 @@ const AdminProfile = () => {
     name: "",
     email: "",
     phone: "",
-    designation: "Institute Administrator",
-    location: "Indore, Madhya Pradesh",
+    designation: "",
+location: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -96,8 +95,8 @@ const AdminProfile = () => {
           name: currentUser.name || "",
           email: currentUser.email || "",
           phone: currentUser.phone || "",
-          designation: "Institute Administrator",
-          location: "Indore, Madhya Pradesh",
+          designation: currentUser.designation ?? "",
+location: currentUser.location ?? "",
         });
       } catch (error) {
         console.error(
@@ -148,10 +147,12 @@ const AdminProfile = () => {
       setSaving(true);
 
       const response = await updateProfile({
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-      });
+  name: formData.name.trim(),
+  email: formData.email.trim(),
+  phone: formData.phone.trim(),
+  designation: formData.designation.trim(),
+  location: formData.location.trim(),
+});
 
       if (!response?.success || !response?.user) {
         throw new Error(
@@ -166,12 +167,14 @@ const AdminProfile = () => {
       updateUser(updatedUser);
 
       /* Update Local Form */
-      setFormData((previous) => ({
-        ...previous,
-        name: updatedUser.name || previous.name,
-        email: updatedUser.email || previous.email,
-        phone: updatedUser.phone || previous.phone,
-      }));
+     setFormData((previous) => ({
+  ...previous,
+  name: updatedUser.name ?? previous.name,
+  email: updatedUser.email ?? previous.email,
+  phone: updatedUser.phone ?? previous.phone,
+  designation: updatedUser.designation ?? "",
+  location: updatedUser.location ?? "",
+}));
 
       showAlert("Profile updated successfully", "success", "Success");
     } catch (error) {
@@ -376,20 +379,7 @@ const AdminProfile = () => {
             Security
           </button>
 
-          <button
-            type="button"
-            className={
-              activeTab === "notifications"
-                ? "profile-tab active"
-                : "profile-tab"
-            }
-            onClick={() =>
-              setActiveTab("notifications")
-            }
-          >
-            <Bell size={17} />
-            Notifications
-          </button>
+          
         </div>
 
         {/* ================= CONTENT ================= */}
@@ -425,13 +415,7 @@ const AdminProfile = () => {
                     {formData.designation}
                   </span>
 
-                  <button
-                    type="button"
-                    className="change-photo-btn"
-                  >
-                    <Camera size={15} />
-                    Change Photo
-                  </button>
+                 
                 </div>
               </div>
 
@@ -678,89 +662,8 @@ const AdminProfile = () => {
             </div>
           )}
 
-          {/* ================= NOTIFICATIONS ================= */}
+      
 
-          {activeTab === "notifications" && (
-            <div className="settings-tab-content">
-
-              <div className="profile-content-header">
-                <div>
-                  <h2>
-                    Notification Preferences
-                  </h2>
-
-                  <p>
-                    Choose what notifications you want
-                    to receive.
-                  </p>
-                </div>
-              </div>
-
-              <div className="notification-setting">
-                <div>
-                  <h3>
-                    Email Notifications
-                  </h3>
-
-                  <p>
-                    Receive important updates via
-                    email.
-                  </p>
-                </div>
-
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                  />
-
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-
-              <div className="notification-setting">
-                <div>
-                  <h3>
-                    Task Notifications
-                  </h3>
-
-                  <p>
-                    Get notified about new tasks and
-                    submissions.
-                  </p>
-                </div>
-
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                  />
-
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-
-              <div className="notification-setting">
-                <div>
-                  <h3>
-                    Attendance Alerts
-                  </h3>
-
-                  <p>
-                    Receive alerts for low student
-                    attendance.
-                  </p>
-                </div>
-
-                <label className="toggle-switch">
-                  <input type="checkbox" />
-
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-
-            </div>
-          )}
 
         </div>
       </div>

@@ -42,7 +42,19 @@ const userSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+designation: {
+  type: String,
+  trim: true,
+  default: "",
+  maxlength: 120,
+},
 
+location: {
+  type: String,
+  trim: true,
+  default: "",
+  maxlength: 200,
+},
     /* =====================================================
        USER ROLE
     ===================================================== */

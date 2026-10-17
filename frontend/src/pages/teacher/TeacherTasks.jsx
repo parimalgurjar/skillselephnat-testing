@@ -565,9 +565,7 @@ const TeacherTasks = () => {
                         {displayStatus}
                       </span>
 
-                      <button type="button">
-                        <MoreVertical size={18} />
-                      </button>
+                      
                     </div>
                   </div>
 

@@ -35,7 +35,8 @@ const buildAuthUser = (user) => {
     phone: user.phone,
     role: user.role,
     avatar: user.avatar,
-
+designation: user.designation || "",
+location: user.location || "",
     batchId: user.batchId,
     batchTiming: user.batchTiming,
 
@@ -462,7 +463,7 @@ const getCurrentUser = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
+   const { name, email, phone, designation, location } = req.body;
 
     const user = await User.findById(req.user._id);
 
@@ -536,7 +537,24 @@ const updateProfile = async (req, res) => {
 
       user.phone = cleanedPhone;
     }
+for (const [field, value, maxLength] of [
+  ["designation", designation, 120],
+  ["location", location, 200],
+]) {
+  if (value === undefined) continue;
 
+  if (
+    typeof value !== "string" ||
+    value.trim().length > maxLength
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: `${field} must be text within ${maxLength} characters`,
+    });
+  }
+
+  user[field] = value.trim();
+}
     await user.save();
 
     return res.status(200).json({

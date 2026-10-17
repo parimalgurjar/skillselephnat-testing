@@ -791,3 +791,10 @@
     animation: none;
   }
 }
+.admin-profile-page .change-photo-btn {
+  position: static;
+  width: auto;
+  height: 34px;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+}

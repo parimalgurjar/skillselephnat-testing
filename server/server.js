@@ -6,6 +6,7 @@ dotenv.config();
 const helmet = require("helmet");
 const connectDB = require("./config/db");
 const feeRoutes = require("./routes/feeRoutes");
+const multer=require("multer")
 /* ================= APP ================= */
 
 const app = express();
@@ -116,7 +117,74 @@ app.get("/", (req, res) => {
     message: "Skillselephant Backend API is running",
   });
 });
+app.use((error, req, res, next) => {
+  if (res.headersSent) {
+    return next(error);
+  }
 
+  if (error instanceof multer.MulterError) {
+    let statusCode = 400;
+    let message = "Unable to upload the selected files.";
+
+    switch (error.code) {
+      case "LIMIT_FILE_SIZE":
+        statusCode = 413;
+        message =
+          "A selected file exceeds the allowed size limit.";
+        break;
+
+      case "LIMIT_FILE_COUNT":
+        message =
+          "Too many files selected. Please reduce the number of files.";
+        break;
+
+      case "LIMIT_UNEXPECTED_FILE":
+        message =
+          "Too many files or an unexpected upload field was received.";
+        break;
+
+      case "LIMIT_FIELD_VALUE":
+        message = "An uploaded form field is too large.";
+        break;
+
+      default:
+        message = "Invalid upload request. Please check your files.";
+    }
+
+    return res.status(statusCode).json({
+      success: false,
+      message,
+    });
+  }
+
+  if (error.type === "entity.too.large") {
+    return res.status(413).json({
+      success: false,
+      message: "The request exceeds the allowed size limit.",
+    });
+  }
+
+  const suppliedStatus = error.statusCode || error.status;
+
+  const statusCode =
+    Number.isInteger(suppliedStatus) &&
+    suppliedStatus >= 400 &&
+    suppliedStatus < 500
+      ? suppliedStatus
+      : 500;
+
+  if (statusCode === 500) {
+    console.error("Unhandled Server Error:", error);
+  }
+
+  return res.status(statusCode).json({
+    success: false,
+    message:
+      statusCode === 500
+        ? "Something went wrong. Please try again."
+        : error.message || "Invalid request.",
+  });
+});
 /* ================= SERVER ================= */
 
 const startServer = async () => {

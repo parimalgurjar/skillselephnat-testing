@@ -153,7 +153,7 @@ router.post(
   "/tasks/:taskId/submit",
   protect,
   authorize("STUDENT"),
-  taskReportUpload.array("images", 5),
+  taskReportUpload.array("images", 10),
   submitTaskForApproval
 );
 

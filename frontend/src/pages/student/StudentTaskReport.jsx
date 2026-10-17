@@ -105,6 +105,7 @@ const StudentTaskReport = () => {
         `/task-report/tasks/${taskId}/submit`,
         formData,
         {
+            timeout: 120000,
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -645,7 +646,7 @@ const StudentTaskReport = () => {
                               <label className="student-task-field-label">
                                 <ImagePlus size={16} />
                                 Attach Notes / Work Images
-                                <span>Optional · Max 5</span>
+                                <span>Optional · Max 10</span>
                               </label>
 
                               <input
@@ -658,13 +659,11 @@ const StudentTaskReport = () => {
                                     event.target.files || []
                                   );
 
-                                  if (files.length > 5) {
-                                    setError(
-                                      "You can upload a maximum of 5 images."
-                                    );
-                                    event.target.value = "";
-                                    return;
-                                  }
+                                if (files.length > 10) {
+  setError("You can upload a maximum of 10 images.");
+  event.target.value = "";
+  return;
+}
 
                                   const oversizedFile = files.find(
                                     (file) => file.size > 5 * 1024 * 1024

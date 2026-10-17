@@ -82,6 +82,90 @@ const [audioBusy, setAudioBusy] = useState(false);
   useEffect(() => {
     fetchDoubt();
   }, [id]);
+  useEffect(() => {
+  if (!id || loading) return;
+
+  let active = true;
+  let refreshing = false;
+
+  const conversationLink = window.location.pathname;
+
+  const refreshConversation = async () => {
+    if (
+      !active ||
+      refreshing ||
+      document.visibilityState !== "visible"
+    ) {
+      return;
+    }
+
+    refreshing = true;
+
+    try {
+      const [doubtResponse, messageResponse] =
+        await Promise.all([
+          getDoubtById(id),
+          getConversationMessages(id),
+        ]);
+
+      if (!active) return;
+
+      if (doubtResponse?.success) {
+        setDoubt(doubtResponse.doubt);
+      }
+
+      if (messageResponse?.success) {
+        setMessages(messageResponse.messages || []);
+
+        void markConversationNotificationsRead(
+          conversationLink,
+          messageResponse.notificationReadThrough
+        );
+      }
+    } catch (error) {
+      if (active) {
+        console.error(
+          "Chat background refresh failed:",
+          error.message
+        );
+      }
+    } finally {
+      refreshing = false;
+    }
+  };
+
+  const timer = window.setInterval(
+    refreshConversation,
+    5000
+  );
+
+  window.addEventListener("focus", refreshConversation);
+  window.addEventListener("online", refreshConversation);
+  document.addEventListener(
+    "visibilitychange",
+    refreshConversation
+  );
+
+  return () => {
+    active = false;
+    window.clearInterval(timer);
+
+    window.removeEventListener(
+      "focus",
+      refreshConversation
+    );
+
+    window.removeEventListener(
+      "online",
+      refreshConversation
+    );
+
+    document.removeEventListener(
+      "visibilitychange",
+      refreshConversation
+    );
+  };
+}, [id, loading]);
 
   const handleSendReply = async (e) => {
     e.preventDefault();
@@ -326,7 +410,21 @@ const isCurrentUser =
 
                   <div className="message-bubble">
                     {item.message}
-
+{item.legacyAttachments?.length > 0 && (
+  <div className="message-attachment">
+    {item.legacyAttachments.map((url, index) => (
+      <a
+        key={`${item._id}-attachment-${index}`}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="attachment-file"
+      >
+        📎 Open attachment {index + 1}
+      </a>
+    ))}
+  </div>
+)}
                     {item.attachment?.url && (
                       <div className="message-attachment">
                         {item.attachment.type === "image" && (

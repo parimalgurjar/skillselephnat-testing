@@ -44,10 +44,12 @@ export default function DoubtChatComposer({
     onBusyChange,
   });
 
+  useEffect(() => {
   callbacksRef.current = {
     onFileChange,
     onBusyChange,
   };
+}, [onFileChange, onBusyChange]);
 
   const locked = sending || disabled;
   const busy = phase !== "idle";

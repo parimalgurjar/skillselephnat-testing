@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import {
-  Camera,
+  
   Mail,
   Phone,
   MapPin,
@@ -267,15 +267,7 @@ const TeacherProfile = () => {
               <span>{getInitials(profile.name)}</span>
             )}
 
-            {isEditing && (
-              <button
-                type="button"
-                className="change-photo-btn"
-                title="Avatar URL can be updated from API"
-              >
-                <Camera size={15} />
-              </button>
-            )}
+            
           </div>
 
           <div className="teacher-profile-intro">

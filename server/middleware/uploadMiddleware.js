@@ -41,12 +41,12 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-    return cb(
-      new Error("This file type is not allowed"),
-      false
-    );
-  }
+ if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
+  const error = new Error("This file type is not allowed");
+
+  error.statusCode = 400;
+  return cb(error);
+}
 
   cb(null, true);
 };

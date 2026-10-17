@@ -43,7 +43,24 @@ return settings.assignedTeachers.some(
 HELPER
 BUILD STUDENT TASK REPORT
 ===================================================== */
+const getVisibleTaskReportTaskIds = async () => {
+  const categories = await TaskCategory.find({
+    isActive: true,
+  })
+    .select("_id")
+    .lean();
 
+  const tasks = await TaskReportTask.find({
+    isActive: true,
+    categoryId: {
+      $in: categories.map((category) => category._id),
+    },
+  })
+    .select("_id")
+    .lean();
+
+  return tasks.map((task) => task._id);
+};
 const buildStudentTaskReport = async (studentId) => {
   const categories = await TaskCategory.find({
     isActive: true,
@@ -54,18 +71,24 @@ const buildStudentTaskReport = async (studentId) => {
     })
     .lean();
 
-  const tasks = await TaskReportTask.find({
-    isActive: true,
-  })
+ const tasks = await TaskReportTask.find({
+  isActive: true,
+  categoryId: {
+    $in: categories.map((category) => category._id),
+  },
+})
     .sort({
       order: 1,
       createdAt: 1,
     })
     .lean();
 
-  const progressRecords = await StudentTaskProgress.find({
-    studentId,
-  }).lean();
+const progressRecords = await StudentTaskProgress.find({
+  studentId,
+  taskId: {
+    $in: tasks.map((task) => task._id),
+  },
+}).lean();
 
   const progressMap = new Map();
 
@@ -924,9 +947,8 @@ const getTeacherStudentsTaskReports = async (req, res) => {
        TOTAL ACTIVE TASK REPORT TASKS
     =============================================== */
 
-    const totalTasks = await TaskReportTask.countDocuments({
-      isActive: true,
-    });
+    const visibleTaskIds = await getVisibleTaskReportTaskIds();
+const totalTasks = visibleTaskIds.length;
 
     const studentIds = students.map((student) => student._id);
 
@@ -935,10 +957,13 @@ const getTeacherStudentsTaskReports = async (req, res) => {
     =============================================== */
 
     const progressRecords = await StudentTaskProgress.find({
-      studentId: {
-        $in: studentIds,
-      },
-    }).lean();
+  studentId: {
+    $in: studentIds,
+  },
+  taskId: {
+    $in: visibleTaskIds,
+  },
+}).lean();
 
     /* ===============================================
        BUILD STUDENT SUMMARY
@@ -1247,17 +1272,19 @@ const getAllStudentsTaskReports = async (req, res) => {
       })
       .lean();
 
-    const totalTasks = await TaskReportTask.countDocuments({
-      isActive: true,
-    });
+   const visibleTaskIds = await getVisibleTaskReportTaskIds();
+const totalTasks = visibleTaskIds.length;
 
     const studentIds = students.map((student) => student._id);
 
-    const progressRecords = await StudentTaskProgress.find({
-      studentId: {
-        $in: studentIds,
-      },
-    }).lean();
+   const progressRecords = await StudentTaskProgress.find({
+  studentId: {
+    $in: studentIds,
+  },
+  taskId: {
+    $in: visibleTaskIds,
+  },
+}).lean();
 
     const formattedStudents = students.map((student) => {
       const progress = progressRecords.filter(

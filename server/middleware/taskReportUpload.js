@@ -10,11 +10,14 @@ const fileFilter = (req, file, cb) => {
     "image/webp",
   ];
 
-  if (!allowedTypes.includes(file.mimetype)) {
-    return cb(
-      new Error("Only JPG, PNG and WEBP images are allowed")
-    );
-  }
+ if (!allowedTypes.includes(file.mimetype)) {
+  const error = new Error(
+    "Only JPG, PNG and WEBP images are allowed"
+  );
+
+  error.statusCode = 400;
+  return cb(error);
+}
 
   cb(null, true);
 };
@@ -24,7 +27,7 @@ const taskReportUpload = multer({
   fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024,
-    files: 5,
+    files: 10,
   },
 });
 

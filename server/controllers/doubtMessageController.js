@@ -53,13 +53,63 @@ const getConversationMessages = async (req, res) => {
       });
     }
 
-        const notificationReadThrough = new Date().toISOString();
+    const notificationReadThrough = new Date().toISOString();
 
-    const messages = await DoubtMessage.find({
+    await doubt.populate(
+      "replies.senderId",
+      "name email role"
+    );
+
+    const currentMessages = await DoubtMessage.find({
       doubtId: id,
     })
       .populate("senderId", "name email role")
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: 1, _id: 1 })
+      .lean();
+
+    const legacyMessages = (doubt.replies || []).map(
+      (reply) => {
+        const legacyAttachments = (
+          reply.attachments || []
+        ).filter((url) => {
+          if (typeof url !== "string") return false;
+
+          try {
+            return ["http:", "https:"].includes(
+              new URL(url).protocol
+            );
+          } catch {
+            return false;
+          }
+        });
+
+        return {
+          _id: `legacy:${reply._id}`,
+          doubtId: doubt._id,
+          senderId: reply.senderId || null,
+          senderRole: reply.senderId?.role || "",
+          message: reply.message || "",
+          attachment: null,
+          legacyAttachments,
+          createdAt: reply.createdAt || null,
+        };
+      }
+    );
+
+    const messages = [
+      ...legacyMessages,
+      ...currentMessages,
+    ].sort((a, b) => {
+      const firstTime = a.createdAt
+        ? new Date(a.createdAt).getTime()
+        : 0;
+
+      const secondTime = b.createdAt
+        ? new Date(b.createdAt).getTime()
+        : 0;
+
+      return firstTime - secondTime;
+    });
 
     return res.status(200).json({
       success: true,
