@@ -1,0 +1,276 @@
+.composer {
+  margin: 0;
+  padding: 14px 18px;
+  background: #f4f6fb;
+  border-top: 1px solid #e5e9f2;
+}
+
+.composer,
+.composer * {
+  box-sizing: border-box;
+}
+
+.composer .bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  min-height: 58px;
+  padding: 7px 9px;
+  background: #ffffff;
+  border: 1px solid #e1e6ef;
+  border-radius: 28px;
+  box-shadow: 0 2px 8px rgba(1, 20, 81, 0.035);
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.composer .bar:focus-within {
+  border-color: #aebcdb;
+  box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.045);
+}
+
+.composer .textInput {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  height: 42px;
+  min-height: 42px;
+  max-height: 120px;
+  margin: 0;
+  padding: 10px 4px;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: #18233c;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  overflow-y: auto;
+  box-shadow: none;
+}
+
+.composer .textInput:focus {
+  outline: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.composer .textInput::placeholder {
+  color: #8b95a8;
+}
+
+.composer .iconButton,
+.composer .actionButton {
+  display: inline-flex;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 150ms, transform 150ms;
+}
+
+.composer .iconButton {
+  background: transparent;
+  color: #778297;
+}
+
+.composer .iconButton:hover {
+  background: #edf1f7;
+  color: #011451;
+}
+
+.composer .actionButton {
+  background: #011451;
+  color: #ffffff;
+}
+
+.composer .actionButton:hover {
+  background: #132b6d;
+}
+
+.composer .actionButton:active {
+  transform: scale(0.95);
+}
+
+.composer button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.composer button:focus-visible {
+  outline: 2px solid #6686d1;
+  outline-offset: 3px;
+}
+
+.composer .preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 440px;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #e1e6ef;
+  border-radius: 14px;
+}
+
+.composer .thumbnail,
+.composer .fileIcon {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+}
+
+.composer .thumbnail {
+  object-fit: cover;
+}
+
+.composer .fileIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #edf2fc;
+  color: #011451;
+}
+
+.composer .fileDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.composer .fileDetails strong {
+  display: block;
+  overflow: hidden;
+  color: #26334e;
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer .fileDetails small {
+  display: block;
+  margin-top: 4px;
+  color: #8b95a8;
+  font-size: 11px;
+}
+
+.composer .audioPreview {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: 34px;
+  margin-top: 6px;
+}
+
+.composer .recording {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 42px;
+  color: #647087;
+  font-size: 13px;
+}
+
+.composer .recording strong {
+  margin-left: auto;
+  padding-right: 8px;
+  color: #26334e;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.composer .recordDot {
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: pulse 1s infinite;
+}
+
+.composer .deleteButton {
+  color: #dc2626;
+}
+
+.composer .stopButton {
+  background: #dc2626;
+}
+
+.composer .stopButton:hover {
+  background: #b91c1c;
+}
+
+.composer .error {
+  margin: 8px 10px 0;
+  color: #dc2626;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (max-width: 600px) {
+  .composer {
+    padding: 10px;
+  }
+
+  .composer .bar {
+    gap: 4px;
+    padding: 6px;
+    min-height: 54px;
+  }
+
+  .composer .textInput {
+    font-size: 16px;
+  }
+
+  .composer .preview {
+    max-width: 100%;
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .composer .recording {
+    gap: 6px;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .composer *,
+  .composer *::before,
+  .composer *::after {
+    animation: none;
+    transition: none;
+  }
+}

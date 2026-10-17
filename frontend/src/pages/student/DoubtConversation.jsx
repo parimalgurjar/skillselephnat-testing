@@ -6,11 +6,13 @@ import {
   User,
   Clock3,
   CheckCircle2,
+ 
 } from "lucide-react";
 import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+import DoubtChatComposer from "../../components/doubts/DoubtChatComposer";
 import {
   markConversationNotificationsRead,
 } from "../../services/notificationEvents";
@@ -42,8 +44,8 @@ const DoubtConversation = () => {
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [fileInputKey, setFileInputKey] = useState(Date.now());
-
+  
+const [audioBusy, setAudioBusy] = useState(false);
   const fetchDoubt = async () => {
     try {
       setLoading(true);
@@ -83,6 +85,7 @@ const DoubtConversation = () => {
 
   const handleSendReply = async (e) => {
     e.preventDefault();
+    if (sending || audioBusy) return;
 
     if (!reply.trim() && !selectedFile) {
       return;
@@ -99,7 +102,7 @@ const DoubtConversation = () => {
       if (response.success) {
         setReply("");
         setSelectedFile(null);
-        setFileInputKey(Date.now());
+        
 
         await fetchDoubt();
       }
@@ -237,7 +240,7 @@ const DoubtConversation = () => {
 
           {/* ORIGINAL DOUBT MESSAGE */}
 
-          <div className="conversation-message student-message">
+          <div className="conversation-message se-chat-outgoing">
             <div className="message-avatar">
               {doubt.studentId?.name
                 ?.charAt(0)
@@ -266,14 +269,20 @@ const DoubtConversation = () => {
           {/* REPLIES / MESSAGES */}
 
           {(messages.length > 0 ? messages : doubt.replies || [])?.map((item) => {
-            const currentUserId =
-              user?._id || user?.id;
+            const currentUserId = user?._id || user?.id;
 
-            const senderId =
-              item.senderId?._id || item.senderId;
+const senderId =
+  typeof item.senderId === "object"
+    ? item.senderId?._id || item.senderId?.id
+    : item.senderId;
 
-            const isCurrentUser =
-              String(senderId) === String(currentUserId);
+const messageRole =
+  item.senderRole || item.senderId?.role;
+
+const isCurrentUser =
+  senderId && currentUserId
+    ? String(senderId) === String(currentUserId)
+    : messageRole === "STUDENT";
 
             const senderName =
               item.senderId?.name ||
@@ -288,11 +297,11 @@ const DoubtConversation = () => {
             return (
               <div
                 key={item._id}
-                className={`conversation-message ${
-                  isCurrentUser
-                    ? "student-message"
-                    : "teacher-message"
-                }`}
+               className={`conversation-message ${
+  isCurrentUser
+    ? "se-chat-outgoing"
+    : "se-chat-incoming"
+}`}
               >
                 <div className="message-avatar">
                   {senderName
@@ -335,6 +344,21 @@ const DoubtConversation = () => {
                             className="attachment-video"
                           />
                         )}
+                        {item.attachment.type === "audio" && (
+  <div className="attachment-audio">
+    <audio
+      src={item.attachment.url}
+      controls
+      preload="metadata"
+    >
+      Your browser does not support audio playback.
+    </audio>
+
+    <small>
+      {item.attachment.filename || "Voice message"}
+    </small>
+  </div>
+)}
 
                         {item.attachment.type === "file" && (
                           <a
@@ -365,61 +389,18 @@ const DoubtConversation = () => {
 
         {/* ================= REPLY BOX ================= */}
 
-        {doubt.status !== "RESOLVED" && (
-          <form
-            className="conversation-reply-box"
-            onSubmit={handleSendReply}
-          >
-            <textarea
-              value={reply}
-              onChange={(e) =>
-                setReply(e.target.value)
-              }
-              placeholder="Write your reply..."
-              rows="3"
-            />
-
-            <div className="doubt-attachment">
-              <input
-                key={fileInputKey}
-                type="file"
-                accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-                onChange={(e) => {
-                  setSelectedFile(e.target.files?.[0] || null);
-                }}
-              />
-
-              {selectedFile && (
-                <div className="selected-file">
-                  <span>{selectedFile.name}</span>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedFile(null);
-                      setFileInputKey(Date.now());
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={
-                sending || (!reply.trim() && !selectedFile)
-              }
-            >
-              <Send size={18} />
-
-              {sending
-                ? "Sending..."
-                : "Send Reply"}
-            </button>
-          </form>
-        )}
+    {doubt.status !== "RESOLVED" && (
+  <DoubtChatComposer
+    key={id}
+    value={reply}
+    onChange={setReply}
+    file={selectedFile}
+    onFileChange={setSelectedFile}
+    sending={sending}
+    onBusyChange={setAudioBusy}
+    onSubmit={handleSendReply}
+  />
+)}
 
         {doubt.status === "RESOLVED" && (
           <div className="conversation-resolved-message">

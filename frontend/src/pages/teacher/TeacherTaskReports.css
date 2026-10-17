@@ -1140,3 +1140,61 @@
     height: 76px;
   }
 }
+/* Teacher task report: prevent header/filter clipping */
+
+.teacher-task-report-page .teacher-task-report-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 18px;
+}
+
+.teacher-task-report-page
+.teacher-task-report-header > div:first-child {
+  min-width: 0;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.teacher-task-report-page .teacher-report-header-icon {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.teacher-task-report-page .teacher-report-filters {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) minmax(160px, 220px);
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 0;
+  gap: 12px;
+}
+
+.teacher-task-report-page .teacher-search-box,
+.teacher-task-report-page .teacher-batch-filter {
+  min-width: 0;
+}
+
+.teacher-task-report-page .teacher-batch-filter select,
+.teacher-task-report-page .teacher-search-box input {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .teacher-task-report-page {
+    padding: 0;
+  }
+
+  .teacher-task-report-page .teacher-report-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .teacher-task-report-page .teacher-task-report-header h1 {
+    overflow-wrap: anywhere;
+  }
+}

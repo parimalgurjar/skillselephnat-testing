@@ -127,13 +127,15 @@ const sendMessage = async (req, res) => {
     if (req.file) {
       const file = req.file;
 
-      let attachmentType = "file";
+     let attachmentType = "file";
 
-      if (file.mimetype.startsWith("image/")) {
-        attachmentType = "image";
-      } else if (file.mimetype.startsWith("video/")) {
-        attachmentType = "video";
-      }
+if (file.mimetype.startsWith("image/")) {
+  attachmentType = "image";
+} else if (file.mimetype.startsWith("video/")) {
+  attachmentType = "video";
+} else if (file.mimetype.startsWith("audio/")) {
+  attachmentType = "audio";
+}
 
       const uploadedFile = await uploadToCloudinary(
         file.buffer,

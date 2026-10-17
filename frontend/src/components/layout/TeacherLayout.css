@@ -432,3 +432,15 @@
     padding: 12px;
   }
 }
+/* Allow sidebar access on short laptop screens */
+
+@media (min-width: 769px) {
+  .teacher-sidebar {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .teacher-sidebar > * {
+    flex-shrink: 0;
+  }
+}

@@ -584,3 +584,113 @@
     justify-content: center;
   }
 }
+.attachment-audio {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(100%, 340px);
+  margin-top: 8px;
+}
+
+.attachment-audio audio {
+  width: 100%;
+  max-width: 100%;
+}
+
+.attachment-audio small {
+  overflow-wrap: anywhere;
+  color: #7181a0;
+  font-size: 12px;
+}
+/* Scoped student chat alignment */
+
+.doubt-conversation-page
+.conversation-messages
+> .conversation-message {
+  display: flex;
+  align-items: flex-start;
+  align-self: flex-start;
+  width: fit-content;
+  min-width: 0;
+  max-width: 85%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.doubt-conversation-page
+.conversation-messages
+> .conversation-message.se-chat-outgoing {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.doubt-conversation-page
+.conversation-messages
+> .conversation-message.se-chat-incoming {
+  align-self: flex-start;
+  flex-direction: row;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.doubt-conversation-page
+.se-chat-outgoing
+.message-content {
+  align-items: flex-end;
+}
+
+.doubt-conversation-page
+.se-chat-incoming
+.message-content {
+  align-items: flex-start;
+}
+
+.doubt-conversation-page
+.se-chat-outgoing
+.message-bubble {
+  background: #011451;
+  color: #ffffff;
+  border: 1px solid #011451;
+  border-radius: 12px 12px 3px 12px;
+}
+
+.doubt-conversation-page
+.se-chat-incoming
+.message-bubble {
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px 12px 12px 3px;
+}
+
+.doubt-conversation-page
+.se-chat-outgoing
+.attachment-file {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.doubt-conversation-page .attachment-audio {
+  width: 300px;
+  max-width: 100%;
+}
+
+.doubt-conversation-page .attachment-audio audio {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .doubt-conversation-page
+  .conversation-messages
+  > .conversation-message {
+    max-width: 95%;
+  }
+}

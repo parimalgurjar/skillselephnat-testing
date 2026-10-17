@@ -2,11 +2,30 @@
 const multer = require("multer");
 
 const ALLOWED_MIME_TYPES = new Set([
+  // Images
   "image/jpeg",
   "image/png",
   "image/webp",
+
+  // Videos
   "video/mp4",
   "video/webm",
+
+  // Audio / voice messages
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/mp4",
+  "audio/x-m4a",
+  "audio/m4a",
+  "audio/aac",
+  "audio/wav",
+  "audio/x-wav",
+  "audio/ogg",
+  "audio/webm",
+  "audio/3gpp",
+  "audio/3gpp2",
+
+  // Documents
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -17,7 +36,7 @@ const ALLOWED_MIME_TYPES = new Set([
   "text/plain",
 ]);
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
 const storage = multer.memoryStorage();
 

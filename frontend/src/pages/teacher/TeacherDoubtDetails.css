@@ -586,3 +586,64 @@
     flex-direction: column;
   }
 }
+/* Scoped teacher chat alignment */
+
+.teacher-doubt-details-page
+.teacher-conversation-messages
+> .conversation-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: flex-start;
+  width: fit-content;
+  min-width: 0;
+  max-width: 78%;
+  margin: 0;
+  padding: 14px 16px;
+  overflow-wrap: anywhere;
+}
+
+.teacher-doubt-details-page
+.teacher-conversation-messages
+> .conversation-message.se-chat-outgoing {
+  align-self: flex-end;
+  margin-left: auto;
+  margin-right: 0;
+  background: #edf4ff;
+  border: 1px solid #dbe8ff;
+  border-radius: 14px 14px 4px 14px;
+}
+
+.teacher-doubt-details-page
+.teacher-conversation-messages
+> .conversation-message.se-chat-incoming {
+  align-self: flex-start;
+  margin-left: 0;
+  margin-right: auto;
+  background: #f7f9fd;
+  border: 1px solid #e6ebf4;
+  border-radius: 14px 14px 14px 4px;
+}
+
+.teacher-doubt-details-page
+.teacher-conversation-messages
+.attachment-audio {
+  width: 300px;
+  max-width: 100%;
+}
+
+.teacher-doubt-details-page
+.teacher-conversation-messages
+.attachment-audio audio {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .teacher-doubt-details-page
+  .teacher-conversation-messages
+  > .conversation-message {
+    max-width: 92%;
+  }
+}
