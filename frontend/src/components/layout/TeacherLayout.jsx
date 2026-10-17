@@ -12,6 +12,7 @@ import {
   ClipboardCheck,
   LogOut,
   Menu,
+   Wallet,
   X,
 } from "lucide-react";
 
@@ -29,7 +30,7 @@ const TeacherLayout = () => {
     navigate("/login", { replace: true });
   };
 
-  const menuItems = [
+  const allMenuItems = [
     {
       name: "Dashboard",
       path: "/teacher",
@@ -41,6 +42,11 @@ const TeacherLayout = () => {
       path: "/teacher/students",
       icon: Users,
     },
+    {
+  name: "Fee Management",
+  path: "/teacher/fees",
+  icon: Wallet,
+},
     {
       name: "Attendance",
       path: "/teacher/attendance",
@@ -72,7 +78,11 @@ const TeacherLayout = () => {
       icon: User,
     },
   ];
-
+const menuItems = allMenuItems.filter(
+  (item) =>
+    item.path !== "/teacher/fees" ||
+    user?.canManageFees === true
+);
   const teacherName = user?.name || "Educator";
   const initial = teacherName.charAt(0).toUpperCase();
 

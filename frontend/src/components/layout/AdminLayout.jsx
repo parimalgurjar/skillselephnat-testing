@@ -19,6 +19,7 @@ import {
   UsersRound,
   Menu,
   X,
+  Wallet
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import NotificationBell from "../common/NotificationBell";
@@ -47,6 +48,11 @@ const AdminLayout = () => {
       path: "/admin/students",
       icon: Users,
     },
+    {
+  name: "Fees",
+  path: "/admin/fees",
+  icon: Wallet,
+},
     {
       name: "Educators",
       path: "/admin/educators",

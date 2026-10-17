@@ -22,8 +22,6 @@ const createTeacher = async (req, res) => {
       specializations,
     } = req.body;
 
-    /* ================= VALIDATION ================= */
-
     if (
       typeof name !== "string" ||
       typeof email !== "string" ||
@@ -56,13 +54,10 @@ const createTeacher = async (req, res) => {
       });
     }
 
-    /* ================= CLEAN SPECIALIZATIONS ================= */
-
     const cleanedSpecializations = specializations
       .filter(
         (item) =>
-          typeof item === "string" &&
-          item.trim() !== ""
+          typeof item === "string" && item.trim() !== ""
       )
       .map((item) => item.trim());
 
@@ -73,8 +68,6 @@ const createTeacher = async (req, res) => {
       });
     }
 
-    /* ================= PASSWORD VALIDATION ================= */
-
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
@@ -82,10 +75,10 @@ const createTeacher = async (req, res) => {
       });
     }
 
-    /* ================= CHECK EMAIL ================= */
+    const normalizedEmail = email.toLowerCase().trim();
 
     const existingUser = await User.findOne({
-      email: email.toLowerCase().trim(),
+      email: normalizedEmail,
     });
 
     if (existingUser) {
@@ -95,47 +88,27 @@ const createTeacher = async (req, res) => {
       });
     }
 
-    /* ================= HASH PASSWORD ================= */
-
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    /* ================= STATUS ================= */
-
     const teacherStatus = status || "ACTIVE";
-
     const isTeacherActive = teacherStatus === "ACTIVE";
-
-    /* ================= CREATE TEACHER ================= */
 
     const teacher = await User.create({
       name: name.trim(),
-
-      email: email.toLowerCase().trim(),
-
+      email: normalizedEmail,
       password: hashedPassword,
-
       phone: phone?.trim() || "",
-
       role: "TEACHER",
-
       avatar: avatar?.trim() || "",
-
       specializations: cleanedSpecializations,
-
       joiningDate: joiningDate || null,
-
       status: teacherStatus,
-
       isActive: isTeacherActive,
     });
 
-    /* ================= RESPONSE ================= */
-
     return res.status(201).json({
       success: true,
-
       message: "Teacher created successfully",
-
       teacher: {
         id: teacher._id,
         name: teacher.name,
@@ -169,9 +142,7 @@ const getTeachers = async (req, res) => {
       role: "TEACHER",
     })
       .select("-password")
-      .sort({
-        createdAt: -1,
-      });
+      .sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,
@@ -200,6 +171,7 @@ const getTeacherById = async (req, res) => {
         message: "Invalid teacher ID",
       });
     }
+
     const teacher = await User.findOne({
       _id: req.params.id,
       role: "TEACHER",
@@ -230,97 +202,81 @@ const getTeacherById = async (req, res) => {
    GET TEACHER DASHBOARD
 
    CANONICAL RELATION:
-
    Batch.educator -> Teacher
+   Batch.attendanceTeachers -> Teachers
    Student.batchId -> Batch
 
-   batchTiming is ONLY used for display.
+   batchTiming is used only for legacy student records
+   that do not have a batchId.
 ===================================================== */
 
 const getTeacherDashboard = async (req, res) => {
   try {
     const teacherId = req.user._id || req.user.id;
 
-    /* ===============================================
-       GET BATCHES ASSIGNED TO TEACHER
-    =============================================== */
+    if (!mongoose.isValidObjectId(teacherId)) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid teacher session",
+      });
+    }
+
+    /* ================= ASSIGNED BATCHES ================= */
 
     const assignedBatches = await Batch.find({
-      educator: teacherId,
+      $or: [
+        { educator: teacherId },
+        { attendanceTeachers: teacherId },
+      ],
     })
       .select("_id name code batchTiming startTime endTime status")
-      .sort({
-        startTime: 1,
-      })
+      .sort({ startTime: 1 })
       .lean();
 
-    /* ===============================================
-       BATCH IDS - CANONICAL
-    =============================================== */
+    /* ================= BATCH IDS AND TIMINGS ================= */
 
     const batchIds = assignedBatches.map((batch) => batch._id);
 
-    /* ===============================================
-       GET STUDENTS FROM ASSIGNED BATCHES
+    const assignedBatchTimings = [
+      ...new Set(
+        assignedBatches
+          .map((batch) => batch.batchTiming?.trim())
+          .filter(Boolean)
+      ),
+    ];
 
-       PRIMARY:
-       student.batchId -> batch._id
+    /* ================= STUDENTS IN ASSIGNED BATCHES ================= */
 
-       LEGACY FALLBACK:
-       Direct teacherId assignment
-    =============================================== */
-
-    const students =
-      batchIds.length > 0
-        ? await User.find({
-            role: "STUDENT",
-
-            $or: [
-              {
-                batchId: {
-                  $in: batchIds,
-                },
-              },
-
-              {
-                teacherId: teacherId,
-              },
-            ],
-          })
-            .select(
-              "_id name email phone batchId batchTiming isActive status"
-            )
-            .lean()
-        : await User.find({
-            role: "STUDENT",
-            teacherId: teacherId,
-          })
-            .select(
-              "_id name email phone batchId batchTiming isActive status"
-            )
-            .lean();
-
-    /* ===============================================
-       TOTAL STUDENTS
-    =============================================== */
+    const students = batchIds.length
+      ? await User.find({
+          role: "STUDENT",
+          $or: [
+            {
+              batchId: { $in: batchIds },
+            },
+            {
+              batchId: null,
+              batchTiming: { $in: assignedBatchTimings },
+            },
+          ],
+        })
+          .select(
+            "_id name email phone batchId batchTiming isActive status"
+          )
+          .lean()
+      : [];
 
     const totalStudents = students.length;
-
-    /* ===============================================
-       TOTAL BATCHES
-    =============================================== */
-
     const totalBatches = assignedBatches.length;
 
-    /* ===============================================
-       CURRENT MONTH DATE RANGE
-    =============================================== */
+    /* ================= CURRENT MONTH ================= */
 
     const now = new Date();
 
     const startOfMonth = new Date(
       now.getFullYear(),
       now.getMonth(),
+      1
     );
 
     const endOfMonth = new Date(
@@ -329,35 +285,24 @@ const getTeacherDashboard = async (req, res) => {
       0,
       23,
       59,
-      59
+      59,
+      999
     );
-
-    /* ===============================================
-       STUDENT IDS
-    =============================================== */
 
     const studentIds = students.map((student) => student._id);
 
-    /* ===============================================
-       MONTHLY ATTENDANCE
-    =============================================== */
+    /* ================= MONTHLY ATTENDANCE ================= */
 
     const attendanceRecords =
       studentIds.length > 0
         ? await Attendance.find({
-            studentId: {
-              $in: studentIds,
-            },
-
+            studentId: { $in: studentIds },
             date: {
-              $gte: startOfMonth,$lte: endOfMonth,
+              $gte: startOfMonth,
+              $lte: endOfMonth,
             },
           }).lean()
         : [];
-
-    /* ===============================================
-       CALCULATE AVG ATTENDANCE
-    =============================================== */
 
     let avgAttendance = 0;
 
@@ -371,117 +316,70 @@ const getTeacherDashboard = async (req, res) => {
       );
     }
 
-    /* ===============================================
-       ACTIVE TASKS
-    =============================================== */
+    /* ================= ACTIVE TASKS ================= */
 
     const activeTasks = await Task.countDocuments({
       createdBy: teacherId,
       status: "ACTIVE",
     });
 
-    /* ===============================================
-       RECENT TASKS
-    =============================================== */
+    /* ================= RECENT TASKS ================= */
 
     const recentTaskDocuments = await Task.find({
       createdBy: teacherId,
     })
-      .sort({
-        createdAt: -1,
-      })
+      .sort({ createdAt: -1 })
       .limit(5)
       .select("title batch batchId status submissions createdAt")
       .lean();
 
     const recentTasks = recentTaskDocuments.map((task) => ({
       _id: task._id,
-
       title: task.title,
-
       batch: task.batch || "",
-
       batchId: task.batchId || null,
-
       status: task.status,
-
       submissions: task.submissions?.length || 0,
-
       createdAt: task.createdAt,
     }));
 
-    /* ===============================================
-       UPCOMING CLASSES
-
-       SOURCE OF TRUTH:
-       Batch collection
-    =============================================== */
+    /* ================= UPCOMING CLASSES ================= */
 
     const upcomingClasses = assignedBatches.map((batch, index) => ({
       id: index + 1,
-
       _id: batch._id,
-
       time:
         batch.batchTiming ||
-        `${batch.startTime || ""} - ${batch.endTime || ""}`,
-
+        `${batch.startTime || ""} ${batch.endTime || ""}`.trim(),
       title: batch.name || "Scheduled Class",
-
       batch: batch.code || batch.name || "",
-
       status:
         batch.status === "ACTIVE"
           ? "Active"
           : batch.status || "Upcoming",
     }));
 
-    /* ===============================================
-       RESPONSE
-    =============================================== */
+    /* ================= RESPONSE ================= */
 
     return res.status(200).json({
       success: true,
-
       dashboard: {
         totalStudents,
-
         totalBatches,
-
         activeTasks,
-
         avgAttendance,
-
-        /*
-          Performance will be connected
-          to actual performance module.
-        */
-
         performance: 0,
-
         upcomingClasses,
-
         recentTasks,
-
-        /*
-          Always send canonical Batch data.
-        */
-
         batches: assignedBatches.map((batch) => ({
           _id: batch._id,
-
           name: batch.name,
-
           code: batch.code,
-
           startTime: batch.startTime,
-
           endTime: batch.endTime,
-
           batchTiming:
             batch.batchTiming ||
-            `${batch.startTime || ""} - ${batch.endTime || ""}`,
-
+            `${batch.startTime || ""} ${batch.endTime || ""}`.trim(),
           status: batch.status,
         })),
       },
@@ -491,7 +389,6 @@ const getTeacherDashboard = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-
       message: "Unable to fetch dashboard data",
     });
   }
@@ -503,8 +400,6 @@ const getTeacherDashboard = async (req, res) => {
 
 const updateTeacher = async (req, res) => {
   try {
-    /* ================= ID VALIDATION ================= */
-
     if (!mongoose.isValidObjectId(req.params.id)) {
       return res.status(400).json({
         success: false,
@@ -522,8 +417,6 @@ const updateTeacher = async (req, res) => {
       specializations,
     } = req.body;
 
-    /* ================= FIND TEACHER ================= */
-
     const teacher = await User.findOne({
       _id: req.params.id,
       role: "TEACHER",
@@ -535,8 +428,6 @@ const updateTeacher = async (req, res) => {
         message: "Teacher not found",
       });
     }
-
-    /* ================= EMAIL CHECK ================= */
 
     if (
       email !== undefined &&
@@ -554,10 +445,7 @@ const updateTeacher = async (req, res) => {
     ) {
       const existingUser = await User.findOne({
         email: email.toLowerCase().trim(),
-
-        _id: {
-          $ne: teacher._id,
-        },
+        _id: { $ne: teacher._id },
       });
 
       if (existingUser) {
@@ -570,13 +458,8 @@ const updateTeacher = async (req, res) => {
       teacher.email = email.toLowerCase().trim();
     }
 
-    /* ================= UPDATE BASIC FIELDS ================= */
-
     if (name !== undefined) {
-      if (
-        typeof name !== "string" ||
-        !name.trim()
-      ) {
+      if (typeof name !== "string" || !name.trim()) {
         return res.status(400).json({
           success: false,
           message: "Teacher name must be a valid string",
@@ -597,7 +480,7 @@ const updateTeacher = async (req, res) => {
     }
 
     if (phone !== undefined) {
-      teacher.phone = phone?.trim() || "";
+      teacher.phone = phone.trim();
     }
 
     if (
@@ -611,14 +494,12 @@ const updateTeacher = async (req, res) => {
     }
 
     if (avatar !== undefined) {
-      teacher.avatar = avatar?.trim() || "";
+      teacher.avatar = avatar.trim();
     }
 
     if (joiningDate !== undefined) {
       teacher.joiningDate = joiningDate || null;
     }
-
-    /* ================= UPDATE SPECIALIZATIONS ================= */
 
     if (specializations !== undefined) {
       if (!Array.isArray(specializations)) {
@@ -631,8 +512,7 @@ const updateTeacher = async (req, res) => {
       const cleanedSpecializations = specializations
         .filter(
           (item) =>
-            typeof item === "string" &&
-            item.trim() !== ""
+            typeof item === "string" && item.trim() !== ""
         )
         .map((item) => item.trim());
 
@@ -646,23 +526,16 @@ const updateTeacher = async (req, res) => {
       teacher.specializations = cleanedSpecializations;
     }
 
-    /* ================= STATUS ================= */
-
     if (status !== undefined) {
       teacher.status = status;
-
       teacher.isActive = status === "ACTIVE";
     }
-
-    /* ================= SAVE ================= */
 
     await teacher.save();
 
     return res.status(200).json({
       success: true,
-
       message: "Teacher updated successfully",
-
       teacher: {
         id: teacher._id,
         name: teacher.name,
@@ -689,111 +562,83 @@ const updateTeacher = async (req, res) => {
 /* =====================================================
    GET MY STUDENTS
 
-   CANONICAL RELATION:
-
-   Batch.educator -> Teacher
-   Student.batchId -> Batch
-
-   NO batchTiming matching for primary logic.
-===================================================== */
-
-/* =====================================================
-   GET MY STUDENTS
-
-   ACCESS RULE:
-   Any authenticated TEACHER can view all students
-   and all batches.
-
-   Authentication is handled by route middleware.
-   Data is NOT filtered by logged-in teacher ID.
+   Teachers see students belonging to their active
+   assigned batches. Fee-management permissions are
+   handled separately by the fee controller.
 ===================================================== */
 
 const getMyStudents = async (req, res) => {
   try {
-    /* =================================================
-       ANY LOGGED-IN TEACHER CAN VIEW ALL ACTIVE BATCHES
+    const teacherId = req.user._id || req.user.id;
 
-       educator field is NOT used as an access restriction.
-    ================================================= */
+    if (!mongoose.isValidObjectId(teacherId)) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid teacher session",
+      });
+    }
 
     const batches = await Batch.find({
       status: "ACTIVE",
+      $or: [
+        { educator: teacherId },
+        { attendanceTeachers: teacherId },
+      ],
     })
       .select("_id name code batchTiming startTime endTime status")
-      .sort({
-        startTime: 1,
-      })
+      .sort({ startTime: 1 })
       .lean();
 
-    /* =================================================
-       CREATE BATCH LOOKUP MAPS
-    ================================================= */
-
     const batchById = new Map();
-
     const batchByTiming = new Map();
 
     batches.forEach((batch) => {
       batchById.set(String(batch._id), batch);
 
       if (batch.batchTiming) {
-        batchByTiming.set(batch.batchTiming.trim(), batch);
+        const timing = batch.batchTiming.trim();
+
+        if (!batchByTiming.has(timing)) {
+          batchByTiming.set(timing, batch);
+        }
       }
     });
 
-    /* =================================================
-       GET ALL STUDENTS
+    const assignedBatchIds = batches.map((batch) => batch._id);
 
-       IMPORTANT:
-       DO NOT USE populate("batchId")
+    const assignedBatchTimings = [
+      ...new Set(
+        batches
+          .map((batch) => batch.batchTiming?.trim())
+          .filter(Boolean)
+      ),
+    ];
 
-       Old database records may contain:
-
-       batchId: "11 baje wala"
-
-       which is NOT an ObjectId.
-
-       We resolve batch manually to support both:
-       NEW DATA -> batchId ObjectId
-       OLD DATA -> batchTiming string
-    ================================================= */
-
-    const students = await User.find({
-      role: "STUDENT",
-    })
-      .select("-password")
-      .sort({
-        name: 1,
-      })
-      .lean();
-
-    /* =================================================
-       NORMALIZE STUDENTS
-
-       Priority:
-
-       1. Valid batchId -> Batch
-       2. Legacy batchTiming -> Batch
-       3. No batch found -> null
-    ================================================= */
+    const students = assignedBatchIds.length
+      ? await User.find({
+          role: "STUDENT",
+          $or: [
+            {
+              batchId: { $in: assignedBatchIds },
+            },
+            {
+              batchId: null,
+              batchTiming: { $in: assignedBatchTimings },
+            },
+          ],
+        })
+          .select("-password")
+          .sort({ name: 1 })
+          .lean()
+      : [];
 
     const formattedStudents = students.map((student) => {
       let resolvedBatch = null;
 
-      /* ===============================
-         NEW CANONICAL batchId
-      =============================== */
-
-      if (
-        student.batchId &&
-        mongoose.Types.ObjectId.isValid(student.batchId)
-      ) {
-        resolvedBatch = batchById.get(String(student.batchId)) || null;
+      if (student.batchId) {
+        resolvedBatch =
+          batchById.get(String(student.batchId)) || null;
       }
-
-      /* ===============================
-         LEGACY batchTiming FALLBACK
-      =============================== */
 
       if (!resolvedBatch && student.batchTiming) {
         resolvedBatch =
@@ -802,72 +647,36 @@ const getMyStudents = async (req, res) => {
 
       return {
         ...student,
-
-        /*
-          IMPORTANT:
-          Return normalized batch object
-        */
-
         batch: resolvedBatch
           ? {
               _id: resolvedBatch._id,
-
               name: resolvedBatch.name,
-
               code: resolvedBatch.code,
-
               startTime: resolvedBatch.startTime,
-
               endTime: resolvedBatch.endTime,
-
               batchTiming: resolvedBatch.batchTiming,
-
               status: resolvedBatch.status,
             }
           : null,
-
-        /*
-          Keep frontend compatibility
-        */
-
         batchTiming:
           resolvedBatch?.batchTiming || student.batchTiming || "",
-
-        /*
-          Canonical batch ID.
-          Only send valid ObjectId.
-        */
-
-        batchId: resolvedBatch?._id || null,
+        batchId: resolvedBatch?._id || student.batchId || null,
       };
     });
 
-    /* =================================================
-       RESPONSE
-    ================================================= */
-
     return res.status(200).json({
       success: true,
-
       count: formattedStudents.length,
-
       students: formattedStudents,
-
       batches: batches.map((batch) => ({
         _id: batch._id,
-
         name: batch.name,
-
         code: batch.code,
-
         startTime: batch.startTime,
-
         endTime: batch.endTime,
-
         batchTiming:
           batch.batchTiming ||
-          `${batch.startTime || ""} - ${batch.endTime || ""}`,
-
+          `${batch.startTime || ""} ${batch.endTime || ""}`.trim(),
         status: batch.status,
       })),
     });
@@ -876,7 +685,6 @@ const getMyStudents = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-
       message: "Server error while fetching students",
     });
   }
@@ -901,14 +709,12 @@ const deactivateTeacher = async (req, res) => {
     }
 
     teacher.status = "INACTIVE";
-
     teacher.isActive = false;
 
     await teacher.save();
 
     return res.status(200).json({
       success: true,
-
       message: "Teacher deactivated successfully",
     });
   } catch (error) {
@@ -1003,7 +809,9 @@ const updateMyProfile = async (req, res) => {
   try {
     const { name, phone, avatar, specializations } = req.body;
 
-    const teacher = await User.findById(req.user._id || req.user.id);
+    const teacher = await User.findById(
+      req.user._id || req.user.id
+    );
 
     if (!teacher) {
       return res.status(404).json({
@@ -1019,10 +827,8 @@ const updateMyProfile = async (req, res) => {
       });
     }
 
-    /* ================= NAME ================= */
-
     if (name !== undefined) {
-      if (!name.trim()) {
+      if (typeof name !== "string" || !name.trim()) {
         return res.status(400).json({
           success: false,
           message: "Name cannot be empty",
@@ -1032,19 +838,27 @@ const updateMyProfile = async (req, res) => {
       teacher.name = name.trim();
     }
 
-    /* ================= PHONE ================= */
-
     if (phone !== undefined) {
-      teacher.phone = phone?.trim() || "";
-    }
+      if (typeof phone !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Phone must be a valid string",
+        });
+      }
 
-    /* ================= AVATAR ================= */
+      teacher.phone = phone.trim();
+    }
 
     if (avatar !== undefined) {
-      teacher.avatar = avatar?.trim() || "";
-    }
+      if (typeof avatar !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Avatar must be a valid string",
+        });
+      }
 
-    /* ================= SPECIALIZATIONS ================= */
+      teacher.avatar = avatar.trim();
+    }
 
     if (specializations !== undefined) {
       if (!Array.isArray(specializations)) {
@@ -1057,8 +871,7 @@ const updateMyProfile = async (req, res) => {
       teacher.specializations = specializations
         .filter(
           (item) =>
-            typeof item === "string" &&
-            item.trim() !== ""
+            typeof item === "string" && item.trim() !== ""
         )
         .map((item) => item.trim());
     }
@@ -1067,9 +880,7 @@ const updateMyProfile = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-
       message: "Profile updated successfully",
-
       teacher: {
         id: teacher._id,
         name: teacher.name,

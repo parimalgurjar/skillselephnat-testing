@@ -1,0 +1,362 @@
+
+.teacher-fees-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  color: #07194f;
+  min-width: 0;
+}
+
+.teacher-fees-heading,
+.teacher-fees-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.teacher-fees-eyebrow {
+  color: #ed9e00;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.teacher-fees-heading h1 {
+  margin: 8px 0;
+  font-size: 30px;
+}
+
+.teacher-fees-heading p,
+.teacher-fees-toolbar p {
+  margin: 0;
+  color: #7a89a8;
+  font-size: 14px;
+}
+
+.teacher-fees-refresh,
+.teacher-fees-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 13px;
+  border: 0;
+  border-radius: 9px;
+  background: #1744d2;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.teacher-fees-refresh:disabled,
+.teacher-fees-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.teacher-fees-filters {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.9fr) minmax(190px, 0.9fr) minmax(220px, 1.2fr);
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #e0e7f5;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 5px 22px rgba(9, 31, 85, 0.04);
+}
+
+.teacher-fees-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.teacher-fees-filter-field > span {
+  color: #647595;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.teacher-fees-filter-field select {
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid #dce5f5;
+  border-radius: 10px;
+  background: white;
+  color: #07194f;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.teacher-fees-filter-field select:focus,
+.teacher-fees-search:focus-within {
+  border-color: #1744d2;
+  box-shadow: 0 0 0 3px rgba(23, 68, 210, 0.08);
+}
+
+.teacher-fees-search {
+  align-self: end;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid #dce5f5;
+  border-radius: 10px;
+  color: #7181a0;
+}
+
+.teacher-fees-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #07194f;
+  font: inherit;
+}
+
+.teacher-fees-active-filter {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: -10px;
+  color: #7181a0;
+  font-size: 13px;
+}
+
+.teacher-fees-active-filter strong {
+  color: #1744d2;
+}
+
+.teacher-fees-active-filter > span {
+  margin-left: auto;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #edf2ff;
+  color: #1744d2;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.teacher-fees-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.teacher-fees-stats article,
+.teacher-fees-card {
+  min-width: 0;
+  border: 1px solid #e0e7f5;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 5px 22px rgba(9, 31, 85, 0.04);
+}
+
+.teacher-fees-stats article {
+  padding: 18px 20px;
+}
+
+.teacher-fees-stats article > span {
+  display: block;
+  margin-top: 12px;
+  color: #7181a0;
+  font-size: 13px;
+}
+
+.teacher-fees-stats article > strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.teacher-fees-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+}
+
+.teacher-fees-stat-icon.blue {
+  color: #1744d2;
+  background: #eaf0ff;
+}
+
+.teacher-fees-stat-icon.orange {
+  color: #a36500;
+  background: #fff2d5;
+}
+
+.teacher-fees-stat-icon.green {
+  color: #16723b;
+  background: #dcfce7;
+}
+
+.teacher-fees-stat-icon.gray {
+  color: #64748b;
+  background: #edf1f7;
+}
+
+.teacher-fees-toolbar {
+  padding: 22px 24px;
+  border-bottom: 1px solid #e9eef8;
+}
+
+.teacher-fees-toolbar h2 {
+  margin: 0 0 7px;
+  font-size: 19px;
+}
+
+.teacher-fees-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.teacher-fees-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.teacher-fees-table th {
+  padding: 14px 18px;
+  background: #f7f9fe;
+  color: #667797;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.teacher-fees-table td {
+  padding: 17px 18px;
+  border-top: 1px solid #edf1f8;
+  font-size: 13px;
+}
+
+.teacher-fees-table td strong,
+.teacher-fees-table td small {
+  display: block;
+}
+
+.teacher-fees-table td small {
+  margin-top: 5px;
+  color: #8290ab;
+}
+
+.teacher-fees-status {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.teacher-fees-status.pending {
+  background: #fff2d5;
+  color: #946000;
+}
+
+.teacher-fees-status.completed {
+  background: #dcfce7;
+  color: #16723b;
+}
+
+.teacher-fees-status.not-set {
+  background: #fff2d5;
+  color: #946000;
+}
+
+.teacher-fees-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.teacher-fees-actions button {
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.teacher-fees-actions button.secondary {
+  border: 1px solid #dce5f5;
+  background: white;
+  color: #1744d2;
+}
+
+.teacher-fees-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.teacher-fees-empty {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  color: #7a89a8;
+  text-align: center;
+}
+
+.teacher-fees-error {
+  margin: 20px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #fff0f0;
+  color: #a52323;
+}
+
+.teacher-fees-error button {
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+@media (max-width: 1050px) {
+  .teacher-fees-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-fees-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-fees-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .teacher-fees-heading,
+  .teacher-fees-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .teacher-fees-heading h1 {
+    font-size: 25px;
+  }
+
+  .teacher-fees-stats,
+  .teacher-fees-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-fees-search {
+    grid-column: auto;
+  }
+
+  .teacher-fees-active-filter {
+    align-items: flex-start;
+  }
+}

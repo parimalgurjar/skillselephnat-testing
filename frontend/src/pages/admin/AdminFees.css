@@ -1,0 +1,590 @@
+
+.admin-fees-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+  color: #101f4e;
+}
+
+.admin-fees-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 25px;
+  border-radius: 18px;
+  background: linear-gradient(120deg, #f8f3eb, #e4eafe);
+}
+
+.admin-fees-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-fees-title-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  color: #fff;
+  border-radius: 15px;
+  background: #123ba5;
+  box-shadow: 0 8px 20px #123ba52b;
+}
+
+.admin-fees-eyebrow {
+  color: #b47700;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.admin-fees-title h1 {
+  margin: 5px 0;
+  font-size: clamp(23px, 3vw, 32px);
+  font-weight: 800;
+}
+
+.admin-fees-title p,
+.admin-fees-panel-header p {
+  margin: 0;
+  color: #77829a;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.admin-fees-refresh,
+.admin-fees-actions button,
+.admin-fees-modal-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 15px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #123ba5;
+  color: white;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-fees-refresh {
+  background: #fff;
+  color: #102457;
+  border-color: #e0e5ef;
+}
+
+.admin-fees-refresh:disabled,
+.admin-fees-modal button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-fees-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-fees-stat {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  padding: 20px 16px;
+  border: 1px solid #e8edf6;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 4px 15px #152c5a05;
+}
+
+.admin-fees-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.admin-fees-stat-icon.blue {
+  color: #1d44fa;
+  background: #e3eaff;
+}
+
+.admin-fees-stat-icon.amber {
+  color: #a76b00;
+  background: #fff0c7;
+}
+
+.admin-fees-stat-icon.green {
+  color: #087443;
+  background: #d8f8e6;
+}
+
+.admin-fees-stat-icon.purple {
+  color: #8b35b6;
+  background: #f3ddff;
+}
+
+.admin-fees-stat p {
+  margin: 0 0 5px;
+  color: #7c879e;
+  font-size: 12px;
+}
+
+.admin-fees-stat strong {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.admin-fees-panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e5eaf3;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 6px 22px #10245706;
+}
+
+.admin-fees-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 21px 23px;
+  border-bottom: 1px solid #edf0f6;
+}
+
+.admin-fees-panel-header h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.admin-fees-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: min(100%, 280px);
+  padding: 10px 12px;
+  border: 1px solid #dce3ef;
+  border-radius: 10px;
+  color: #7b879d;
+}
+
+.admin-fees-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: #14234c;
+  font: inherit;
+  font-size: 13px;
+  background: transparent;
+}
+
+.admin-fees-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 13px 15px;
+  border: 1px solid #fecaca;
+  border-radius: 11px;
+  background: #fff1f2;
+  color: #b42318;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.admin-fees-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-fees-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+
+.admin-fees-table th {
+  padding: 13px 15px;
+  background: #f8faff;
+  color: #748099;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.admin-fees-table td {
+  padding: 16px 15px;
+  border-top: 1px solid #edf0f6;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.admin-fees-student {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 155px;
+  white-space: normal;
+}
+
+.admin-fees-student strong {
+  color: #14234c;
+  font-size: 12px;
+}
+
+.admin-fees-student span,
+.admin-fees-student small {
+  color: #7b879d;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.admin-fees-days,
+.admin-fees-blocked {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  white-space: normal;
+}
+
+.admin-fees-days {
+  color: #a66b00;
+}
+
+.admin-fees-blocked {
+  color: #c62828;
+  font-weight: 700;
+}
+
+.admin-fees-status {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.admin-fees-status.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.admin-fees-status.pending {
+  background: #fff0c7;
+  color: #8a5900;
+}
+
+.admin-fees-status.not-set {
+  background: #eef1f6;
+  color: #657087;
+}
+
+.admin-fees-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 125px;
+}
+
+.admin-fees-actions button {
+  padding: 8px 10px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.admin-fees-actions button.secondary,
+.admin-fees-modal-actions button.secondary {
+  background: #fff;
+  color: #16347f;
+  border-color: #dce4f1;
+}
+
+.admin-fees-actions button.restore {
+  background: #fff0f0;
+  color: #b42318;
+  border-color: #fecaca;
+}
+
+.admin-fees-empty {
+  padding: 36px 18px;
+  color: #77829a;
+  text-align: center;
+  font-size: 13px;
+}
+
+.admin-fees-teacher-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 20px;
+}
+
+.admin-fees-teacher {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid #e7ecf5;
+  border-radius: 12px;
+}
+
+.admin-fees-teacher > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.admin-fees-teacher strong {
+  font-size: 13px;
+}
+
+.admin-fees-teacher span {
+  color: #7b879d;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.admin-fees-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.admin-fees-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-fees-toggle > span {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 20px;
+  background: #cbd3e0;
+  transition: background 0.2s ease;
+}
+
+.admin-fees-toggle > span::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  content: "";
+  transition: transform 0.2s ease;
+}
+
+.admin-fees-toggle input:checked + span {
+  background: #1d44fa;
+}
+
+.admin-fees-toggle input:checked + span::after {
+  transform: translateX(16px);
+}
+
+.admin-fees-toggle small {
+  color: #66738c;
+  font-size: 10px;
+}
+
+.admin-fees-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: #08132c80;
+  backdrop-filter: blur(4px);
+}
+
+.admin-fees-modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(100%, 430px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 27px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 24px 80px #0002;
+}
+
+.admin-fees-modal h2 {
+  margin: 0;
+  color: #101f4e;
+  font-size: 22px;
+}
+
+.admin-fees-modal > p {
+  margin: -4px 0 8px;
+  color: #77829a;
+  font-size: 13px;
+}
+
+.admin-fees-modal label {
+  color: #374563;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-fees-modal > input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #dce3ef;
+  border-radius: 10px;
+  outline-color: #1d44fa;
+  font: inherit;
+  font-size: 14px;
+}
+
+.admin-fees-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 9px;
+  background: #f1f4f9;
+  color: #31405f;
+  cursor: pointer;
+}
+
+.admin-fees-payment-balance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px;
+  border-radius: 10px;
+  background: #f3f6ff;
+}
+
+.admin-fees-payment-balance span {
+  color: #697691;
+  font-size: 12px;
+}
+
+.admin-fees-payment-balance strong {
+  color: #123ba5;
+  font-size: 17px;
+}
+
+.admin-fees-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 8px;
+}
+
+@media (max-width: 1100px) {
+  .admin-fees-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-fees-teacher-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .admin-fees-page {
+    gap: 15px;
+  }
+
+  .admin-fees-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 18px;
+  }
+
+  .admin-fees-title {
+    align-items: flex-start;
+    gap: 11px;
+  }
+
+  .admin-fees-title-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .admin-fees-title p {
+    font-size: 12px;
+  }
+
+  .admin-fees-refresh {
+    width: 100%;
+  }
+
+  .admin-fees-stats {
+    gap: 10px;
+  }
+
+  .admin-fees-stat {
+    gap: 9px;
+    padding: 14px 11px;
+  }
+
+  .admin-fees-stat-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .admin-fees-stat p {
+    font-size: 10px;
+  }
+
+  .admin-fees-stat strong {
+    font-size: 20px;
+  }
+
+  .admin-fees-panel-header {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 17px;
+  }
+
+  .admin-fees-search {
+    width: auto;
+  }
+
+  .admin-fees-teacher-list {
+    padding: 12px;
+  }
+
+  .admin-fees-teacher {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-fees-modal {
+    padding: 23px 18px;
+  }
+}

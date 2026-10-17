@@ -28,7 +28,7 @@ const initialFormState = {
   phone: "",
   batchId: "",
   batchTiming: "",
-  teacherId: "",
+  
   joiningDate: "",
   status: "ACTIVE",
 };
@@ -353,7 +353,6 @@ const fetchBatches = async () => {
 
       batchTiming: batchTiming || "",
 
-      teacherId: getTeacherId(student),
 
       joiningDate: student.joiningDate
         ? new Date(student.joiningDate).toISOString().split("T")[0]
@@ -413,7 +412,7 @@ const fetchBatches = async () => {
         ...previous,
         batchId: "",
         batchTiming: "",
-        teacherId: "",
+        
       }));
 
       return;
@@ -492,7 +491,7 @@ const fetchBatches = async () => {
 
         batchTiming: formData.batchTiming,
 
-        teacherId: formData.teacherId || null,
+        
 
         joiningDate: formData.joiningDate || null,
 
@@ -1055,24 +1054,7 @@ const fetchBatches = async () => {
                     </select>
                   </div>
 
-                  <div className="student-form-group">
-                    <label>Assigned Teacher</label>
-
-                    <select
-                      name="teacherId"
-                      value={formData.teacherId}
-                      onChange={handleChange}
-                      disabled={submitting}
-                    >
-                      <option value="">Select Teacher (Optional)</option>
-
-                      {teachers.map((teacher) => (
-                        <option key={teacher._id} value={teacher._id}>
-                          {teacher.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  
                 </div>
 
                 {/* JOINING DATE + STATUS */}

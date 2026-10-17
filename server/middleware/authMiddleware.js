@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-
+const { refreshStudentFeeAccess } = require("../utils/feeAccess");
 /* =====================================================
    PROTECT ROUTE
    Checks JWT token and authenticated user
@@ -59,6 +59,18 @@ const protect = async (req, res, next) => {
           "Your account is not active. Please contact the administrator.",
       });
     }
+    if (user.role === "STUDENT") {
+  const { blocked } = await refreshStudentFeeAccess(user);
+
+  if (blocked) {
+    return res.status(403).json({
+      success: false,
+      code: "FEE_ACCESS_BLOCKED",
+      message:
+        "Your portal access is blocked because your fee deadline has passed. Please contact the administrator.",
+    });
+  }
+}
 
     req.user = user;
 

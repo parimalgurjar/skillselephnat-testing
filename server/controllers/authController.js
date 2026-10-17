@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const { notify } = require("../services/notificationService");
+const { refreshStudentFeeAccess } = require("../utils/feeAccess");
 /* =====================================================
    GENERATE JWT TOKEN
 ===================================================== */
@@ -24,6 +25,7 @@ const generateToken = (user) => {
 /* =====================================================
    BUILD CONSISTENT AUTH USER RESPONSE
 ===================================================== */
+
 
 const buildAuthUser = (user) => {
   return {
@@ -48,8 +50,11 @@ const buildAuthUser = (user) => {
     status: user.status,
 
     isActive: user.isActive,
+
+    canManageFees: user.canManageFees === true,
   };
 };
+
 
 /* =====================================================
    REGISTER USER
@@ -395,6 +400,20 @@ const loginUser = async (req, res) => {
         success: false,
         message: "Invalid email or password",
       });
+    }
+        /* ================= FEE ACCESS CHECK ================= */
+
+    if (user.role === "STUDENT") {
+      const { blocked } = await refreshStudentFeeAccess(user);
+
+      if (blocked) {
+        return res.status(403).json({
+          success: false,
+          code: "FEE_ACCESS_BLOCKED",
+          message:
+            "Your portal access is blocked because your fee deadline has passed. Please contact the administrator.",
+        });
+      }
     }
 
     /* ================= TOKEN ================= */

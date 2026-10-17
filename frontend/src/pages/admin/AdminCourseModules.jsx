@@ -166,13 +166,19 @@ const AdminCourseModules = () => {
     [activeModules]
   );
 
-  const approximateWeeks = Math.ceil(
-    totalDurationDays / 7
-  );
+ 
+const approximateWeeks = Math.ceil(
+  (totalDurationDays / 5) * 7 / 7
+);
 
-  const approximateMonths = (
-    totalDurationDays / 30
-  ).toFixed(1);
+const estimatedCalendarDays = Math.ceil(
+  (totalDurationDays / 5) * 7
+);
+
+const approximateMonths = Math.ceil(
+  estimatedCalendarDays / 30
+);
+
 
   // =========================
   // FORM

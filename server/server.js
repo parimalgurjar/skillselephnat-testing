@@ -5,7 +5,7 @@ const rateLimit = require("express-rate-limit");
 dotenv.config();
 const helmet = require("helmet");
 const connectDB = require("./config/db");
-
+const feeRoutes = require("./routes/feeRoutes");
 /* ================= APP ================= */
 
 const app = express();
@@ -34,7 +34,6 @@ const teacherRoutes = require("./routes/teacherRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 
 const doubtRoutes = require("./routes/doubtRoutes");
-
 const announcementRoutes = require("./routes/announcementRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const batchRoutes = require("./routes/batchRoutes");
@@ -94,6 +93,7 @@ app.use("/api/teachers", teacherRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/doubts", doubtRoutes);
+app.use("/api/fees", feeRoutes);
 
 /* NORMAL TEACHER ASSIGNMENT SYSTEM */
 app.use("/api/tasks", taskRoutes);

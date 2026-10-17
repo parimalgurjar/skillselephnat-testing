@@ -163,6 +163,22 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    feeAccessBlocked: {
+      type: Boolean,
+      default: false,
+    },
+
+    feeAccessOverride: {
+      type: Boolean,
+      default: false,
+    },
+
+    canManageFees: {
+      type: Boolean,
+      default: false,
+    },
+
   },
   {
     timestamps: true,

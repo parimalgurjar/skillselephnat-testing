@@ -36,7 +36,7 @@ import AdminReports from "../pages/admin/AdminReports";
 import AdminProfile from "../pages/admin/AdminProfile";
 import AdminSpecializations from "../pages/admin/AdminSpecializations";
 import AdminCourseModules from "../pages/admin/AdminCourseModules";
-
+import AdminFees from "../pages/admin/AdminFees";
 /* =====================================================
    TEACHER PAGES
 ===================================================== */
@@ -50,6 +50,7 @@ import TeacherAnnouncements from "../pages/teacher/TeacherAnnouncements";
 import TeacherProfile from "../pages/teacher/TeacherProfile";
 import TeacherDoubts from "../pages/teacher/TeacherDoubts";
 import TeacherDoubtDetails from "../pages/teacher/TeacherDoubtDetails";
+import TeacherFees from "../pages/teacher/TeacherFees";
 
 /* =====================================================
    STUDENT PAGES
@@ -136,6 +137,7 @@ const AppRoutes = () => {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="fees" element={<AdminFees />} />
           <Route path="course-modules" element={<AdminCourseModules />} />
           <Route path="students" element={<AdminStudents />} />
           <Route path="specializations" element={<AdminSpecializations />} />
@@ -163,12 +165,13 @@ const AppRoutes = () => {
         >
           <Route index element={<TeacherDashboard />} />
           <Route path="students" element={<TeacherStudents />} />
+          <Route path="fees" element={<TeacherFees />} />
           <Route path="attendance" element={<TeacherAttendance />} />
           <Route path="tasks" element={<TeacherTasks />} />
           <Route
-  path="tasks/:taskId/submissions"
-  element={<TeacherTaskSubmissions />}
-/>
+            path="tasks/:taskId/submissions"
+            element={<TeacherTaskSubmissions />}
+          />
           <Route path="task-report" element={<TeacherTaskReport />} />
           <Route path="doubts" element={<TeacherDoubts />} />
           <Route path="doubts/:id" element={<TeacherDoubtDetails />} />
