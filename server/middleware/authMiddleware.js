@@ -49,7 +49,7 @@ const protect = async (req, res, next) => {
         message: "User not found",
       });
     }
-
+  
     /* ================= ACCOUNT STATUS CHECK ================= */
 
     if (!user.isActive || user.status !== "ACTIVE") {

@@ -9,7 +9,6 @@ import {
 import { useAuth } from "../context/AuthContext";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 import PublicRoute from "../components/common/PublicRoute";
-
 /* ================= AUTH PAGES ================= */
 import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";

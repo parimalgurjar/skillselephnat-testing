@@ -49,6 +49,7 @@ const PORT = process.env.PORT || 5001;
 /* ================= CORS ================= */
 
 const allowedOrigins = [
+  "https://stu.skillselephant.com",
   "http://localhost:5173",
   process.env.CLIENT_URL,
 ].filter(Boolean);
