@@ -10,6 +10,7 @@ const multer=require("multer")
 /* ================= APP ================= */
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(helmet());
 /* ================= RATE LIMITER ================= */
 
