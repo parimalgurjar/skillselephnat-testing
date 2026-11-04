@@ -230,25 +230,41 @@ const registerUser = async (req, res) => {
     });
 
     /* ================= RESPONSE ================= */
-        await notify("SIGNUP", {
-      actor: user._id,
-      entity: user,
-    });
+     /* ================= BACKGROUND NOTIFICATION ================= */
 
-    return res.status(201).json({
-      success: true,
-      message:
-        "Registration successful. Please wait for admin approval before logging in.",
-      user: buildAuthUser(user),
-    });
-  } catch (error) {
-    console.error("Register Error:", error);
+// Notification should not delay student registration.
+void notify("SIGNUP", {
+  actor: user._id,
+  entity: user,
+});
 
-    return res.status(500).json({
+/* ================= RESPONSE ================= */
+
+return res.status(201).json({
+  success: true,
+  message:
+    "Registration successful. Please wait for admin approval before logging in.",
+  user: buildAuthUser(user),
+});
+ } catch (error) {
+  console.error("Register Error:", error);
+
+  // Handle duplicate email registration
+  if (
+    error.code === 11000 &&
+    error.keyPattern?.email
+  ) {
+    return res.status(409).json({
       success: false,
-      message: "Server error during registration",
+      message: "An account with this email already exists.",
     });
   }
+
+  return res.status(500).json({
+    success: false,
+    message: "Server error during registration",
+  });
+}
 };
 
 /* =====================================================

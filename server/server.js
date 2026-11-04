@@ -14,15 +14,39 @@ app.set("trust proxy", 1);
 app.use(helmet());
 /* ================= RATE LIMITER ================= */
 
-const authLimiter = rateLimit({
+/* ================= RATE LIMITERS ================= */
+
+// Student / Teacher registration
+const registerLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  limit: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
     success: false,
-    message: "Too many authentication attempts. Please try again later.",
+    message: "Registration limit reached. Please try again later.",
   },
+});
+
+// Login - shared network par students ko unnecessarily
+// block na karne ke liye broad IP limit
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many requests. Please try again later.",
+  },
+});
+
+// First admin setup
+const adminSetupLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 /* ================= ROUTES IMPORTS ================= */
@@ -80,9 +104,9 @@ app.use(
 
 /* ================= RATE LIMIT APPLICATION ================= */
 
-app.use("/api/auth/login", authLimiter);
-app.use("/api/auth/register", authLimiter);
-app.use("/api/auth/admin-setup", authLimiter);
+app.use("/api/auth/login", loginLimiter);
+app.use("/api/auth/register", registerLimiter);
+app.use("/api/auth/admin-setup", adminSetupLimiter);
 
 /* ================= ROUTES ================= */
 app.use(

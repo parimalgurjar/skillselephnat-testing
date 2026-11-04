@@ -28,12 +28,27 @@ export const registerUser = async (userData) => {
   try {
     const response = await api.post(
       "/auth/register",
-      userData
+      userData,
+      {
+        timeout: 45000,
+      }
     );
 
     return response.data;
+
   } catch (error) {
-    throw prepareError(error, "Registration failed");
+    if (
+      error.code === "ECONNABORTED" ||
+      error.code === "ETIMEDOUT"
+    ) {
+      error.userMessage =
+        "Registration is taking longer than expected. Please do not submit repeatedly. Wait and check with the admin before trying again.";
+    }
+
+    throw prepareError(
+      error,
+      "Registration failed"
+    );
   }
 };
 
