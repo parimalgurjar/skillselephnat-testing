@@ -96,3 +96,53 @@ export const changePassword = async (passwordData) => {
     );
   }
 };
+/* =====================================================
+   PROFILE PHOTO UPLOAD
+===================================================== */
+
+export const uploadProfilePhoto = async (
+  file,
+  onUploadProgress
+) => {
+  try {
+    const formData = new FormData();
+
+    formData.append("profilePhoto", file);
+
+    const response = await api.post(
+      "/auth/profile-photo",
+      formData,
+      {
+        timeout: 60000,
+        onUploadProgress,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw prepareError(
+      error,
+      "Unable to upload profile photo"
+    );
+  }
+};
+
+
+/* =====================================================
+   REMOVE PROFILE PHOTO
+===================================================== */
+
+export const removeProfilePhoto = async () => {
+  try {
+    const response = await api.delete(
+      "/auth/profile-photo"
+    );
+
+    return response.data;
+  } catch (error) {
+    throw prepareError(
+      error,
+      "Unable to remove profile photo"
+    );
+  }
+};

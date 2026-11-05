@@ -4,7 +4,7 @@ import {
   useRef,
   useState,
 } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { Bell, X, CheckCheck } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -18,6 +18,7 @@ import {
 import "./NotificationBell.css";
 
 function NotificationInbox({ role, userId }) {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [unread, setUnread] = useState(0);
   const [cursor, setCursor] = useState(null);
@@ -314,33 +315,47 @@ function NotificationInbox({ role, userId }) {
 
   /* ================= OPEN NOTIFICATION ================= */
 
-  const visitNotification = (item) =>
-    runAction(async () => {
-      const prefix = `/${role.toLowerCase()}`;
+ const visitNotification = (item) =>
+  runAction(async () => {
+    const prefix = `/${role.toLowerCase()}`;
 
-      if (
-        typeof item.link !== "string" ||
-        !(
-          item.link === prefix ||
-          item.link.startsWith(`${prefix}/`)
-        )
-      ) {
-        throw new Error("Invalid notification link");
-      }
+    if (
+      typeof item.link !== "string" ||
+      !(
+        item.link === prefix ||
+        item.link.startsWith(`${prefix}/`)
+      )
+    ) {
+      throw new Error("Invalid notification link");
+    }
 
-      await api.patch(
-        `/notifications/${item._id}/read`
-      );
+    await api.patch(
+      `/notifications/${item._id}/read`
+    );
 
-      /*
-        Same page par bhi click ho toh fresh data load hoga.
-      */
-      window.location.assign(item.link);
-    });
+    // Immediately update the clicked notification.
+    setItems((previous) =>
+      previous.map((notification) =>
+        notification._id === item._id
+          ? {
+              ...notification,
+              readAt: new Date().toISOString(),
+            }
+          : notification
+      )
+    );
+
+    // Decrease unread count immediately.
+    setUnread((previous) =>
+      Math.max(0, previous - 1)
+    );
+
+    // Navigate without refreshing the entire website.
+    navigate(item.link);
+  });
 
   /* ================= MARK ALL READ ================= */
-
-  const markAllRead = () =>
+const markAllRead = () =>
     runAction(async () => {
       if (!items[0]) return;
 
@@ -349,6 +364,8 @@ function NotificationInbox({ role, userId }) {
       await api.patch("/notifications/read-all", {
         throughId,
       });
+
+      setUnread(0);
 
       if (!mountedRef.current) return;
 

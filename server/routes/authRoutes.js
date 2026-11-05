@@ -14,6 +14,8 @@ const {
   getAllUsers,
   getStudents,
   getTeachers,
+  uploadProfilePhoto,
+removeProfilePhoto,
 } = require("../controllers/authController");
 
 const {
@@ -21,7 +23,9 @@ const {
   authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-
+const {
+  uploadProfilePhoto: uploadProfilePhotoMiddleware,
+} = require("../middleware/uploadMiddleware");
 
 const router = express.Router();
 
@@ -51,6 +55,22 @@ router.put(
   "/update-profile",
   protect,
   updateProfile
+);
+/* =====================================================
+   PROFILE PHOTO
+===================================================== */
+
+router.post(
+  "/profile-photo",
+  protect,
+  uploadProfilePhotoMiddleware,
+  uploadProfilePhoto
+);
+
+router.delete(
+  "/profile-photo",
+  protect,
+  removeProfilePhoto
 );
 
 // CHANGE PASSWORD

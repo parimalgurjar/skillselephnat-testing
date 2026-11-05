@@ -11,7 +11,7 @@ const ALLOWED_MIME_TYPES = new Set([
   "video/mp4",
   "video/webm",
 
-  // Audio / voice messages
+  // Audio
   "audio/mpeg",
   "audio/mp3",
   "audio/mp4",
@@ -41,12 +41,11 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
- if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-  const error = new Error("This file type is not allowed");
-
-  error.statusCode = 400;
-  return cb(error);
-}
+  if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
+    const error = new Error("This file type is not allowed");
+    error.statusCode = 400;
+    return cb(error);
+  }
 
   cb(null, true);
 };
@@ -60,8 +59,35 @@ const uploadAttachment = multer({
   fileFilter,
 });
 
+const uploadProfilePhoto = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 1,
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      const error = new Error(
+        "Only JPG, PNG and WebP images are allowed"
+      );
+
+      error.statusCode = 400;
+      return cb(error);
+    }
+
+    cb(null, true);
+  },
+}).single("profilePhoto");
+
 module.exports = {
   uploadAttachment,
+  uploadProfilePhoto,
   ALLOWED_MIME_TYPES,
   MAX_FILE_SIZE,
 };

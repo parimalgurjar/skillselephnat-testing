@@ -19,7 +19,7 @@ import NotificationBell from "../common/NotificationBell";
 import NotificationBadge from "../common/NotificationBadge";
 import { useAuth } from "../../context/AuthContext";
 import "./StudentLayout.css";
-
+import ProfileAvatar from "../common/ProfileAvatar";
 const StudentLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -200,7 +200,11 @@ const StudentLayout = () => {
                         <NotificationBell />
 
             <div className="student-profile">
-              <div className="student-avatar">{initial}</div>
+              <ProfileAvatar
+  user={user}
+  size={42}
+  className="student-avatar"
+/>
 
               <div>
                 <strong>{studentName}</strong>

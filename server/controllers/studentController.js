@@ -3,7 +3,13 @@ const Course = require("../models/Course");
 const Batch = require("../models/Batch");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
-
+const Attendance = require("../models/Attendance");
+const StudentFee = require("../models/StudentFee");
+const StudentTaskProgress = require("../models/StudentTaskProgress");
+const Doubt = require("../models/Doubt");
+const DoubtMessage = require("../models/DoubtMessage");
+const Notification = require("../models/Notification");
+const Task = require("../models/Task");
 const isValidObjectId = (id) =>
   mongoose.Types.ObjectId.isValid(id);
 
@@ -660,7 +666,137 @@ const updateStudent = async (req, res) => {
       });
   }
 };
+/* =====================================================
+   PERMANENTLY DELETE STUDENT
+===================================================== */
 
+const deleteStudent = async (req, res) => {
+  const session = await mongoose.startSession();
+
+  try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid student ID",
+      });
+    }
+
+    let deletedStudentName = "";
+
+    await session.withTransaction(async () => {
+      const student = await User.findOne({
+        _id: req.params.id,
+        role: "STUDENT",
+      }).session(session);
+
+      if (!student) {
+        throw Object.assign(
+          new Error("Student not found"),
+          { status: 404 }
+        );
+      }
+
+      const studentId = student._id;
+
+      deletedStudentName = student.name;
+
+      // Find student's doubts
+      const doubts = await Doubt.find({
+        studentId,
+      })
+        .select("_id")
+        .session(session);
+
+      const doubtIds = doubts.map(
+        (doubt) => doubt._id
+      );
+
+      // Delete attendance
+      await Attendance.deleteMany(
+        { studentId },
+        { session }
+      );
+
+      // Delete fees
+      await StudentFee.deleteMany(
+        { studentId },
+        { session }
+      );
+
+      // Delete task report progress
+      await StudentTaskProgress.deleteMany(
+        { studentId },
+        { session }
+      );
+
+      // Delete notifications
+      await Notification.deleteMany(
+        { recipient: studentId },
+        { session }
+      );
+
+      // Delete doubts created by student
+      await Doubt.deleteMany(
+        { studentId },
+        { session }
+      );
+
+      // Delete doubt conversation messages
+      await DoubtMessage.deleteMany(
+        {
+          $or: [
+            { senderId: studentId },
+            { doubtId: { $in: doubtIds } },
+          ],
+        },
+        { session }
+      );
+
+      // Remove student submissions from tasks
+      await Task.updateMany(
+        {
+          "submissions.studentId": studentId,
+        },
+        {
+          $pull: {
+            submissions: {
+              studentId,
+            },
+          },
+        },
+        { session }
+      );
+
+      // Finally delete student account
+      await User.deleteOne(
+        {
+          _id: studentId,
+          role: "STUDENT",
+        },
+        { session }
+      );
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `${deletedStudentName} and related records deleted successfully`,
+    });
+
+  } catch (error) {
+    console.error("Delete Student Error:", error);
+
+    return res.status(error.status || 500).json({
+      success: false,
+      message:
+        error.status
+          ? error.message
+          : "Unable to delete student and related records",
+    });
+
+  } finally {
+    await session.endSession();
+  }
+};
 /* =====================================================
    DEACTIVATE STUDENT
 ===================================================== */
@@ -706,10 +842,55 @@ const deactivateStudent = async (req, res) => {
     });
   }
 };
+/* =====================================================
+   ACTIVATE STUDENT
+===================================================== */
 
+const activateStudent = async (req, res) => {
+  try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid student ID",
+      });
+    }
+
+    const student = await User.findOne({
+      _id: req.params.id,
+      role: "STUDENT",
+    });
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    student.status = "ACTIVE";
+    student.isActive = true;
+
+    await student.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Student activated successfully",
+    });
+
+  } catch (error) {
+    console.error("Activate Student Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to activate student",
+    });
+  }
+};
 /* =====================================================
    EXPORTS
 ===================================================== */
+
+
 
 module.exports = {
   createStudent,
@@ -717,4 +898,6 @@ module.exports = {
   getStudentById,
   updateStudent,
   deactivateStudent,
+  activateStudent,
+  deleteStudent,
 };

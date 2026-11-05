@@ -25,7 +25,7 @@ import { useAuth } from "../../context/AuthContext";
 import NotificationBell from "../common/NotificationBell";
 import NotificationBadge from "../common/NotificationBadge";
 import "./AdminLayout.css";
-
+import ProfileAvatar from "../common/ProfileAvatar";
 const AdminLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -209,7 +209,11 @@ const AdminLayout = () => {
               <span>ADMIN</span>
             </div>
 
-            <div className="admin-avatar">{initial}</div>
+            <ProfileAvatar
+  user={user}
+  size={42}
+  className="admin-avatar"
+/>
           </div>
         </header>
 

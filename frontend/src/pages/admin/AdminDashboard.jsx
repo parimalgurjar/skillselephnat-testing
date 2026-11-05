@@ -25,7 +25,9 @@ import {
 import api from "../../services/api";
 
 import "./AdminDashboard.css";
-
+import {
+  NOTIFICATION_REFRESH,
+} from "../../services/notificationEvents";
 const AdminDashboard = () => {
   /* =====================================================
      STATE
@@ -55,11 +57,29 @@ const [rejectModal, setRejectModal] = useState({
   ===================================================== */
 
   const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const [
-        studentsResponse,
+    // Resolve old approved/rejected signup notifications
+    try {
+      await api.patch(
+        "/notifications/resolve-signups"
+      );
+
+      // Refresh bell icon and sidebar badges
+      window.dispatchEvent(
+        new Event(NOTIFICATION_REFRESH)
+      );
+    } catch (notificationError) {
+      console.error(
+        "Notification Sync Error:",
+        notificationError.response?.data ||
+          notificationError.message
+      );
+    }
+
+    const [
+      studentsResponse,
         teachersResponse,
         batchesResponse,
         pendingResponse,

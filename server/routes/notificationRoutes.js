@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 const Notification = require("../models/Notification");
-
+const User = require("../models/User");
 const {
   protect,
 } = require("../middleware/authMiddleware");
@@ -125,6 +125,128 @@ router.get("/", async (req, res) => {
   }
 });
 
+/* =====================================================
+   RESOLVE OLD SIGNUP NOTIFICATIONS
+
+   Mark signup notifications read when user
+   is no longer pending.
+===================================================== */
+
+router.patch("/resolve-signups", async (req, res) => {
+  try {
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        success: false,
+        message: "Admin access required",
+      });
+    }
+
+    // Current admin's unread signup notifications
+    const notifications = await Notification.find({
+      recipient: req.user._id,
+      eventKey: /^SIGNUP:/,
+      readAt: null,
+    })
+      .select("_id eventKey")
+      .lean();
+
+    if (!notifications.length) {
+      return res.status(200).json({
+        success: true,
+        modifiedCount: 0,
+      });
+    }
+
+    // Extract registered user IDs from event keys
+    const signupNotifications = notifications
+      .map((notification) => {
+        const match = notification.eventKey.match(
+          /^SIGNUP:([a-f\d]{24}):created$/i
+        );
+
+        return match
+          ? {
+              notificationId: notification._id,
+              userId: match[1],
+            }
+          : null;
+      })
+      .filter(Boolean);
+
+    if (!signupNotifications.length) {
+      return res.status(200).json({
+        success: true,
+        modifiedCount: 0,
+      });
+    }
+
+    const userIds = signupNotifications.map(
+      (item) => item.userId
+    );
+
+    // Find users who are still waiting for approval
+    const pendingUsers = await User.find({
+      _id: {
+        $in: userIds,
+      },
+      status: "PENDING",
+    })
+      .select("_id")
+      .lean();
+
+    const pendingIds = new Set(
+      pendingUsers.map((user) => String(user._id))
+    );
+
+    // Only resolve notifications for users
+    // who are no longer pending.
+    const resolvedNotificationIds =
+      signupNotifications
+        .filter(
+          (item) => !pendingIds.has(item.userId)
+        )
+        .map((item) => item.notificationId);
+
+    if (!resolvedNotificationIds.length) {
+      return res.status(200).json({
+        success: true,
+        modifiedCount: 0,
+      });
+    }
+
+    const result = await Notification.updateMany(
+      {
+        _id: {
+          $in: resolvedNotificationIds,
+        },
+        recipient: req.user._id,
+        readAt: null,
+      },
+      {
+        $set: {
+          readAt: new Date(),
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      modifiedCount: result.modifiedCount,
+    });
+
+  } catch (error) {
+    console.error(
+      "Resolve Signup Notifications Error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to resolve signup notifications",
+    });
+  }
+});
 /* =====================================================
    MARK ALL EXISTING NOTIFICATIONS AS READ
 

@@ -525,48 +525,122 @@ const fetchBatches = async () => {
     }
   };
 
+  
+/* =====================================================
+   ACTIVATE / DEACTIVATE STUDENT
+===================================================== */
+
+const handleStudentStatus = (student, action) => {
+  const isActivating = action === "activate";
+
+  setAlert({
+    isOpen: true,
+    type: "warning",
+    title: isActivating
+      ? "Activate Student"
+      : "Deactivate Student",
+
+    message: isActivating
+      ? `Are you sure you want to activate ${student.name}?`
+      : `Are you sure you want to deactivate ${student.name}? Student data will remain safe.`,
+
+    confirmText: isActivating
+      ? "Activate"
+      : "Deactivate",
+
+    confirmAction: async () => {
+      try {
+        await api.patch(
+          `/students/${student._id}/${action}`
+        );
+
+        setAlert({
+          isOpen: true,
+          type: "success",
+          title: isActivating
+            ? "Student Activated"
+            : "Student Deactivated",
+          message: isActivating
+            ? `${student.name} is now active.`
+            : `${student.name} has been deactivated.`,
+        });
+
+        await fetchStudents();
+
+      } catch (error) {
+        console.error(
+          "Student Status Error:",
+          error.response?.data || error
+        );
+
+        setAlert({
+          isOpen: true,
+          type: "error",
+          title: "Status Update Failed",
+          message:
+            error.response?.data?.message ||
+            "Unable to update student status.",
+        });
+      }
+    },
+  });
+};
   /* =====================================================
-     DEACTIVATE STUDENT
-  ===================================================== */
+   PERMANENT DELETE STUDENT
+===================================================== */
 
-  const handleDeactivate = async (student) => {
-    setAlert({
-      isOpen: true,
-      type: "warning",
-      title: "Deactivate Student",
-      message: `Are you sure you want to deactivate ${student.name}?`,
-      confirmAction: async () => {
-        try {
-          await api.patch(`/students/${student._id}/deactivate`);
+const handleDelete = (student) => {
+  setAlert({
+    isOpen: true,
+    type: "warning",
+    title: "Permanently Delete Student",
 
-          setAlert({
-            isOpen: true,
-            type: "success",
-            title: "Student Deactivated",
-            message: `${student.name} has been deactivated successfully.`,
-          });
+    message:
+      `Are you sure you want to permanently delete ${student.name}? All associated attendance, fees, tasks, doubts and notifications will also be deleted. This action cannot be undone.`,
 
-          await fetchStudents();
-        } catch (error) {
-          console.error(
-            "Deactivate Student Error:",
-            error.response?.data || error
-          );
+    confirmAction: async () => {
+      setAlert((previous) => ({
+        ...previous,
+        isOpen: false,
+      }));
 
-          setAlert({
-            isOpen: true,
-            type: "error",
-            title: "Deactivation Failed",
-            message:
-              error.response?.data?.message ||
-              "Unable to deactivate the student.",
-          });
-        }
-      },
-    });
+      try {
+        await api.delete(
+          `/students/${student._id}`
+        );
 
-    return;
-  };
+        setStudents((previous) =>
+          previous.filter(
+            (item) => item._id !== student._id
+          )
+        );
+
+        setAlert({
+          isOpen: true,
+          type: "success",
+          title: "Student Deleted",
+          message:
+            `${student.name} and associated database records have been deleted successfully.`,
+        });
+
+      } catch (error) {
+        console.error(
+          "Delete Student Error:",
+          error.response?.data || error
+        );
+
+        setAlert({
+          isOpen: true,
+          type: "error",
+          title: "Delete Failed",
+          message:
+            error.response?.data?.message ||
+            "Unable to delete student.",
+        });
+      }
+    },
+  });
+};
 
   /* =====================================================
      FILTER STUDENTS
@@ -772,7 +846,6 @@ const fetchBatches = async () => {
                 <th>Student</th>
                 <th>Contact</th>
                 <th>Batch</th>
-                <th>Assigned Teacher</th>
                 <th>Joining Date</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -783,7 +856,7 @@ const fetchBatches = async () => {
               {error ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="6"
                     style={{ textAlign: "center", padding: "30px" }}
                   >
                     {error}
@@ -792,7 +865,7 @@ const fetchBatches = async () => {
               ) : filteredStudents.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="6"
                     style={{ textAlign: "center", padding: "30px" }}
                   >
                     No students found
@@ -852,28 +925,9 @@ const fetchBatches = async () => {
                         </div>
                       </td>
 
-                      {/* TEACHER */}
+                    
 
-                      <td>
-                        {teacher ? (
-                          <div className="assigned-teacher">
-                            <UserCog size={14} />
-
-                            <div>
-                              <strong>{teacher.name}</strong>
-
-                              <small>Assigned</small>
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            className="assign-teacher-btn"
-                            onClick={() => handleEditStudent(student)}
-                          >
-                            Assign Teacher
-                          </button>
-                        )}
-                      </td>
+                          
 
                       {/* JOINING DATE */}
 
@@ -899,26 +953,34 @@ const fetchBatches = async () => {
 
                       {/* ACTIONS */}
 
-                      <td>
-                        <div className="student-table-actions">
-                          <button
-                            title="Edit Student"
-                            onClick={() => handleEditStudent(student)}
-                          >
-                            <Edit size={15} />
-                          </button>
+                    
 
-                          {studentStatus === "ACTIVE" && (
-                            <button
-                              className="delete-student-btn"
-                              title="Deactivate Student"
-                              onClick={() => handleDeactivate(student)}
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
+{/* ACTIONS */}
+
+<td>
+  <div className="student-table-actions">
+
+    {/* EDIT */}
+    <button
+      type="button"
+      title="Edit Student"
+      onClick={() => handleEditStudent(student)}
+    >
+      <Edit size={16} />
+    </button>
+
+    {/* DELETE */}
+    <button
+      type="button"
+      className="delete-student-btn"
+      title="Permanently Delete Student"
+      onClick={() => handleDelete(student)}
+    >
+      <Trash2 size={16} />
+    </button>
+
+  </div>
+</td>
                     </tr>
                   );
                 })
@@ -943,7 +1005,7 @@ const fetchBatches = async () => {
 
                 <p>
                   {editingStudent
-                    ? "Update student details, batch or assigned teacher."
+                    ? "Update student details, batch and account status."
                     : "Create a student account and assign a batch."}
                 </p>
               </div>
@@ -1059,33 +1121,81 @@ const fetchBatches = async () => {
 
                 {/* JOINING DATE + STATUS */}
 
-                <div className="student-form-row">
-                  <div className="student-form-group">
-                    <label>Joining Date</label>
+                {/* JOINING DATE + STATUS ACTIONS */}
 
-                    <input
-                      type="date"
-                      name="joiningDate"
-                      value={formData.joiningDate}
-                      onChange={handleChange}
-                      disabled={submitting}
-                    />
-                  </div>
+<div className="student-form-row">
 
-                  <div className="student-form-group">
-                    <label>Status</label>
+  {/* JOINING DATE */}
+  <div className="student-form-group">
+    <label>Joining Date</label>
 
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                      disabled={submitting}
-                    >
-                      <option value="ACTIVE">ACTIVE</option>
-                      <option value="INACTIVE">INACTIVE</option>
-                    </select>
-                  </div>
-                </div>
+    <input
+      type="date"
+      name="joiningDate"
+      value={formData.joiningDate}
+      onChange={handleChange}
+      disabled={submitting}
+    />
+  </div>
+
+  {/* STATUS ACTIONS */}
+  {editingStudent && (
+    <div className="student-form-group">
+      <label>Student Status</label>
+
+      <div className="student-status-actions">
+
+        <button
+          type="button"
+          className={
+            formData.status === "ACTIVE"
+              ? "status-action-btn active selected"
+              : "status-action-btn active"
+          }
+          onClick={() =>
+            setFormData((prev) => ({
+              ...prev,
+              status: "ACTIVE",
+            }))
+          }
+        >
+          ACTIVE
+        </button>
+
+        <button
+          type="button"
+          className={
+            formData.status === "INACTIVE"
+              ? "status-action-btn inactive selected"
+              : "status-action-btn inactive"
+          }
+          onClick={() =>
+            setFormData((prev) => ({
+              ...prev,
+              status: "INACTIVE",
+            }))
+          }
+        >
+          INACTIVE
+        </button>
+
+        <button
+          type="button"
+          className="status-action-btn delete"
+          onClick={() => {
+            setShowModal(false);
+            handleDelete(editingStudent);
+          }}
+        >
+          <Trash2 size={14} />
+          DELETE
+        </button>
+
+      </div>
+    </div>
+  )}
+
+</div>
               </div>
 
               {/* FOOTER ACTIONS */}
@@ -1119,17 +1229,21 @@ const fetchBatches = async () => {
 
       {/* Alert Modal */}
       <AlertModal
-        isOpen={alert.isOpen}
-        onClose={() =>
-          setAlert((previous) => ({
-            ...previous,
-            isOpen: false,
-          }))
-        }
-        type={alert.type}
-        title={alert.title}
-        message={alert.message}
-      />
+  isOpen={alert.isOpen}
+  onClose={() =>
+    setAlert((previous) => ({
+      ...previous,
+      isOpen: false,
+    }))
+  }
+  type={alert.type}
+  title={alert.title}
+  message={alert.message}
+  showCancel={Boolean(alert.confirmAction)}
+cancelText="Cancel"
+confirmText={alert.confirmText || "Confirm"}
+onConfirm={alert.confirmAction}
+/>
     </div>
   );
 };

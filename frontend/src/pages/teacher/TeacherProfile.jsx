@@ -16,10 +16,10 @@ import {
   getTeacherProfile,
   updateTeacherProfile,
 } from "../../services/teacherProfileApi";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 import "./TeacherProfile.css";
 import AlertModal from "../../components/common/AlertModal";
-
+import ProfilePhotoUpload from "../../components/common/ProfilePhotoUpload";
 const TeacherProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -259,16 +259,21 @@ const TeacherProfile = () => {
 
       {/* Profile Hero */}
       <div className="teacher-profile-hero">
+        <ProfilePhotoUpload
+  onUpdated={(updatedUser) => {
+    setProfile((previous) => ({
+      ...previous,
+      avatar: updatedUser.avatar || "",
+    }));
+  }}
+/>
         <div className="teacher-profile-main">
-          <div className="teacher-profile-avatar">
-            {profile.avatar ? (
-              <img src={profile.avatar} alt={profile.name} />
-            ) : (
-              <span>{getInitials(profile.name)}</span>
-            )}
-
-            
-          </div>
+        <div className="teacher-profile-avatar">
+  <ProfileAvatar
+    user={profile}
+    size={100}
+  />
+</div>
 
           <div className="teacher-profile-intro">
             <h2>{profile.name}</h2>

@@ -20,7 +20,8 @@ changePassword,
 
 import { useAuth } from "../../context/AuthContext";
 import Modal from "../../components/common/Modal";
-
+import ProfilePhotoUpload from "../../components/common/ProfilePhotoUpload";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 import "./Profile.css";
 
 const Profile = () => {
@@ -582,7 +583,14 @@ return ( <div className="profile-page">
   {/* =====================================================
      PROFILE HERO
   ===================================================== */}
-
+<ProfilePhotoUpload
+  onUpdated={(updatedUser) => {
+    setStudent((previous) => ({
+      ...previous,
+      avatar: updatedUser.avatar || "",
+    }));
+  }}
+/>
   <div className="profile-hero">
     <div className="profile-main-info">
 

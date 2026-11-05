@@ -20,6 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 import "./TeacherLayout.css";
 import NotificationBell from "../common/NotificationBell";
 import NotificationBadge from "../common/NotificationBadge";
+import ProfileAvatar from "../common/ProfileAvatar";
 const TeacherLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -181,7 +182,11 @@ const menuItems = allMenuItems.filter(
               <span>EDUCATOR</span>
             </div>
 
-            <div className="teacher-avatar">{initial}</div>
+            <ProfileAvatar
+  user={user}
+  size={42}
+  className="teacher-avatar"
+/>
           </div>
         </header>
 

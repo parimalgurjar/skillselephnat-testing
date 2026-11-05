@@ -1,11 +1,14 @@
 const express = require("express");
 
+
 const {
   createStudent,
   getStudents,
   getStudentById,
   updateStudent,
   deactivateStudent,
+  deleteStudent,
+  activateStudent
 } = require("../controllers/studentController");
 
 const {
@@ -62,7 +65,17 @@ router.put(
   authorize("ADMIN"),
   updateStudent
 );
+/* =====================================================
+   PERMANENT DELETE STUDENT
+   ADMIN ONLY
+===================================================== */
 
+router.delete(
+  "/:id",
+  protect,
+  authorize("ADMIN"),
+  deleteStudent
+);
 /* =====================================================
    DEACTIVATE STUDENT
    ADMIN ONLY
@@ -73,6 +86,17 @@ router.patch(
   protect,
   authorize("ADMIN"),
   deactivateStudent
+);
+/* =====================================================
+   ACTIVATE STUDENT
+   ADMIN ONLY
+===================================================== */
+
+router.patch(
+  "/:id/activate",
+  protect,
+  authorize("ADMIN"),
+  activateStudent
 );
 
 module.exports = router;

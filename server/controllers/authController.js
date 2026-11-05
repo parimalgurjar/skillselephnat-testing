@@ -5,6 +5,9 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const { notify } = require("../services/notificationService");
 const { refreshStudentFeeAccess } = require("../utils/feeAccess");
+const Notification = require("../models/Notification");
+const cloudinary = require("../config/cloudinary");
+const uploadToCloudinary = require("../utils/uploadToCloudinary");
 /* =====================================================
    GENERATE JWT TOKEN
 ===================================================== */
@@ -589,6 +592,9 @@ for (const [field, value, maxLength] of [
   }
 };
 
+
+
+
 /* =====================================================
    CHANGE PASSWORD
 ===================================================== */
@@ -665,7 +671,183 @@ const changePassword = async (req, res) => {
     });
   }
 };
+/* =====================================================
+   PROFILE PHOTO HELPER
+===================================================== */
 
+const getProfilePhotoPublicId = (avatarUrl) => {
+  try {
+    if (!avatarUrl) return null;
+
+    const url = new URL(avatarUrl);
+
+    if (url.hostname !== "res.cloudinary.com") {
+      return null;
+    }
+
+    const match = url.pathname.match(
+      /\/image\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/
+    );
+
+    if (!match) return null;
+
+    const publicId = match[1];
+
+    if (
+      !publicId.startsWith(
+        "skillselephant/profile-photos/"
+      )
+    ) {
+      return null;
+    }
+
+    return publicId;
+  } catch {
+    return null;
+  }
+};
+
+
+/* =====================================================
+   UPLOAD PROFILE PHOTO
+===================================================== */
+
+const uploadProfilePhoto = async (req, res) => {
+  let uploadedImage = null;
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select a profile photo",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    uploadedImage = await uploadToCloudinary(
+      req.file.buffer,
+      {
+        resource_type: "image",
+        folder: "skillselephant/profile-photos",
+        public_id: `user_${user._id}_${Date.now()}`,
+        transformation: [
+          {
+            width: 500,
+            height: 500,
+            crop: "fill",
+            gravity: "face",
+          },
+        ],
+      }
+    );
+
+    const oldPublicId = getProfilePhotoPublicId(
+      user.avatar
+    );
+
+    user.avatar = uploadedImage.secure_url;
+
+    await user.save();
+
+    // Delete old profile photo only after successful save.
+    if (oldPublicId) {
+      try {
+        await cloudinary.uploader.destroy(oldPublicId);
+      } catch (cleanupError) {
+        console.error(
+          "Old profile photo cleanup failed:",
+          cleanupError.message
+        );
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile photo updated successfully",
+      user: buildAuthUser(user),
+    });
+
+  } catch (error) {
+    console.error("Profile Photo Upload Error:", error);
+
+    if (uploadedImage?.public_id) {
+      try {
+        await cloudinary.uploader.destroy(
+          uploadedImage.public_id
+        );
+      } catch (cleanupError) {
+        console.error(
+          "Uploaded image cleanup failed:",
+          cleanupError.message
+        );
+      }
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to upload profile photo",
+    });
+  }
+};
+
+
+/* =====================================================
+   REMOVE PROFILE PHOTO
+===================================================== */
+
+const removeProfilePhoto = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const oldPublicId = getProfilePhotoPublicId(
+      user.avatar
+    );
+
+    user.avatar = "";
+
+    await user.save();
+
+    if (oldPublicId) {
+      try {
+        await cloudinary.uploader.destroy(oldPublicId);
+      } catch (cleanupError) {
+        console.error(
+          "Cloudinary photo removal failed:",
+          cleanupError.message
+        );
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile photo removed successfully",
+      user: buildAuthUser(user),
+    });
+
+  } catch (error) {
+    console.error("Remove Profile Photo Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to remove profile photo",
+    });
+  }
+};
 /* =====================================================
    GET PENDING REGISTRATION REQUESTS
    ADMIN ONLY
@@ -743,10 +925,25 @@ const approveUser = async (req, res) => {
     }
 
     user.status = "ACTIVE";
-    user.isActive = true;
-    user.joiningDate = new Date();
+user.isActive = true;
+user.joiningDate = new Date();
 
-    await user.save();
+await user.save();
+
+/* MARK SIGNUP NOTIFICATION AS READ */
+
+await Notification.updateOne(
+  {
+    recipient: req.user._id,
+    eventKey: `SIGNUP:${user._id}:created`,
+    readAt: null,
+  },
+  {
+    $set: {
+      readAt: new Date(),
+    },
+  }
+);
 
     return res.status(200).json({
       success: true,
@@ -810,9 +1007,24 @@ const rejectUser = async (req, res) => {
     }
 
     user.status = "REJECTED";
-    user.isActive = false;
+user.isActive = false;
 
-    await user.save();
+await user.save();
+
+/* MARK SIGNUP NOTIFICATION AS READ */
+
+await Notification.updateOne(
+  {
+    recipient: req.user._id,
+    eventKey: `SIGNUP:${user._id}:created`,
+    readAt: null,
+  },
+  {
+    $set: {
+      readAt: new Date(),
+    },
+  }
+);
 
     return res.status(200).json({
       success: true,
@@ -1088,6 +1300,8 @@ module.exports = {
   loginUser,
   getCurrentUser,
   updateProfile,
+  uploadProfilePhoto,
+removeProfilePhoto,
   changePassword,
   getPendingUsers,
   approveUser,

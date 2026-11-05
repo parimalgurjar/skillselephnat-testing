@@ -19,7 +19,7 @@ import {
 } from "../../services/authApi";
 
 import { useAuth } from "../../context/AuthContext";
-
+import ProfilePhotoUpload from "../../components/common/ProfilePhotoUpload";
 import "./AdminProfile.css";
 
 const AdminProfile = () => {
@@ -403,21 +403,12 @@ location: currentUser.location ?? "",
                 </div>
               </div>
 
-              <div className="profile-avatar-section">
-                <div className="large-profile-avatar">
-                  {initials}
-                </div>
+             <ProfilePhotoUpload />
 
-                <div className="profile-avatar-info">
-                  <h3>{formData.name}</h3>
-
-                  <span>
-                    {formData.designation}
-                  </span>
-
-                 
-                </div>
-              </div>
+<div className="profile-avatar-info">
+  <h3>{formData.name}</h3>
+  <span>{formData.designation}</span>
+</div>
 
               <div className="profile-form">
 
