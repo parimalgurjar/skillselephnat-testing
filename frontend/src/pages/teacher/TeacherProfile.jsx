@@ -256,10 +256,7 @@ const TeacherProfile = () => {
           </div>
         )}
       </div>
-
-      {/* Profile Hero */}
-      <div className="teacher-profile-hero">
-        <ProfilePhotoUpload
+ <ProfilePhotoUpload
   onUpdated={(updatedUser) => {
     setProfile((previous) => ({
       ...previous,
@@ -267,11 +264,14 @@ const TeacherProfile = () => {
     }));
   }}
 />
+      {/* Profile Hero */}
+      <div className="teacher-profile-hero">
+       
         <div className="teacher-profile-main">
         <div className="teacher-profile-avatar">
   <ProfileAvatar
     user={profile}
-    size={100}
+    size={82}
   />
 </div>
 

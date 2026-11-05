@@ -579,10 +579,6 @@ return ( <div className="profile-page">
       Edit Profile
     </button>
   </div>
-
-  {/* =====================================================
-     PROFILE HERO
-  ===================================================== */}
 <ProfilePhotoUpload
   onUpdated={(updatedUser) => {
     setStudent((previous) => ({
@@ -591,19 +587,19 @@ return ( <div className="profile-page">
     }));
   }}
 />
+  {/* =====================================================
+     PROFILE HERO
+  ===================================================== */}
+
   <div className="profile-hero">
     <div className="profile-main-info">
 
-      <div className="profile-avatar">
-        {student.avatar ? (
-          <img
-            src={student.avatar}
-            alt={studentName}
-          />
-        ) : (
-          studentName.charAt(0).toUpperCase()
-        )}
-      </div>
+     <div className="profile-avatar">
+  <ProfileAvatar
+    user={student}
+    size={100}
+  />
+</div>
 
       <div>
         <h2>{studentName}</h2>
