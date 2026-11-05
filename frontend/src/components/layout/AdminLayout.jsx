@@ -198,7 +198,11 @@ const AdminLayout = () => {
 
             <div>
               <span>ADMINISTRATION PORTAL</span>
-              <h3>Welcome back, {adminName}</h3>
+              <h3>
+  Welcome back, {adminName
+    ? adminName.charAt(0).toUpperCase() + adminName.slice(1)
+    : "Admin"}
+</h3>
             </div>
           </div>
           <div className="admin-profile-top">
