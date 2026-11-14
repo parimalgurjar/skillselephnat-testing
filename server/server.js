@@ -93,6 +93,7 @@ const taskReportRoutes = require("./routes/taskReportRoutes");
 const courseModuleRoutes = require("./routes/courseModuleRoutes");
 const specializationRoutes = require("./routes/specializationRoutes");
 const PORT = process.env.PORT || 5001;
+const videoTutorialRoutes = require("./routes/videoTutorialRoutes");
 
 /* ================= CORS ================= */
 
@@ -161,7 +162,7 @@ app.use("/api/batches", batchRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/modules", courseModuleRoutes);
 app.use("/api/specializations", specializationRoutes);
-
+app.use("/api/video-tutorials", videoTutorialRoutes);
 /* ================= TEST ROUTE ================= */
 
 app.get("/", (req, res) => {

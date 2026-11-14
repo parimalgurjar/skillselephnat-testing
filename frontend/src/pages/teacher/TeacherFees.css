@@ -360,3 +360,252 @@
     align-items: flex-start;
   }
 }
+
+/* =====================================
+   TEACHER FEES - CUSTOM MODALS
+===================================== */
+
+.teacher-fee-modal-overlay,
+.teacher-fee-alert-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(8, 18, 48, 0.62);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  animation: teacherFeeFade 0.2s ease;
+}
+
+.teacher-fee-modal,
+.teacher-fee-alert-modal {
+  width: 100%;
+  max-width: 440px;
+  padding: 27px;
+  border-radius: 17px;
+  background: #fff;
+  color: #07194f;
+  box-shadow: 0 22px 65px rgba(1, 20, 81, 0.2);
+  animation: teacherFeeScale 0.22s ease;
+}
+
+.teacher-fee-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 19px;
+}
+
+.teacher-fee-modal-icon {
+  width: 49px;
+  height: 49px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: #eef2ff;
+  color: #263f91;
+}
+
+.teacher-fee-modal-header button {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.teacher-fee-modal h2,
+.teacher-fee-alert-modal h2 {
+  margin: 0 0 8px;
+  font-size: 21px;
+  font-weight: 750;
+}
+
+.teacher-fee-modal-description,
+.teacher-fee-alert-modal > p {
+  margin: 0 0 22px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.teacher-fee-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.teacher-fee-modal form label {
+  margin-top: 7px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.teacher-fee-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid #dce5f5;
+  border-radius: 9px;
+  color: #64748b;
+}
+
+.teacher-fee-input-wrap:focus-within {
+  border-color: #263f91;
+  box-shadow: 0 0 0 3px rgba(38, 63, 145, 0.08);
+}
+
+.teacher-fee-input-wrap input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #07194f;
+  font-size: 14px;
+}
+
+.teacher-fee-modal textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #dce5f5;
+  border-radius: 9px;
+  resize: vertical;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+}
+
+.teacher-fee-modal textarea:focus {
+  border-color: #263f91;
+}
+
+.teacher-fee-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 17px;
+}
+
+.teacher-fee-modal-actions button {
+  flex: 1;
+  min-height: 43px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.teacher-fee-cancel {
+  border: 1px solid #dce5f5;
+  background: #fff;
+  color: #334155;
+}
+
+.teacher-fee-save {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  background: #011451;
+  color: #fff;
+}
+
+.teacher-fee-modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Notification Modal */
+
+.teacher-fee-alert-modal {
+  max-width: 390px;
+  text-align: center;
+}
+
+.teacher-fee-alert-icon {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 19px;
+  border-radius: 18px;
+}
+
+.teacher-fee-alert-icon.success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.teacher-fee-alert-icon.error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.teacher-fee-alert-icon.warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.teacher-fee-alert-icon.info {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.teacher-fee-alert-modal > p {
+  margin-bottom: 22px;
+}
+
+.teacher-fee-alert-button {
+  width: 100%;
+  min-height: 43px;
+  border: none;
+  border-radius: 9px;
+  background: #011451;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.teacher-fee-alert-button:hover {
+  background: #10276d;
+}
+
+.teacher-fee-spinner {
+  animation: teacherFeeSpin 1s linear infinite;
+}
+
+@keyframes teacherFeeSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes teacherFeeFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes teacherFeeScale {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .teacher-fee-modal,
+  .teacher-fee-alert-modal {
+    padding: 22px;
+  }
+}

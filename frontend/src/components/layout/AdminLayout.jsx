@@ -19,6 +19,7 @@ import {
   UsersRound,
   Menu,
   X,
+  Video,
   Wallet
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -73,11 +74,17 @@ const AdminLayout = () => {
       path: "/admin/batches",
       icon: UsersRound,
     },
+
     {
       name: "Attendance",
       path: "/admin/attendance",
       icon: CalendarCheck,
     },
+      {
+  name: "Video Tutorials",
+  path: "/admin/video-tutorials",
+  icon: Video,
+},
     {
       name: "Tasks",
       path: "/admin/tasks",
@@ -98,6 +105,7 @@ const AdminLayout = () => {
       path: "/admin/announcements",
       icon: Megaphone,
     },
+  
     {
       name: "Reports",
       path: "/admin/reports",

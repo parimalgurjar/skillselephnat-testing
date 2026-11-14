@@ -17,7 +17,7 @@ import {
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import "./AdminFees.css";
-
+import ConfirmModal from "../../components/common/ConfirmModal";
 const currency = (value) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -55,7 +55,8 @@ const AdminFees = () => {
     title: "",
     message: "",
   });
-
+const [restoreTarget, setRestoreTarget] = useState(null);
+const [restoring, setRestoring] = useState(false);
   const showMessage = (type, title, message) => {
     setAlert({
       isOpen: true,
@@ -272,37 +273,42 @@ const AdminFees = () => {
     }
   };
 
-  const restoreAccess = async (record) => {
-    const student = record.student;
+  const restoreAccess = (record) => {
+  setRestoreTarget(record);
+};
 
-    if (
-      !window.confirm(
-        `Restore portal access for ${student.name}?`
-      )
-    ) {
-      return;
-    }
+const confirmRestoreAccess = async () => {
+  const student = restoreTarget?.student;
 
-    try {
-      await api.post(
-        `/fees/students/${student._id}/restore-access`
-      );
+  if (!student?._id || restoring) return;
 
-      await fetchData();
+  try {
+    setRestoring(true);
 
-      showMessage(
-        "success",
-        "Access restored",
-        "The student's portal access has been restored."
-      );
-    } catch (err) {
-      showMessage(
-        "error",
-        "Unable to restore access",
-        err.response?.data?.message || "Please try again."
-      );
-    }
-  };
+    await api.post(
+      `/fees/students/${student._id}/restore-access`
+    );
+
+    setRestoreTarget(null);
+    await fetchData();
+
+    showMessage(
+      "success",
+      "Access restored",
+      "The student's portal access has been restored."
+    );
+  } catch (err) {
+    setRestoreTarget(null);
+
+    showMessage(
+      "error",
+      "Unable to restore access",
+      err.response?.data?.message || "Please try again."
+    );
+  } finally {
+    setRestoring(false);
+  }
+};
 
   return (
     <div className="admin-fees-page">
@@ -695,7 +701,19 @@ const AdminFees = () => {
           </form>
         </div>
       )}
-
+<ConfirmModal
+  isOpen={Boolean(restoreTarget)}
+  onClose={() => setRestoreTarget(null)}
+  onConfirm={confirmRestoreAccess}
+  title="Restore Student Access?"
+  message={`Are you sure you want to restore portal access for ${
+    restoreTarget?.student?.name || "this student"
+  }?`}
+  confirmText="Restore Access"
+  cancelText="Cancel"
+  loading={restoring}
+  variant="primary"
+/>
       <AlertModal
         isOpen={alert.isOpen}
         type={alert.type}

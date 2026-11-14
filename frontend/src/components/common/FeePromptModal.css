@@ -1,0 +1,181 @@
+
+.fee-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(8, 18, 48, 0.62);
+  backdrop-filter: blur(5px);
+  animation: feePromptFade 0.2s ease;
+}
+
+.fee-prompt-modal {
+  width: 100%;
+  max-width: 440px;
+  padding: 27px;
+  border-radius: 17px;
+  background: #fff;
+  color: #07194f;
+  box-shadow: 0 22px 65px rgba(1, 20, 81, 0.2);
+  animation: feePromptScale 0.22s ease;
+}
+
+.fee-prompt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 19px;
+}
+
+.fee-prompt-icon {
+  width: 49px;
+  height: 49px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: #eef2ff;
+  color: #263f91;
+}
+
+.fee-prompt-header button {
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.fee-prompt-modal h2 {
+  margin: 0 0 8px;
+  font-size: 21px;
+  font-weight: 750;
+}
+
+.fee-prompt-description {
+  margin: 0 0 23px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.fee-prompt-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fee-prompt-modal label {
+  margin-top: 7px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fee-prompt-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid #dce5f5;
+  border-radius: 9px;
+  color: #64748b;
+}
+
+.fee-prompt-input-wrap:focus-within {
+  border-color: #263f91;
+  box-shadow: 0 0 0 3px rgba(38, 63, 145, 0.08);
+}
+
+.fee-prompt-input-wrap input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  color: #07194f;
+  font-size: 14px;
+  background: transparent;
+}
+
+.fee-prompt-modal textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #dce5f5;
+  border-radius: 9px;
+  resize: vertical;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+}
+
+.fee-prompt-modal textarea:focus {
+  border-color: #263f91;
+}
+
+.fee-prompt-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 17px;
+}
+
+.fee-prompt-actions button {
+  flex: 1;
+  min-height: 43px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fee-prompt-cancel {
+  border: 1px solid #dce5f5;
+  background: white;
+  color: #334155;
+}
+
+.fee-prompt-submit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: #011451;
+  color: white;
+}
+
+.fee-prompt-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fee-prompt-spinner {
+  animation: feePromptSpin 1s linear infinite;
+}
+
+@keyframes feePromptSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes feePromptFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes feePromptScale {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .fee-prompt-modal {
+    padding: 22px;
+  }
+}

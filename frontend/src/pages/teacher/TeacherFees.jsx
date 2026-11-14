@@ -8,7 +8,12 @@ import {
   Users,
   Clock,
   CheckCircle2,
+  X,
+  LoaderCircle,
+  AlertCircle,
+  CheckCircle,
 } from "lucide-react";
+
 import api from "../../services/api";
 import "./TeacherFees.css";
 
@@ -56,10 +61,8 @@ const getBatchLabel = (student) => {
 const getBatchKey = (student) => {
   const batchId = getBatchId(student);
 
-  // Use canonical Batch ID wherever it is available.
   if (batchId) return `batch:${batchId}`;
 
-  // Legacy records without batchId use their timing.
   const timing = student?.batchTiming?.trim();
 
   return timing ? `legacy:${timing}` : "unassigned";
@@ -73,6 +76,35 @@ const TeacherFees = () => {
   const [selectedBatch, setSelectedBatch] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [savingId, setSavingId] = useState("");
+
+  // Custom amount modal
+  const [feePrompt, setFeePrompt] = useState(null);
+  const [promptAmount, setPromptAmount] = useState("");
+  const [promptNote, setPromptNote] = useState("");
+
+  // Custom notification modal
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+
+  const showMessage = (type, title, message) => {
+    setAlert({
+      isOpen: true,
+      type,
+      title,
+      message,
+    });
+  };
+
+  const closeAlert = () => {
+    setAlert((prev) => ({
+      ...prev,
+      isOpen: false,
+    }));
+  };
 
   const loadFees = useCallback(async () => {
     setLoading(true);
@@ -115,97 +147,143 @@ const TeacherFees = () => {
     );
   }, [students]);
 
-  const setFee = async (record) => {
+  // Open Set Fee modal
+  const setFee = (record) => {
     const student = record.student;
 
     if (!student?._id) return;
 
-    const input = window.prompt(
-      `${student.name} ki total fee enter karein (₹):`,
+    setPromptAmount(
       record.configured ? String(record.totalFee) : ""
     );
+    setPromptNote("");
 
-    if (input === null) return;
+    setFeePrompt({
+      type: "fee",
+      record,
+    });
+  };
 
-    const totalFee = Number(input);
+  // Open Installment modal
+  const addInstallment = (record) => {
+    const student = record.student;
 
-    if (!Number.isFinite(totalFee) || totalFee <= 0) {
-      window.alert("Valid fee amount enter karein.");
+    if (!student?._id || !record.configured) {
+      showMessage(
+        "warning",
+        "Fee Not Configured",
+        "Pehle student ki total fee set karein."
+      );
+      return;
+    }
+
+    if (Number(record.balanceAmount) <= 0) {
+      showMessage(
+        "info",
+        "Fee Already Completed",
+        "Student ki fee already complete hai."
+      );
+      return;
+    }
+
+    setPromptAmount(String(record.balanceAmount));
+    setPromptNote("");
+
+    setFeePrompt({
+      type: "installment",
+      record,
+    });
+  };
+
+  // Save fee or installment
+  const handleFeePromptSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!feePrompt || savingId) return;
+
+    const { type, record } = feePrompt;
+    const student = record.student;
+    const amount = Number(promptAmount);
+
+    if (!student?._id) return;
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showMessage(
+        "error",
+        "Invalid Amount",
+        "Please enter a valid amount greater than zero."
+      );
+      return;
+    }
+
+    if (
+      type === "installment" &&
+      amount > Number(record.balanceAmount)
+    ) {
+      showMessage(
+        "warning",
+        "Amount Exceeds Balance",
+        "Payment amount remaining fee se zyada nahi ho sakti."
+      );
       return;
     }
 
     try {
       setSavingId(student._id);
 
-      await api.put(`/fees/students/${student._id}`, {
-        totalFee,
-      });
+      if (type === "fee") {
+        await api.put(`/fees/students/${student._id}`, {
+          totalFee: amount,
+        });
+      } else {
+        await api.post(
+          `/fees/students/${student._id}/installments`,
+          {
+            amount,
+            note: promptNote.trim(),
+          }
+        );
+      }
+
+      setFeePrompt(null);
+      setPromptAmount("");
+      setPromptNote("");
 
       await loadFees();
-      window.alert("Student ki fee save ho gayi.");
+
+      showMessage(
+        "success",
+        type === "fee" ? "Fee Saved Successfully" : "Payment Recorded",
+        type === "fee"
+          ? "Student ki total fee successfully save ho gayi."
+          : "Student ki installment successfully record ho gayi."
+      );
     } catch (err) {
-      window.alert(
-        err.response?.data?.message || "Fee save nahi ho payi."
+      showMessage(
+        "error",
+        type === "fee" ? "Fee Save Failed" : "Payment Failed",
+        err.response?.data?.message ||
+          "Something went wrong. Please try again."
       );
     } finally {
       setSavingId("");
     }
   };
 
-  const addInstallment = async (record) => {
-    const student = record.student;
+  const closeFeePrompt = () => {
+    if (savingId) return;
 
-    if (!student?._id || !record.configured) {
-      window.alert("Pehle student ki total fee set karein.");
-      return;
-    }
-
-    if (record.balanceAmount <= 0) {
-      window.alert("Student ki fee already complete hai.");
-      return;
-    }
-
-    const input = window.prompt(
-      `${student.name} ki payment amount enter karein (₹):`,
-      String(record.balanceAmount)
-    );
-
-    if (input === null) return;
-
-    const amount = Number(input);
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-      window.alert("Valid installment amount enter karein.");
-      return;
-    }
-
-    const note = window.prompt("Payment note (optional):", "") ?? "";
-
-    try {
-      setSavingId(student._id);
-
-      await api.post(`/fees/students/${student._id}/installments`, {
-        amount,
-        note,
-      });
-
-      await loadFees();
-      window.alert("Installment record ho gayi.");
-    } catch (err) {
-      window.alert(
-        err.response?.data?.message ||
-          "Payment record nahi ho payi."
-      );
-    } finally {
-      setSavingId("");
-    }
+    setFeePrompt(null);
+    setPromptAmount("");
+    setPromptNote("");
   };
 
   const batchStudents = useMemo(() => {
     if (selectedBatch === "all") return students;
 
     return students.filter(
-      (record) => getBatchKey(record.student || {}) === selectedBatch
+      (record) =>
+        getBatchKey(record.student || {}) === selectedBatch
     );
   }, [students, selectedBatch]);
 
@@ -282,8 +360,12 @@ const TeacherFees = () => {
     <section className="teacher-fees-page">
       <div className="teacher-fees-heading">
         <div>
-          <span className="teacher-fees-eyebrow">EDUCATOR PORTAL</span>
+          <span className="teacher-fees-eyebrow">
+            EDUCATOR PORTAL
+          </span>
+
           <h1>Fee Management</h1>
+
           <p>
             Batch-wise student fees, installments aur payment status
             manage karein.
@@ -307,7 +389,9 @@ const TeacherFees = () => {
 
           <select
             value={selectedBatch}
-            onChange={(event) => setSelectedBatch(event.target.value)}
+            onChange={(event) =>
+              setSelectedBatch(event.target.value)
+            }
           >
             <option value="all">All Batches</option>
 
@@ -320,7 +404,11 @@ const TeacherFees = () => {
             {students.some(
               (record) =>
                 getBatchKey(record.student || {}) === "unassigned"
-            ) && <option value="unassigned">Batch not assigned</option>}
+            ) && (
+              <option value="unassigned">
+                Batch not assigned
+              </option>
+            )}
           </select>
         </label>
 
@@ -329,7 +417,9 @@ const TeacherFees = () => {
 
           <select
             value={selectedStatus}
-            onChange={(event) => setSelectedStatus(event.target.value)}
+            onChange={(event) =>
+              setSelectedStatus(event.target.value)
+            }
           >
             <option value="all">All Statuses</option>
             <option value="notset">Not Set</option>
@@ -408,7 +498,9 @@ const TeacherFees = () => {
         )}
 
         {loading ? (
-          <div className="teacher-fees-empty">Loading fee records...</div>
+          <div className="teacher-fees-empty">
+            Loading fee records...
+          </div>
         ) : !error && filteredStudents.length === 0 ? (
           <div className="teacher-fees-empty">
             <Wallet size={28} />
@@ -447,11 +539,15 @@ const TeacherFees = () => {
                         <td>{getBatchLabel(student)}</td>
 
                         <td>
-                          {record.configured ? money(record.totalFee) : "—"}
+                          {record.configured
+                            ? money(record.totalFee)
+                            : "—"}
                         </td>
 
                         <td>
-                          {record.configured ? money(record.paidAmount) : "—"}
+                          {record.configured
+                            ? money(record.paidAmount)
+                            : "—"}
                         </td>
 
                         <td>
@@ -472,7 +568,9 @@ const TeacherFees = () => {
                                   : "not-set"
                             }`}
                           >
-                            {record.configured ? record.status : "Not set"}
+                            {record.configured
+                              ? record.status
+                              : "Not set"}
                           </span>
                         </td>
 
@@ -514,6 +612,174 @@ const TeacherFees = () => {
           )
         )}
       </div>
+
+      {/* Custom Fee / Payment Modal */}
+      {feePrompt && (
+        <div
+          className="teacher-fee-modal-overlay"
+          onMouseDown={(e) => {
+            if (
+              e.target === e.currentTarget &&
+              !savingId
+            ) {
+              closeFeePrompt();
+            }
+          }}
+        >
+          <div
+            className="teacher-fee-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="teacher-fee-modal-title"
+          >
+            <div className="teacher-fee-modal-header">
+              <div className="teacher-fee-modal-icon">
+                <IndianRupee size={23} />
+              </div>
+
+              <button
+                type="button"
+                onClick={closeFeePrompt}
+                disabled={Boolean(savingId)}
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <h2 id="teacher-fee-modal-title">
+              {feePrompt.type === "fee"
+                ? "Set Student Fee"
+                : "Record Installment"}
+            </h2>
+
+            <p className="teacher-fee-modal-description">
+              {feePrompt.type === "fee"
+                ? `Enter the total course fee for ${
+                    feePrompt.record.student?.name || "this student"
+                  }.`
+                : `Enter the payment received from ${
+                    feePrompt.record.student?.name || "this student"
+                  }.`}
+            </p>
+
+            <form onSubmit={handleFeePromptSubmit}>
+              <label htmlFor="teacher-fee-amount">
+                {feePrompt.type === "fee"
+                  ? "Total Fee (₹)"
+                  : "Payment Amount (₹)"}
+              </label>
+
+              <div className="teacher-fee-input-wrap">
+                <IndianRupee size={17} />
+
+                <input
+                  id="teacher-fee-amount"
+                  type="number"
+                  min="1"
+                  step="1"
+                  required
+                  autoFocus
+                  value={promptAmount}
+                  onChange={(e) =>
+                    setPromptAmount(e.target.value)
+                  }
+                  placeholder="Enter amount"
+                />
+              </div>
+
+              {feePrompt.type === "installment" && (
+                <>
+                  <label htmlFor="teacher-fee-note">
+                    Payment Note (Optional)
+                  </label>
+
+                  <textarea
+                    id="teacher-fee-note"
+                    rows={3}
+                    maxLength={300}
+                    value={promptNote}
+                    onChange={(e) =>
+                      setPromptNote(e.target.value)
+                    }
+                    placeholder="Payment reference or note"
+                  />
+                </>
+              )}
+
+              <div className="teacher-fee-modal-actions">
+                <button
+                  type="button"
+                  className="teacher-fee-cancel"
+                  onClick={closeFeePrompt}
+                  disabled={Boolean(savingId)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="teacher-fee-save"
+                  disabled={Boolean(savingId)}
+                >
+                  {savingId ? (
+                    <>
+                      <LoaderCircle
+                        size={17}
+                        className="teacher-fee-spinner"
+                      />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Details"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Success / Error / Warning Modal */}
+      {alert.isOpen && (
+        <div
+          className="teacher-fee-alert-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) closeAlert();
+          }}
+        >
+          <div
+            className="teacher-fee-alert-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="teacher-fee-alert-title"
+          >
+            <div
+              className={`teacher-fee-alert-icon ${alert.type}`}
+            >
+              {alert.type === "success" ? (
+                <CheckCircle size={27} />
+              ) : (
+                <AlertCircle size={27} />
+              )}
+            </div>
+
+            <h2 id="teacher-fee-alert-title">
+              {alert.title}
+            </h2>
+
+            <p>{alert.message}</p>
+
+            <button
+              type="button"
+              onClick={closeAlert}
+              className="teacher-fee-alert-button"
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

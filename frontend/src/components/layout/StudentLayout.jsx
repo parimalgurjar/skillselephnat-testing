@@ -14,6 +14,7 @@ import {
   CircleHelp,
   Menu,
   X,
+  Video
 } from "lucide-react";
 import NotificationBell from "../common/NotificationBell";
 import NotificationBadge from "../common/NotificationBadge";
@@ -42,6 +43,11 @@ const StudentLayout = () => {
       path: "/student/course",
       icon: BookOpen,
     },
+    {
+  name: "Video Tutorials",
+  path: "/student/video-tutorials",
+  icon: Video,
+},
     {
       name: "Digital Notes",
       path: "https://skillselephant.com/legendary-notes/",

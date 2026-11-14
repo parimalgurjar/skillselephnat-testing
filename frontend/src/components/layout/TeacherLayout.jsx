@@ -14,6 +14,7 @@ import {
   Menu,
    Wallet,
   X,
+  Video
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -53,6 +54,11 @@ const TeacherLayout = () => {
       path: "/teacher/attendance",
       icon: CalendarCheck,
     },
+    {
+  name: "Video Tutorials",
+  path: "/teacher/video-tutorials",
+  icon: Video,
+},
     {
       name: "Tasks",
       path: "/teacher/tasks",

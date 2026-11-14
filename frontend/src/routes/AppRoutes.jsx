@@ -13,7 +13,11 @@ import PublicRoute from "../components/common/PublicRoute";
 import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";
 import AdminSetup from "../pages/auth/AdminSetup";
+// Teacher
+import TeacherVideoTutorials from "../pages/teacher/TeacherVideoTutorials";
 
+// Student
+import VideoTutorials from "../pages/student/VideoTutorials";
 /* ================= LAYOUTS ================= */
 import AdminLayout from "../components/layout/AdminLayout";
 import TeacherLayout from "../components/layout/TeacherLayout";
@@ -36,6 +40,7 @@ import AdminProfile from "../pages/admin/AdminProfile";
 import AdminSpecializations from "../pages/admin/AdminSpecializations";
 import AdminCourseModules from "../pages/admin/AdminCourseModules";
 import AdminFees from "../pages/admin/AdminFees";
+import AdminVideoTutorials from "../pages/admin/AdminVideoTutorials";
 /* =====================================================
    TEACHER PAGES
 ===================================================== */
@@ -147,6 +152,10 @@ const AppRoutes = () => {
           <Route path="task-report" element={<AdminTaskReport />} />
           <Route path="doubts" element={<AdminDoubts />} />
           <Route path="announcements" element={<AdminAnnouncements />} />
+          <Route
+  path="video-tutorials"
+  element={<AdminVideoTutorials />}
+/>
           <Route path="reports" element={<AdminReports />} />
           <Route path="profile" element={<AdminProfile />} />
         </Route>
@@ -174,7 +183,12 @@ const AppRoutes = () => {
           <Route path="task-report" element={<TeacherTaskReport />} />
           <Route path="doubts" element={<TeacherDoubts />} />
           <Route path="doubts/:id" element={<TeacherDoubtDetails />} />
+                <Route
+  path="video-tutorials"
+  element={<TeacherVideoTutorials />}
+/>
           <Route path="announcements" element={<TeacherAnnouncements />} />
+    
           <Route path="profile" element={<TeacherProfile />} />
         </Route>
 
@@ -196,7 +210,12 @@ const AppRoutes = () => {
           <Route path="task-report" element={<StudentTaskReport />} />
           <Route path="doubts" element={<MyDoubts />} />
           <Route path="doubts/:id" element={<DoubtConversation />} />
+          <Route
+  path="video-tutorials"
+  element={<VideoTutorials />}
+/>
           <Route path="announcements" element={<Announcements />} />
+          
           <Route path="profile" element={<Profile />} />
         </Route>
 
