@@ -267,25 +267,29 @@ const getTeacherStudentOverview = async (teacherId) => {
 
   /* ATTENDANCE CALCULATION */
 
+  /* ATTENDANCE CALCULATION */
+
   const attendanceMap = new Map();
 
   attendanceRecords.forEach((record) => {
-
     const id = String(record.studentId);
 
     if (!attendanceMap.has(id)) {
       attendanceMap.set(id, {
-        total: 0,
         present: 0,
+        absent: 0,
+        leave: 0,
       });
     }
 
     const item = attendanceMap.get(id);
 
-    item.total += 1;
-
     if (record.status === "PRESENT") {
       item.present += 1;
+    } else if (record.status === "ABSENT") {
+      item.absent += 1;
+    } else if (record.status === "LEAVE") {
+      item.leave += 1;
     }
   });
 
@@ -359,10 +363,12 @@ const getTeacherStudentOverview = async (teacherId) => {
     return {
       ...student,
 
-      attendance:
-        attendance?.total > 0
+          attendance:
+        attendance &&
+        (attendance.present + attendance.absent) > 0
           ? Math.round(
-              (attendance.present / attendance.total) * 100
+              (attendance.present /
+                (attendance.present + attendance.absent)) * 100
             )
           : null,
 

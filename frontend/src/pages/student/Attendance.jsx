@@ -18,8 +18,9 @@ const DEFAULT_STATS = {
   totalClasses: 0,
   presentClasses: 0,
   absentClasses: 0,
+  leaveClasses: 0,
   attendancePercentage: 0,
-  requiredAttendance: 75,
+  requiredAttendance: 90,
 };
 
 const Attendance = () => {
@@ -30,10 +31,7 @@ const Attendance = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* =====================================================
-     FETCH ATTENDANCE
-  ===================================================== */
-
+  /* FETCH ATTENDANCE */
   const fetchAttendance = useCallback(async () => {
     try {
       setLoading(true);
@@ -41,13 +39,7 @@ const Attendance = () => {
 
       const response = await getMyAttendance();
 
-      /*
-        Supports both:
-        response.data
-        OR
-        direct response object
-      */
-
+      // Supports response.data OR direct response object.
       const data = response?.data || response;
 
       if (!data?.success) {
@@ -64,13 +56,11 @@ const Attendance = () => {
 
       setAttendanceData(attendance);
 
-      /* ================= STUDENT / BATCH ================= */
-
+      /* STUDENT / BATCH */
       setStudent(data.student || null);
       setBatch(data.batch || null);
 
-      /* ================= STATS ================= */
-
+      /* STATS */
       setStats({
         totalClasses:
           Number(responseStats.totalClasses) || 0,
@@ -81,6 +71,9 @@ const Attendance = () => {
         absentClasses:
           Number(responseStats.absentClasses) || 0,
 
+        leaveClasses:
+          Number(responseStats.leaveClasses) || 0,
+
         attendancePercentage:
           Number(
             responseStats.attendancePercentage ??
@@ -88,13 +81,11 @@ const Attendance = () => {
           ) || 0,
 
         requiredAttendance:
-          Number(responseStats.requiredAttendance) || 75,
+          Number(responseStats.requiredAttendance) || 90,
       });
+
     } catch (err) {
-      console.error(
-        "Attendance fetch error:",
-        err
-      );
+      console.error("Attendance fetch error:", err);
 
       setAttendanceData([]);
       setStudent(null);
@@ -115,10 +106,7 @@ const Attendance = () => {
     fetchAttendance();
   }, [fetchAttendance]);
 
-  /* =====================================================
-     FORMAT DATE
-  ===================================================== */
-
+  /* FORMAT DATE */
   const formatDate = (date) => {
     if (!date) return "-";
 
@@ -128,20 +116,14 @@ const Attendance = () => {
       return "-";
     }
 
-    return parsedDate.toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }
-    );
+    return parsedDate.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
-  /* =====================================================
-     GET DAY
-  ===================================================== */
-
+  /* GET DAY */
   const getDay = (date) => {
     if (!date) return "-";
 
@@ -151,18 +133,12 @@ const Attendance = () => {
       return "-";
     }
 
-    return parsedDate.toLocaleDateString(
-      "en-IN",
-      {
-        weekday: "long",
-      }
-    );
+    return parsedDate.toLocaleDateString("en-IN", {
+      weekday: "long",
+    });
   };
 
-  /* =====================================================
-     NORMALIZED VALUES
-  ===================================================== */
-
+  /* NORMALIZED VALUES */
   const attendancePercentage = Math.min(
     Math.max(
       Number(stats.attendancePercentage) || 0,
@@ -171,45 +147,34 @@ const Attendance = () => {
     100
   );
 
-  const totalClasses =
-    Number(stats.totalClasses) || 0;
+  // totalClasses should exclude LEAVE records.
+  const totalClasses = Number(stats.totalClasses) || 0;
 
-  const presentClasses =
-    Number(stats.presentClasses) || 0;
+  const presentClasses = Number(stats.presentClasses) || 0;
 
-  const absentClasses =
-    Number(stats.absentClasses) || 0;
+  const absentClasses = Number(stats.absentClasses) || 0;
+
+  const leaveClasses = Number(stats.leaveClasses) || 0;
 
   const requiredAttendance =
-    Number(stats.requiredAttendance) || 75;
+    Number(stats.requiredAttendance) || 90;
 
   const isEligible =
     totalClasses > 0 &&
     attendancePercentage >= requiredAttendance;
 
-  /* =====================================================
-     BATCH INFORMATION
-  ===================================================== */
+  /* BATCH INFORMATION */
+  const batchName = batch?.name || "Not Assigned";
 
-const batchName =
-  batch?.name ||
-  "Not Assigned";
+  const batchCode = batch?.code || student?.batch?.code || "";
 
-  const batchCode =
-    batch?.code ||
-    student?.batch?.code ||
+  const batchTiming =
+    batch?.displayTiming ||
+    batch?.batchTiming ||
+    student?.batchTiming ||
     "";
 
-const batchTiming =
-  batch?.displayTiming ||
-  batch?.batchTiming ||
-  student?.batchTiming ||
-  "";
-
-  /* =====================================================
-     ATTENDANCE STATS
-  ===================================================== */
-
+  /* ATTENDANCE STATS */
   const attendanceStats = [
     {
       title: "Overall Attendance",
@@ -218,8 +183,8 @@ const batchTiming =
         totalClasses === 0
           ? "No classes conducted yet"
           : attendancePercentage >= requiredAttendance
-          ? "Good Standing"
-          : "Needs Improvement",
+            ? "Good Standing"
+            : "Needs Improvement",
       icon: TrendingUp,
       status:
         attendancePercentage >= requiredAttendance
@@ -247,6 +212,17 @@ const batchTiming =
     },
 
     {
+      title: "Classes on Leave",
+      value: leaveClasses,
+      subtitle:
+        leaveClasses === 0
+          ? "No leave records"
+          : "Leave recorded",
+      icon: Clock,
+      status: "leave",
+    },
+
+    {
       title: "Required Attendance",
       value: `${requiredAttendance}%`,
       subtitle: "Minimum Required",
@@ -255,10 +231,7 @@ const batchTiming =
     },
   ];
 
-  /* =====================================================
-     LOADING
-  ===================================================== */
-
+  /* LOADING */
   if (loading) {
     return (
       <div className="attendance-page">
@@ -267,17 +240,13 @@ const batchTiming =
             size={26}
             className="attendance-spinner"
           />
-
           <p>Loading attendance...</p>
         </div>
       </div>
     );
   }
 
-  /* =====================================================
-     ERROR
-  ===================================================== */
-
+  /* ERROR */
   if (error) {
     return (
       <div className="attendance-page">
@@ -285,9 +254,7 @@ const batchTiming =
           <AlertCircle size={28} />
 
           <div>
-            <h3>
-              Unable to load attendance
-            </h3>
+            <h3>Unable to load attendance</h3>
 
             <p>{error}</p>
 
@@ -307,14 +274,9 @@ const batchTiming =
   return (
     <div className="attendance-page">
 
-      {/* =================================================
-         PAGE HEADER
-      ================================================= */}
-
+      {/* PAGE HEADER */}
       <div className="attendance-page-header">
-
         <div className="attendance-header-content">
-
           <span className="page-label">
             STUDENT PORTAL
           </span>
@@ -325,11 +287,9 @@ const batchTiming =
             Track your class attendance and maintain
             your course eligibility.
           </p>
-
         </div>
 
         <div className="attendance-header-actions">
-
           <button
             type="button"
             className="attendance-refresh-btn"
@@ -338,11 +298,7 @@ const batchTiming =
           >
             <RefreshCw
               size={17}
-              className={
-                loading
-                  ? "refresh-spinning"
-                  : ""
-              }
+              className={loading ? "refresh-spinning" : ""}
             />
 
             <span>Refresh</span>
@@ -351,27 +307,20 @@ const batchTiming =
           <div className="attendance-header-icon">
             <CalendarDays size={25} />
           </div>
-
         </div>
-
       </div>
 
-      {/* =================================================
-         ELIGIBILITY BANNER
-      ================================================= */}
-
+      {/* ELIGIBILITY BANNER */}
       <div
         className={`attendance-eligibility ${
           totalClasses === 0
             ? "no-data"
             : isEligible
-            ? "eligible"
-            : "not-eligible"
+              ? "eligible"
+              : "not-eligible"
         }`}
       >
-
         <div className="eligibility-icon">
-
           {totalClasses === 0 ? (
             <CalendarDays size={28} />
           ) : isEligible ? (
@@ -379,41 +328,33 @@ const batchTiming =
           ) : (
             <XCircle size={28} />
           )}
-
         </div>
 
         <div className="eligibility-content">
-
           <h3>
             {totalClasses === 0
               ? "No classes recorded yet"
               : isEligible
-              ? "You're doing great!"
-              : "Attendance needs improvement"}
+                ? "You're doing great!"
+                : "Attendance needs improvement"}
           </h3>
 
           <p>
             {totalClasses === 0
               ? "Your attendance percentage will appear once classes are conducted."
               : isEligible
-              ? "Your attendance is above the minimum requirement for course completion."
-              : `You need at least ${requiredAttendance}% attendance for course completion.`}
+                ? "Your attendance is above the minimum requirement for course completion."
+                : `You need at least ${requiredAttendance}% attendance for course completion.`}
           </p>
-
         </div>
 
         <div className="eligibility-percentage">
           {attendancePercentage}%
         </div>
-
       </div>
 
-      {/* =================================================
-         STATS
-      ================================================= */}
-
+      {/* ATTENDANCE STATS */}
       <div className="attendance-stats-grid">
-
         {attendanceStats.map((stat) => {
           const Icon = stat.icon;
 
@@ -422,60 +363,42 @@ const batchTiming =
               className="attendance-stat-card"
               key={stat.title}
             >
-
               <div className="attendance-stat-top">
-
-                <span>
-                  {stat.title}
-                </span>
+                <span>{stat.title}</span>
 
                 <div
                   className={`attendance-stat-icon ${stat.status}`}
                 >
                   <Icon size={20} />
                 </div>
-
               </div>
 
               <h2>{stat.value}</h2>
 
               <p>{stat.subtitle}</p>
-
             </div>
           );
         })}
-
       </div>
 
-      {/* =================================================
-         ATTENDANCE PROGRESS
-      ================================================= */}
-
+      {/* ATTENDANCE PROGRESS */}
       <div className="attendance-progress-card">
-
         <div className="attendance-progress-header">
-
           <div>
-
-            <h3>
-              Attendance Progress
-            </h3>
+            <h3>Attendance Progress</h3>
 
             <p>
               Your attendance is calculated based on
-              total conducted classes.
+              total conducted classes, excluding leave days.
             </p>
-
           </div>
 
           <span className="attendance-class-count">
             {presentClasses} / {totalClasses} Classes
           </span>
-
         </div>
 
         <div className="attendance-progress-track">
-
           <div
             className={`attendance-progress-fill ${
               attendancePercentage >= requiredAttendance
@@ -493,80 +416,55 @@ const batchTiming =
               left: `${requiredAttendance}%`,
             }}
           />
-
         </div>
 
         <div className="attendance-progress-labels">
-
           <span>0%</span>
 
           <span className="minimum-label">
-            Minimum Required:{" "}
-            {requiredAttendance}%
+            Minimum Required: {requiredAttendance}%
           </span>
 
           <span>100%</span>
-
         </div>
-
       </div>
 
-      {/* =================================================
-         ATTENDANCE HISTORY
-      ================================================= */}
-
+      {/* ATTENDANCE HISTORY */}
       <div className="attendance-history-card">
-
         <div className="attendance-history-header">
-
           <div className="attendance-history-title">
-
             <div className="history-title-icon">
               <Clock size={21} />
             </div>
 
             <div>
-
-              <h3>
-                Attendance History
-              </h3>
+              <h3>Attendance History</h3>
 
               <p>
                 {student?.name
                   ? `${student.name}'s class attendance records`
                   : "Your class attendance records"}
               </p>
-
             </div>
-
           </div>
 
           <div className="attendance-history-meta">
-
             {batchName !== "Not Assigned" && (
               <div className="attendance-batch-info">
-
                 <div className="batch-info-text">
-
                   <span className="batch-info-label">
                     BATCH
                   </span>
 
                   <strong>
                     {batchName}
-                    {batchCode
-                      ? ` • ${batchCode}`
-                      : ""}
+                    {batchCode ? ` • ${batchCode}` : ""}
                   </strong>
 
                   {batchTiming && (
-                    <small>
-                      {batchTiming}
-                    </small>
+                    <small>{batchTiming}</small>
                   )}
-
                 </div>
-
               </div>
             )}
 
@@ -576,15 +474,11 @@ const batchTiming =
                 ? "Record"
                 : "Records"}
             </span>
-
           </div>
-
         </div>
 
         <div className="attendance-table-wrapper">
-
           <table className="attendance-table">
-
             <thead>
               <tr>
                 <th>Date</th>
@@ -594,14 +488,10 @@ const batchTiming =
             </thead>
 
             <tbody>
-
               {attendanceData.length === 0 ? (
-
                 <tr>
                   <td colSpan="3">
-
                     <div className="attendance-empty-state">
-
                       <CalendarDays size={34} />
 
                       <div>
@@ -615,20 +505,18 @@ const batchTiming =
                           marked.
                         </p>
                       </div>
-
                     </div>
-
                   </td>
                 </tr>
-
               ) : (
-
                 attendanceData.map((record) => {
+                  const status = String(
+                    record.status || ""
+                  ).toUpperCase();
 
-                  const isPresent =
-                    String(record.status)
-                      .toUpperCase() ===
-                    "PRESENT";
+                  const isPresent = status === "PRESENT";
+                  const isAbsent = status === "ABSENT";
+                  const isLeave = status === "LEAVE";
 
                   return (
                     <tr
@@ -637,7 +525,6 @@ const batchTiming =
                         `${record.date}-${record.status}`
                       }
                     >
-
                       <td>
                         {formatDate(record.date)}
                       </td>
@@ -647,43 +534,42 @@ const batchTiming =
                       </td>
 
                       <td>
-
                         <span
                           className={`attendance-status ${
                             isPresent
                               ? "present"
-                              : "absent"
+                              : isAbsent
+                                ? "absent"
+                                : isLeave
+                                  ? "leave"
+                                  : ""
                           }`}
                         >
-
                           {isPresent ? (
                             <CheckCircle2 size={15} />
-                          ) : (
+                          ) : isAbsent ? (
                             <XCircle size={15} />
-                          )}
+                          ) : isLeave ? (
+                            <Clock size={15} />
+                          ) : null}
 
                           {isPresent
                             ? "Present"
-                            : "Absent"}
-
+                            : isAbsent
+                              ? "Absent"
+                              : isLeave
+                                ? "Leave"
+                                : record.status || "Unknown"}
                         </span>
-
                       </td>
-
                     </tr>
                   );
                 })
-
               )}
-
             </tbody>
-
           </table>
-
         </div>
-
       </div>
-
     </div>
   );
 };

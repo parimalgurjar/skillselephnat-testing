@@ -1426,3 +1426,15 @@
     width: 100%;
   }
 }
+/* LEAVE STAT CARD */
+.attendance-stat-icon.leave {
+  background: #fff7e6;
+  color: #d97706;
+}
+
+/* LEAVE HISTORY STATUS */
+.attendance-status.leave {
+  background: #fff7e6;
+  color: #d97706;
+  border: 1px solid #f5d08a;
+}

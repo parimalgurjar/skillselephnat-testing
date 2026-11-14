@@ -644,47 +644,60 @@ if (batchId) {
   dateFilter.batchId = batchId;
 }
 
-    const presentToday =
-      await Attendance.countDocuments({
-        ...dateFilter,
-        status: "PRESENT",
-      });
+    // PRESENT COUNT
+const presentToday =
+  await Attendance.countDocuments({
+    ...dateFilter,
+    status: "PRESENT",
+  });
 
-    const absentToday =
-      await Attendance.countDocuments({
-        ...dateFilter,
-        status: "ABSENT",
-      });
-      
+// ABSENT COUNT
+const absentToday =
+  await Attendance.countDocuments({
+    ...dateFilter,
+    status: "ABSENT",
+  });
 
-    const totalRecords =
-      await Attendance.countDocuments(
-        dateFilter
-      );
+// LEAVE COUNT
+const leaveToday =
+  await Attendance.countDocuments({
+    ...dateFilter,
+    status: "LEAVE",
+  });
 
-    const averageAttendance =
-      totalRecords > 0
-        ? Math.round(
-            (presentToday /
-              totalRecords) *
-              100
-          )
-        : 0;
+// ALL MARKED RECORDS
+const totalRecords =
+  await Attendance.countDocuments(dateFilter);
+
+// Leave excluded from attendance percentage
+const eligibleRecords =
+  presentToday + absentToday;
+
+// ATTENDANCE PERCENTAGE
+const averageAttendance =
+  eligibleRecords > 0
+    ? Math.round(
+        (presentToday / eligibleRecords) * 100
+      )
+    : 0;
 
     return res.status(200).json({
       success: true,
 
-      stats: {
-        totalStudents,
-        presentToday,
-        absentToday,
-        unmarkedStudents:
-  Math.max(
-    totalStudents - totalRecords,
-    0
-  ),
-        averageAttendance,
-      },
+     stats: {
+  totalStudents,
+  presentToday,
+  absentToday,
+  leaveToday,
+
+  unmarkedStudents:
+    Math.max(
+      totalStudents - totalRecords,
+      0
+    ),
+
+  averageAttendance,
+},
     });
 
   } catch (error) {
@@ -1183,12 +1196,11 @@ const markAttendance =
             !isValidObjectId(
               item.studentId
             ) ||
-            ![
-              "PRESENT",
-              "ABSENT",
-            ].includes(
-              item.status
-            )
+           ![
+  "PRESENT",
+  "ABSENT",
+  "LEAVE",
+].includes(item.status)
         );
 
       if (invalidRecord) {
@@ -1532,23 +1544,27 @@ const getMyAttendance = async (req, res) => {
        ATTENDANCE STATS
     ================================================= */
 
-    const totalClasses = attendanceRecords.length;
 
-    const presentClasses = attendanceRecords.filter(
-      (record) => record.status === "PRESENT"
-    ).length;
 
-    const absentClasses = attendanceRecords.filter(
-      (record) => record.status === "ABSENT"
-    ).length;
+   const presentClasses = attendanceRecords.filter(
+  (record) => record.status === "PRESENT"
+).length;
 
-    const attendancePercentage =
-      totalClasses > 0
-        ? Math.round(
-            (presentClasses / totalClasses) * 100
-          )
-        : 0;
+const absentClasses = attendanceRecords.filter(
+  (record) => record.status === "ABSENT"
+).length;
 
+const leaveClasses = attendanceRecords.filter(
+  (record) => record.status === "LEAVE"
+).length;
+
+// Leave is excluded from attendance percentage.
+const totalClasses = presentClasses + absentClasses;
+
+const attendancePercentage =
+  totalClasses > 0
+    ? Math.round((presentClasses / totalClasses) * 100)
+    : 0;
     /* =================================================
        FORMAT STUDENT BATCH
     ================================================= */
@@ -1646,10 +1662,11 @@ const getMyAttendance = async (req, res) => {
         presentClasses,
 
         absentClasses,
+          leaveClasses,
 
         attendancePercentage,
 
-        requiredAttendance: 75,
+        requiredAttendance: 90,
       },
 
       /* ATTENDANCE HISTORY */
@@ -1852,14 +1869,15 @@ const dateKey =
               studentId
             )
           ) {
-            attendanceMap.set(
-              studentId,
-              {
-                present: 0,
-                absent: 0,
-                total: 0,
-              }
-            );
+          attendanceMap.set(
+  studentId,
+  {
+    present: 0,
+    absent: 0,
+    leave: 0,
+    total: 0,
+  }
+);
           }
 
           const studentStats =
@@ -1880,6 +1898,11 @@ const dateKey =
           ) {
             studentStats.absent += 1;
           }
+          if (
+  record.status === "LEAVE"
+) {
+  studentStats.leave += 1;
+}
         }
       );
 
@@ -1897,16 +1920,19 @@ const dateKey =
                 total: 0,
               };
 
-            const percentage =
-              totalClasses > 0
-                ? Number(
-                    (
-                      (stats.present /
-                        totalClasses) *
-                      100
-                    ).toFixed(2)
-                  )
-                : 0;
+           const eligibleClasses =
+  stats.present + stats.absent;
+
+const percentage =
+  eligibleClasses > 0
+    ? Number(
+        (
+          (stats.present /
+            eligibleClasses) *
+          100
+        ).toFixed(2)
+      )
+    : 0;
 
             return {
               student: {
@@ -1933,6 +1959,8 @@ const dateKey =
 
               absent:
                 stats.absent,
+                leave:
+  stats.leave || 0,
 
               percentage,
             };
@@ -1976,40 +2004,42 @@ const dateKey =
             student.percentage >= 90
         ).length;
 
-      const students75Plus =
-        studentReports.filter(
-          (student) =>
-            student.percentage >= 75
-        ).length;
+     const below90 =
+  studentReports.filter(
+    (student) =>
+      student.percentage < 90
+  ).length;
 
-      const below75 =
-        studentReports.filter(
-          (student) =>
-            student.percentage < 75
-        ).length;
+     // Total Present Classes
+const totalPresent =
+  studentReports.reduce(
+    (sum, student) =>
+      sum + student.present,
+    0
+  );
 
-      const totalPresent =
-        studentReports.reduce(
-          (sum, student) =>
-            sum + student.present,
-          0
-        );
+// Total Eligible Classes (Present + Absent)
+// Leave is excluded
+const totalEligibleAttendance =
+  studentReports.reduce(
+    (sum, student) =>
+      sum +
+      student.present +
+      student.absent,
+    0
+  );
 
-      const totalPossibleAttendance =
-        totalStudents *
-        totalClasses;
-
-      const batchAverageAttendance =
-        totalPossibleAttendance > 0
-          ? Number(
-              (
-                (totalPresent /
-                  totalPossibleAttendance) *
-                100
-              ).toFixed(2)
-            )
-          : 0;
-
+// Batch Average Attendance
+const batchAverageAttendance =
+  totalEligibleAttendance > 0
+    ? Number(
+        (
+          (totalPresent /
+            totalEligibleAttendance) *
+          100
+        ).toFixed(2)
+      )
+    : 0;
       /* RESPONSE */
 
       return res.status(200).json({
@@ -2042,9 +2072,8 @@ const dateKey =
             totalClasses,
             totalPresent,
             students100,
-            students90Plus,
-            students75Plus,
-            below75,
+          students90Plus,
+below90,
             batchAverageAttendance,
           },
 

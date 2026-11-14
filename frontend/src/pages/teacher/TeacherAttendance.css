@@ -483,3 +483,22 @@
   :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
   :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
 }
+/* LEAVE BUTTON */
+.attendance-status-buttons .leave {
+  background: #fff7e6;
+  color: #d97706;
+  border: 1px solid #f5d08a;
+}
+
+.attendance-status-buttons .leave:hover,
+.attendance-status-buttons .leave.active {
+  background: #d97706;
+  color: #ffffff;
+  border-color: #d97706;
+}
+
+/* LEAVE STAT CARD */
+.attendance-stat-icon.leave {
+  background: #fff7e6;
+  color: #d97706;
+}

@@ -17,7 +17,11 @@ const {
   uploadProfilePhoto,
 removeProfilePhoto,
 } = require("../controllers/authController");
-
+const {
+  forgotPassword,
+  verifyResetOTP,
+  resetPassword,
+} = require("../controllers/passwordResetController");
 const {
   protect,
   authorizeRoles,
@@ -38,7 +42,10 @@ router.post("/register", registerUser);
 router.post("/admin-setup", setupFirstAdmin);
 // LOGIN
 router.post("/login", loginUser);
-
+// Forgot Password Routes
+router.post("/forgot-password", forgotPassword);
+router.post("/verify-reset-otp", verifyResetOTP);
+router.post("/reset-password", resetPassword);
 /* =====================================================
    AUTHENTICATED USER ROUTES
 ===================================================== */

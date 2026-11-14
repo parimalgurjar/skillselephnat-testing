@@ -763,7 +763,7 @@ return ( <div className="profile-page">
 
           <strong
             className={
-              attendancePercentage >= 75
+              attendancePercentage >= 90
                 ? "active-status"
                 : ""
             }

@@ -146,3 +146,71 @@ export const removeProfilePhoto = async () => {
     );
   }
 };
+
+/* =====================================================
+   FORGOT PASSWORD - SEND OTP
+===================================================== */
+
+export const forgotPassword = async (email) => {
+  try {
+    const response = await api.post(
+      "/auth/forgot-password",
+      { email }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw prepareError(
+      error,
+      "Unable to send OTP"
+    );
+  }
+};
+
+/* =====================================================
+   VERIFY PASSWORD RESET OTP
+===================================================== */
+
+export const verifyResetOTP = async (email, otp) => {
+  try {
+    const response = await api.post(
+      "/auth/verify-reset-otp",
+      { email, otp }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw prepareError(
+      error,
+      "OTP verification failed"
+    );
+  }
+};
+
+/* =====================================================
+   RESET PASSWORD
+===================================================== */
+
+export const resetPassword = async (
+  email,
+  resetToken,
+  newPassword
+) => {
+  try {
+    const response = await api.post(
+      "/auth/reset-password",
+      {
+        email,
+        resetToken,
+        newPassword,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw prepareError(
+      error,
+      "Unable to reset password"
+    );
+  }
+};

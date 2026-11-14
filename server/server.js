@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const rateLimit = require("express-rate-limit");
 dotenv.config();
+const { verifyEmailConnection } = require("./services/emailService");
 const helmet = require("helmet");
 const connectDB = require("./config/db");
 const feeRoutes = require("./routes/feeRoutes");
@@ -40,7 +41,29 @@ const loginLimiter = rateLimit({
     message: "Too many requests. Please try again later.",
   },
 });
+// Forgot Password OTP Request Limit
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many OTP requests. Please try again after 15 minutes.",
+  },
+});
 
+// OTP Verification Limit
+const verifyOTPLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many verification attempts. Please try again later.",
+  },
+});
 // First admin setup
 const adminSetupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -107,6 +130,10 @@ app.use(
 app.use("/api/auth/login", loginLimiter);
 app.use("/api/auth/register", registerLimiter);
 app.use("/api/auth/admin-setup", adminSetupLimiter);
+
+app.use("/api/auth/forgot-password", forgotPasswordLimiter);
+app.use("/api/auth/verify-reset-otp", verifyOTPLimiter);
+app.use("/api/auth/reset-password", verifyOTPLimiter);
 
 /* ================= ROUTES ================= */
 app.use(
@@ -216,6 +243,7 @@ app.use((error, req, res, next) => {
 const startServer = async () => {
   try {
     await connectDB();
+    await verifyEmailConnection();
 
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);

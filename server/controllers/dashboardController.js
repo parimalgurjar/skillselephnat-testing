@@ -1,3 +1,4 @@
+
 const User = require("../models/User");
 const Attendance = require("../models/Attendance");
 const Task = require("../models/Task");
@@ -10,10 +11,6 @@ const Batch = require("../models/Batch");
 const getStudentDashboard = async (req, res) => {
   try {
     const studentId = req.user._id;
-
-    /* ===============================================
-       GET LOGGED-IN STUDENT
-    =============================================== */
 
     const student = await User.findOne({
       _id: studentId,
@@ -55,10 +52,18 @@ const getStudentDashboard = async (req, res) => {
       (record) => record.status === "ABSENT"
     ).length;
 
+    const leaveClasses = attendanceRecords.filter(
+      (record) => record.status === "LEAVE"
+    ).length;
+
+    // Leave excluded from attendance percentage
+    const eligibleClasses =
+      presentClasses + absentClasses;
+
     const attendancePercentage =
-      totalClasses > 0
+      eligibleClasses > 0
         ? Math.round(
-            (presentClasses / totalClasses) * 100
+            (presentClasses / eligibleClasses) * 100
           )
         : 0;
 
@@ -71,7 +76,6 @@ const getStudentDashboard = async (req, res) => {
     if (student.batchTiming) {
       tasks = await Task.find({
         batch: student.batchTiming,
-
         status: {
           $ne: "DRAFT",
         },
@@ -170,8 +174,7 @@ const getStudentDashboard = async (req, res) => {
     const courseProgress =
       totalTasks > 0
         ? Math.round(
-            (submittedTasks.length / totalTasks) *
-              100
+            (submittedTasks.length / totalTasks) * 100
           )
         : 0;
 
@@ -219,10 +222,12 @@ const getStudentDashboard = async (req, res) => {
 
           absentClasses,
 
+          leaveClasses,
+
           percentage:
             attendancePercentage,
 
-          requiredAttendance: 75,
+          requiredAttendance: 90,
         },
 
         tasks: {
@@ -265,10 +270,6 @@ const getStudentDashboard = async (req, res) => {
 const getStudentProfile = async (req, res) => {
   try {
     const studentId = req.user._id;
-
-    /* ===============================================
-       GET STUDENT
-    =============================================== */
 
     const student = await User.findOne({
       _id: studentId,
@@ -318,10 +319,18 @@ const getStudentProfile = async (req, res) => {
       (record) => record.status === "ABSENT"
     ).length;
 
+    const leaveClasses = attendanceRecords.filter(
+      (record) => record.status === "LEAVE"
+    ).length;
+
+    // Leave excluded from attendance percentage
+    const eligibleClasses =
+      presentClasses + absentClasses;
+
     const attendancePercentage =
-      totalClasses > 0
+      eligibleClasses > 0
         ? Math.round(
-            (presentClasses / totalClasses) * 100
+            (presentClasses / eligibleClasses) * 100
           )
         : 0;
 
@@ -394,10 +403,12 @@ const getStudentProfile = async (req, res) => {
 
           absentClasses,
 
+          leaveClasses,
+
           percentage:
             attendancePercentage,
 
-          requiredAttendance: 75,
+          requiredAttendance: 90,
         },
       },
     });
@@ -414,6 +425,7 @@ const getStudentProfile = async (req, res) => {
     });
   }
 };
+
 
 /* =====================================================
    ADMIN REPORTS & ANALYTICS
@@ -470,14 +482,10 @@ const getAdminReports = async (req, res) => {
       .lean();
 
     /* ===============================================
-       TOTAL STUDENTS
+       TOTAL COUNTS
     =============================================== */
 
     const totalStudents = students.length;
-
-    /* ===============================================
-       TOTAL TEACHERS
-    =============================================== */
 
     const totalTeachers =
       await User.countDocuments({
@@ -487,29 +495,32 @@ const getAdminReports = async (req, res) => {
 
     /* ===============================================
        OVERALL ATTENDANCE
+       LEAVE EXCLUDED
     =============================================== */
-
-    const totalAttendanceRecords =
-      attendanceRecords.length;
 
     const presentRecords =
       attendanceRecords.filter(
-        (record) =>
-          record.status === "PRESENT"
+        (record) => record.status === "PRESENT"
       ).length;
 
+    const absentRecords =
+      attendanceRecords.filter(
+        (record) => record.status === "ABSENT"
+      ).length;
+
+    const totalEligibleRecords =
+      presentRecords + absentRecords;
+
     const averageAttendance =
-      totalAttendanceRecords > 0
+      totalEligibleRecords > 0
         ? Math.round(
             (presentRecords /
-              totalAttendanceRecords) *
-              100
+              totalEligibleRecords) * 100
           )
         : 0;
 
     /* ===============================================
        TASK COMPLETION
-
        Only APPROVED submissions count
        as completed.
     =============================================== */
@@ -522,8 +533,7 @@ const getAdminReports = async (req, res) => {
       const batchStudents =
         students.filter(
           (student) =>
-            student.batchTiming ===
-            task.batch
+            student.batchTiming === task.batch
         );
 
       totalTaskOpportunities +=
@@ -532,8 +542,7 @@ const getAdminReports = async (req, res) => {
       approvedSubmissions +=
         task.submissions?.filter(
           (submission) =>
-            submission.status ===
-            "APPROVED"
+            submission.status === "APPROVED"
         ).length || 0;
     });
 
@@ -541,23 +550,18 @@ const getAdminReports = async (req, res) => {
       totalTaskOpportunities > 0
         ? Math.round(
             (approvedSubmissions /
-              totalTaskOpportunities) *
-              100
+              totalTaskOpportunities) * 100
           )
         : 0;
 
     /* ===============================================
        OVERALL PERFORMANCE
-
-       Average of attendance +
-       approved task completion
     =============================================== */
 
     const overallPerformance =
       Math.round(
         (averageAttendance +
-          taskCompletion) /
-          2
+          taskCompletion) / 2
       );
 
     /* ===============================================
@@ -569,21 +573,18 @@ const getAdminReports = async (req, res) => {
         const batchStudents =
           students.filter(
             (student) =>
-              student.batchTiming ===
-              batch.batchTiming
+              student.batchTiming === batch.batchTiming
           );
 
         const studentIds =
           batchStudents.map(
-            (student) =>
-              student._id.toString()
+            (student) => student._id.toString()
           );
 
         const batchAttendance =
           attendanceRecords.filter(
             (record) =>
-              record.batchTiming ===
-              batch.batchTiming ||
+              record.batchTiming === batch.batchTiming ||
               studentIds.includes(
                 record.studentId?.toString()
               )
@@ -591,25 +592,28 @@ const getAdminReports = async (req, res) => {
 
         const batchPresent =
           batchAttendance.filter(
-            (record) =>
-              record.status ===
-              "PRESENT"
+            (record) => record.status === "PRESENT"
           ).length;
 
+        const batchAbsent =
+          batchAttendance.filter(
+            (record) => record.status === "ABSENT"
+          ).length;
+
+        const batchEligible =
+          batchPresent + batchAbsent;
+
         const attendancePercentage =
-          batchAttendance.length > 0
+          batchEligible > 0
             ? Math.round(
-                (batchPresent /
-                  batchAttendance.length) *
-                  100
+                (batchPresent / batchEligible) * 100
               )
             : 0;
 
         const batchTasks =
           tasks.filter(
             (task) =>
-              task.batch ===
-              batch.batchTiming
+              task.batch === batch.batchTiming
           );
 
         const totalOpportunities =
@@ -622,8 +626,7 @@ const getAdminReports = async (req, res) => {
           batchApproved +=
             task.submissions?.filter(
               (submission) =>
-                submission.status ===
-                "APPROVED"
+                submission.status === "APPROVED"
             ).length || 0;
         });
 
@@ -631,16 +634,14 @@ const getAdminReports = async (req, res) => {
           totalOpportunities > 0
             ? Math.round(
                 (batchApproved /
-                  totalOpportunities) *
-                  100
+                  totalOpportunities) * 100
               )
             : 0;
 
         const performance =
           Math.round(
             (attendancePercentage +
-              completion) /
-              2
+              completion) / 2
           );
 
         return {
@@ -701,27 +702,29 @@ const getAdminReports = async (req, res) => {
               new Date(record.date);
 
             return (
-              recordDate >=
-                monthDate &&
-              recordDate <
-                nextMonth
+              recordDate >= monthDate &&
+              recordDate < nextMonth
             );
           }
         );
 
       const monthPresent =
         monthAttendance.filter(
-          (record) =>
-            record.status ===
-            "PRESENT"
+          (record) => record.status === "PRESENT"
         ).length;
 
+      const monthAbsent =
+        monthAttendance.filter(
+          (record) => record.status === "ABSENT"
+        ).length;
+
+      const monthEligible =
+        monthPresent + monthAbsent;
+
       const monthlyAttendance =
-        monthAttendance.length > 0
+        monthEligible > 0
           ? Math.round(
-              (monthPresent /
-                monthAttendance.length) *
-                100
+              (monthPresent / monthEligible) * 100
             )
           : 0;
 
@@ -737,23 +740,18 @@ const getAdminReports = async (req, res) => {
           submissions.filter(
             (submission) => {
               if (
-                submission.status !==
-                  "APPROVED" ||
+                submission.status !== "APPROVED" ||
                 !submission.reviewedAt
               ) {
                 return false;
               }
 
               const reviewDate =
-                new Date(
-                  submission.reviewedAt
-                );
+                new Date(submission.reviewedAt);
 
               return (
-                reviewDate >=
-                  monthDate &&
-                reviewDate <
-                  nextMonth
+                reviewDate >= monthDate &&
+                reviewDate < nextMonth
               );
             }
           ).length;
@@ -761,14 +759,11 @@ const getAdminReports = async (req, res) => {
         const studentsInBatch =
           students.filter(
             (student) =>
-              student.batchTiming ===
-              task.batch
+              student.batchTiming === task.batch
           ).length;
 
         if (
-          new Date(
-            task.createdAt
-          ) < nextMonth
+          new Date(task.createdAt) < nextMonth
         ) {
           monthTaskOpportunities +=
             studentsInBatch;
@@ -782,19 +777,17 @@ const getAdminReports = async (req, res) => {
         monthTaskOpportunities > 0
           ? Math.round(
               (monthApprovedTasks /
-                monthTaskOpportunities) *
-                100
+                monthTaskOpportunities) * 100
             )
           : 0;
 
       const monthlyPerformance =
-        monthAttendance.length === 0 &&
+        monthEligible === 0 &&
         monthTaskOpportunities === 0
           ? 0
           : Math.round(
               (monthlyAttendance +
-                monthlyTaskCompletion) /
-                2
+                monthlyTaskCompletion) / 2
             );
 
       monthlyData.push({
@@ -823,16 +816,14 @@ const getAdminReports = async (req, res) => {
 
     const batchesWithStudents =
       batchPerformance.filter(
-        (batch) =>
-          batch.students > 0
+        (batch) => batch.students > 0
       );
 
     const bestBatch =
       batchesWithStudents.length > 0
         ? [...batchesWithStudents].sort(
             (a, b) =>
-              b.performance -
-              a.performance
+              b.performance - a.performance
           )[0]
         : null;
 
@@ -840,8 +831,7 @@ const getAdminReports = async (req, res) => {
       batchesWithStudents.length > 0
         ? [...batchesWithStudents].sort(
             (a, b) =>
-              a.attendance -
-              b.attendance
+              a.attendance - b.attendance
           )[0]
         : null;
 
@@ -851,13 +841,10 @@ const getAdminReports = async (req, res) => {
           const studentTasks =
             tasks.filter(
               (task) =>
-                task.batch ===
-                student.batchTiming
+                task.batch === student.batchTiming
             );
 
-          if (
-            studentTasks.length === 0
-          ) {
+          if (studentTasks.length === 0) {
             return false;
           }
 
@@ -872,8 +859,7 @@ const getAdminReports = async (req, res) => {
 
               return (
                 !submission ||
-                submission.status !==
-                  "APPROVED"
+                submission.status !== "APPROVED"
               );
             }
           );
@@ -920,6 +906,7 @@ const getAdminReports = async (req, res) => {
     });
   }
 };
+
 
 /* =====================================================
    EXPORTS
