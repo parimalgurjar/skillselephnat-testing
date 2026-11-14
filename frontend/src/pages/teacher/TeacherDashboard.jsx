@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -18,23 +19,6 @@ import { useAuth } from "../../context/AuthContext";
 import "./TeacherDashboard.css";
 
 const TeacherDashboard = () => {
-  const getGreeting = () => {
-  const hour = new Date().getHours();
-
-  if (hour >= 5 && hour < 12) {
-    return "Good Morning";
-  }
-
-  if (hour >= 12 && hour < 17) {
-    return "Good Afternoon";
-  }
-
-  if (hour >= 17 && hour < 21) {
-    return "Good Evening";
-  }
-
-  return "Good Night";
-};
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -49,74 +33,88 @@ const TeacherDashboard = () => {
   });
 
   const [recentTasks, setRecentTasks] = useState([]);
-
   const [upcomingClasses, setUpcomingClasses] = useState([]);
+
+  /* =====================================================
+     GREETING
+  ===================================================== */
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+
+    if (hour >= 5 && hour < 12) return "Good Morning";
+    if (hour >= 12 && hour < 17) return "Good Afternoon";
+    if (hour >= 17 && hour < 21) return "Good Evening";
+
+    return "Good Night";
+  };
 
   /* =====================================================
      LOAD DASHBOARD DATA
   ===================================================== */
 
   useEffect(() => {
-  const loadDashboard = async () => {
-    try {
-      setLoading(true);
+    let mounted = true;
 
-      const response = await api.get(
-        "/teachers/dashboard"
-      );
+    const loadDashboard = async () => {
+      try {
+        setLoading(true);
 
-      const dashboard =
-        response.data?.dashboard;
+        const response = await api.get("/teachers/dashboard");
 
-      setDashboardData({
-        totalStudents:
-          dashboard?.totalStudents || 0,
+        if (!mounted) return;
 
-        activeTasks:
-          dashboard?.activeTasks || 0,
+        const dashboard = response.data?.dashboard || {};
 
-        avgAttendance:
-          dashboard?.avgAttendance || 0,
+        setDashboardData({
+          totalStudents: Number(dashboard.totalStudents) || 0,
+          activeTasks: Number(dashboard.activeTasks) || 0,
+          avgAttendance: Number(dashboard.avgAttendance) || 0,
+          performance: Number(dashboard.performance) || 0,
+          totalBatches: Number(dashboard.totalBatches) || 0,
+        });
 
-        performance:
-          dashboard?.performance || 0,
+        setUpcomingClasses(
+          Array.isArray(dashboard.upcomingClasses)
+            ? dashboard.upcomingClasses
+            : []
+        );
 
-        totalBatches:
-          dashboard?.totalBatches || 0,
-      });
+        setRecentTasks(
+          Array.isArray(dashboard.recentTasks)
+            ? dashboard.recentTasks
+            : []
+        );
 
-      setUpcomingClasses(
-        dashboard?.upcomingClasses || []
-      );
+      } catch (error) {
+        console.error(
+          "Dashboard Error:",
+          error.response?.data || error
+        );
 
-      setRecentTasks(
-        dashboard?.recentTasks || []
-      );
-    } catch (error) {
-      console.error(
-        "Dashboard Error:",
-        error
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-  loadDashboard();
-}, []);
+    loadDashboard();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   /* =====================================================
      DATE FORMAT
   ===================================================== */
 
-  const today = new Date().toLocaleDateString(
-    "en-IN",
-    {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }
-  );
+  const today = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   /* =====================================================
      LOADING
@@ -137,6 +135,10 @@ const TeacherDashboard = () => {
     );
   }
 
+  /* =====================================================
+     MAIN DASHBOARD
+  ===================================================== */
+
   return (
     <div className="teacher-dashboard">
 
@@ -145,7 +147,6 @@ const TeacherDashboard = () => {
       <div className="teacher-dashboard-header">
 
         <div>
-
           <span className="teacher-page-label">
             EDUCATOR PORTAL
           </span>
@@ -155,44 +156,40 @@ const TeacherDashboard = () => {
           </h1>
 
           <p>
-            Here's what's happening with your
-            students today.
+            Here's what's happening with your students today.
           </p>
-
         </div>
 
         <div className="teacher-date-card">
-
           <CalendarCheck size={18} />
 
           <div>
-
             <span>Today</span>
-
-            <strong>
-              {today}
-            </strong>
-
+            <strong>{today}</strong>
           </div>
-
         </div>
 
       </div>
 
-      {/* STATS */}
+      {/* =====================================================
+          CLICKABLE STATISTICS CARDS
+      ===================================================== */}
 
       <div className="teacher-stats-grid">
 
         {/* TOTAL STUDENTS */}
 
-        <div className="teacher-stat-card">
-
+        <button
+          type="button"
+          className="teacher-stat-card"
+          onClick={() => navigate("/teacher/students")}
+          aria-label="View all students"
+        >
           <div className="teacher-stat-icon navy">
             <Users size={21} />
           </div>
 
           <div>
-
             <span>Total Students</span>
 
             <strong>
@@ -200,25 +197,24 @@ const TeacherDashboard = () => {
             </strong>
 
             <small>
-              Across{" "}
-              {dashboardData.totalBatches}{" "}
-              batches
+              Across {dashboardData.totalBatches} batches
             </small>
-
           </div>
-
-        </div>
+        </button>
 
         {/* ACTIVE TASKS */}
 
-        <div className="teacher-stat-card">
-
+        <button
+          type="button"
+          className="teacher-stat-card"
+          onClick={() => navigate("/teacher/tasks")}
+          aria-label="View active tasks"
+        >
           <div className="teacher-stat-icon yellow">
             <ClipboardCheck size={21} />
           </div>
 
           <div>
-
             <span>Active Tasks</span>
 
             <strong>
@@ -228,21 +224,22 @@ const TeacherDashboard = () => {
             <small>
               Assignments running
             </small>
-
           </div>
-
-        </div>
+        </button>
 
         {/* ATTENDANCE */}
 
-        <div className="teacher-stat-card">
-
+        <button
+          type="button"
+          className="teacher-stat-card"
+          onClick={() => navigate("/teacher/attendance")}
+          aria-label="View attendance"
+        >
           <div className="teacher-stat-icon green">
             <CheckCircle2 size={21} />
           </div>
 
           <div>
-
             <span>Avg Attendance</span>
 
             <strong>
@@ -252,21 +249,22 @@ const TeacherDashboard = () => {
             <small>
               Overall attendance
             </small>
-
           </div>
-
-        </div>
+        </button>
 
         {/* PERFORMANCE */}
 
-        <div className="teacher-stat-card">
-
+        <button
+          type="button"
+          className="teacher-stat-card"
+          onClick={() => navigate("/teacher/performance")}
+          aria-label="View student performance"
+        >
           <div className="teacher-stat-icon purple">
             <TrendingUp size={21} />
           </div>
 
           <div>
-
             <span>Performance</span>
 
             <strong>
@@ -274,20 +272,17 @@ const TeacherDashboard = () => {
             </strong>
 
             <small className="teacher-growth">
-
               <ArrowUpRight size={11} />
-
               Student progress
-
             </small>
-
           </div>
-
-        </div>
+        </button>
 
       </div>
 
-      {/* MAIN GRID */}
+      {/* =====================================================
+          MAIN GRID
+      ===================================================== */}
 
       <div className="teacher-main-grid">
 
@@ -298,23 +293,16 @@ const TeacherDashboard = () => {
           <div className="teacher-card-header">
 
             <div>
-
-              <h2>
-                Today's Classes
-              </h2>
+              <h2>Today's Classes</h2>
 
               <p>
                 Your assigned batch timings.
               </p>
-
             </div>
 
             <button
-              onClick={() =>
-                navigate(
-                  "/teacher/attendance"
-                )
-              }
+              type="button"
+              onClick={() => navigate("/teacher/attendance")}
             >
               View Schedule
             </button>
@@ -336,47 +324,38 @@ const TeacherDashboard = () => {
 
             ) : (
 
-              upcomingClasses.map(
-                (classItem) => (
+              upcomingClasses.map((classItem, index) => (
 
-                  <div
-                    className="class-item"
-                    key={classItem.id}
-                  >
+                <div
+                  className="class-item"
+                  key={classItem._id || classItem.id || index}
+                >
 
-                    <div className="class-time">
+                  <div className="class-time">
+                    <Clock size={15} />
 
-                      <Clock size={15} />
-
-                      <span>
-                        {classItem.time}
-                      </span>
-
-                    </div>
-
-                    <div className="class-details">
-
-                      <h3>
-                        {classItem.title}
-                      </h3>
-
-                      <span>
-                        {classItem.batch}
-                      </span>
-
-                    </div>
-
-                    <div className="class-status">
-
-                      Upcoming
-
-                    </div>
-
+                    <span>
+                      {classItem.time || "Time not set"}
+                    </span>
                   </div>
 
-                )
-              )
+                  <div className="class-details">
+                    <h3>
+                      {classItem.title || "Scheduled Class"}
+                    </h3>
 
+                    <span>
+                      {classItem.batch || ""}
+                    </span>
+                  </div>
+
+                  <div className="class-status">
+                    Upcoming
+                  </div>
+
+                </div>
+
+              ))
             )}
 
           </div>
@@ -390,15 +369,11 @@ const TeacherDashboard = () => {
           <div className="teacher-card-header">
 
             <div>
-
-              <h2>
-                Quick Actions
-              </h2>
+              <h2>Quick Actions</h2>
 
               <p>
                 Manage your daily activities.
               </p>
-
             </div>
 
           </div>
@@ -406,71 +381,51 @@ const TeacherDashboard = () => {
           <div className="teacher-actions-grid">
 
             <button
+              type="button"
               className="teacher-action-btn"
-              onClick={() =>
-                navigate(
-                  "/teacher/attendance"
-                )
-              }
+              onClick={() => navigate("/teacher/attendance")}
             >
-
               <CalendarCheck size={19} />
 
               <span>
                 Mark Attendance
               </span>
-
             </button>
 
             <button
+              type="button"
               className="teacher-action-btn"
-              onClick={() =>
-                navigate(
-                  "/teacher/tasks"
-                )
-              }
+              onClick={() => navigate("/teacher/tasks")}
             >
-
               <ClipboardCheck size={19} />
 
               <span>
                 Create Task
               </span>
-
             </button>
 
             <button
+              type="button"
               className="teacher-action-btn"
-              onClick={() =>
-                navigate(
-                  "/teacher/students"
-                )
-              }
+              onClick={() => navigate("/teacher/students")}
             >
-
               <Users size={19} />
 
               <span>
                 View Students
               </span>
-
             </button>
 
             <button
+              type="button"
               className="teacher-action-btn"
-              onClick={() =>
-                navigate(
-                  "/teacher/performance"
-                )
-              }
+              onClick={() => navigate("/teacher/performance")}
             >
-
               <TrendingUp size={19} />
 
               <span>
                 Performance
               </span>
-
             </button>
 
           </div>
@@ -479,31 +434,27 @@ const TeacherDashboard = () => {
 
       </div>
 
-      {/* RECENT TASKS */}
+      {/* =====================================================
+          RECENT TASKS
+      ===================================================== */}
 
       <div className="teacher-card teacher-recent-tasks">
 
         <div className="teacher-card-header">
 
           <div>
-
             <h2>
               Recent Tasks & Assignments
             </h2>
 
             <p>
-              Track assignments shared with your
-              students.
+              Track assignments shared with your students.
             </p>
-
           </div>
 
           <button
-            onClick={() =>
-              navigate(
-                "/teacher/tasks"
-              )
-            }
+            type="button"
+            onClick={() => navigate("/teacher/tasks")}
           >
             View All Tasks
           </button>
@@ -529,93 +480,59 @@ const TeacherDashboard = () => {
             <table className="teacher-task-table">
 
               <thead>
-
                 <tr>
-
-                  <th>
-                    Task Name
-                  </th>
-
-                  <th>
-                    Batch
-                  </th>
-
-                  <th>
-                    Submissions
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
+                  <th>Task Name</th>
+                  <th>Batch</th>
+                  <th>Submissions</th>
+                  <th>Status</th>
                 </tr>
-
               </thead>
 
               <tbody>
 
-                {recentTasks.map(
-                  (task) => (
+                {recentTasks.map((task, index) => (
 
-                    <tr
-                      key={task._id}
-                    >
+                  <tr key={task._id || index}>
 
-                      <td>
+                    <td>
+                      <div className="task-name-cell">
 
-                        <div className="task-name-cell">
-
-                          <div className="task-icon">
-
-                            <BookOpen
-                              size={16}
-                            />
-
-                          </div>
-
-                          <strong>
-                            {task.title}
-                          </strong>
-
+                        <div className="task-icon">
+                          <BookOpen size={16} />
                         </div>
 
-                      </td>
-
-                      <td>
-                        {task.batch}
-                      </td>
-
-                      <td>
-
-                        <strong className="submission-count">
-
-                          {task.submissions}
-
+                        <strong>
+                          {task.title || "Untitled Task"}
                         </strong>
 
-                      </td>
+                      </div>
+                    </td>
 
-                      <td>
+                    <td>
+                      {task.batch || "-"}
+                    </td>
 
-                        <span
-                          className={
-                            task.status ===
-                            "COMPLETED"
-                              ? "task-status completed"
-                              : "task-status active"
-                          }
-                        >
+                    <td>
+                      <strong className="submission-count">
+                        {task.submissions ?? 0}
+                      </strong>
+                    </td>
 
-                          {task.status}
+                    <td>
+                      <span
+                        className={
+                          task.status === "COMPLETED"
+                            ? "task-status completed"
+                            : "task-status active"
+                        }
+                      >
+                        {task.status || "ACTIVE"}
+                      </span>
+                    </td>
 
-                        </span>
+                  </tr>
 
-                      </td>
-
-                    </tr>
-
-                  )
-                )}
+                ))}
 
               </tbody>
 

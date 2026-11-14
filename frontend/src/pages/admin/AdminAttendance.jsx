@@ -173,6 +173,8 @@ const AdminAttendance = () => {
     search,
     setSearch,
   ] = useState("");
+
+  const [statusFilter, setStatusFilter] = useState("ALL");
 const [alert, setAlert] = useState({
   isOpen: false,
   type: "info",
@@ -500,38 +502,40 @@ const [alert, setAlert] = useState({
      GET RECORD BATCH LABEL
   ===================================================== */
 
-  const getRecordBatchLabel = (
-    record
-  ) => {
+ const getRecordBatchLabel = (record) => {
+  const batch = getRecordBatch(record);
 
-    const batch =
-      getRecordBatch(record);
+  if (batch) {
+    return getBatchLabel(batch);
+  }
 
-    if (batch) {
-      return getBatchLabel(batch);
+  // Legacy fallback
+  if (record.batchTiming) {
+    return formatBatchTiming({
+      batchTiming: record.batchTiming,
+    });
+  }
+
+  return "-";
+};
+
+/* =====================================================
+   FILTER ATTENDANCE RECORDS
+===================================================== */
+
+const filteredAttendanceRecords = attendanceRecords.filter(
+  (record) => {
+    if (statusFilter === "PRESENT") {
+      return record.status === "PRESENT";
     }
 
-
-    /*
-      Legacy fallback.
-    */
-
-    if (
-      record.batchTiming
-    ) {
-
-      return formatBatchTiming({
-        batchTiming:
-          record.batchTiming,
-      });
-
+    if (statusFilter === "ABSENT") {
+      return record.status === "ABSENT";
     }
 
-    return "-";
-
-  };
-
-
+    return true;
+  }
+);
   /* =====================================================
      EXPORT CSV
   ===================================================== */
@@ -722,123 +726,83 @@ const [alert, setAlert] = useState({
 
       <div className="attendance-stats-grid">
 
+  {/* TOTAL STUDENTS */}
+  <button
+    type="button"
+    className={`attendance-stat-card ${
+      statusFilter === "ALL" ? "selected" : ""
+    }`}
+    onClick={() => setStatusFilter("ALL")}
+    aria-pressed={statusFilter === "ALL"}
+  >
+    <div className="attendance-stat-icon navy">
+      <Users size={21} />
+    </div>
+    <div>
+      <span>Total Students</span>
+      <strong>{stats.totalStudents}</strong>
+      <small>All attendance records</small>
+    </div>
+  </button>
 
-        {/* TOTAL STUDENTS */}
+  {/* PRESENT */}
+  <button
+    type="button"
+    className={`attendance-stat-card ${
+      statusFilter === "PRESENT" ? "selected" : ""
+    }`}
+    onClick={() => setStatusFilter("PRESENT")}
+    aria-pressed={statusFilter === "PRESENT"}
+  >
+    <div className="attendance-stat-icon green">
+      <UserCheck size={21} />
+    </div>
+    <div>
+      <span>Present</span>
+      <strong>{stats.presentToday}</strong>
+      <small>On selected date</small>
+    </div>
+  </button>
 
-        <div className="attendance-stat-card">
+  {/* ABSENT */}
+  <button
+    type="button"
+    className={`attendance-stat-card ${
+      statusFilter === "ABSENT" ? "selected" : ""
+    }`}
+    onClick={() => setStatusFilter("ABSENT")}
+    aria-pressed={statusFilter === "ABSENT"}
+  >
+    <div className="attendance-stat-icon red">
+      <UserX size={21} />
+    </div>
+    <div>
+      <span>Absent</span>
+      <strong>{stats.absentToday}</strong>
+      <small>On selected date</small>
+    </div>
+  </button>
 
-          <div className="attendance-stat-icon navy">
+  {/* AVERAGE */}
+  <button
+    type="button"
+    className={`attendance-stat-card ${
+      statusFilter === "AVERAGE" ? "selected" : ""
+    }`}
+    onClick={() => setStatusFilter("AVERAGE")}
+    aria-pressed={statusFilter === "AVERAGE"}
+  >
+    <div className="attendance-stat-icon yellow">
+      <CalendarDays size={21} />
+    </div>
+    <div>
+      <span>Average Attendance</span>
+      <strong>{stats.averageAttendance}%</strong>
+      <small>Selected date overview</small>
+    </div>
+  </button>
 
-            <Users size={21} />
-
-          </div>
-
-          <div>
-
-            <span>
-              Total Students
-            </span>
-
-            <strong>
-              {stats.totalStudents}
-            </strong>
-
-            <small>
-              Active students
-            </small>
-
-          </div>
-
-        </div>
-
-
-        {/* PRESENT */}
-
-        <div className="attendance-stat-card">
-
-          <div className="attendance-stat-icon green">
-
-            <UserCheck size={21} />
-
-          </div>
-
-          <div>
-
-            <span>
-              Present
-            </span>
-
-            <strong>
-              {stats.presentToday}
-            </strong>
-
-            <small>
-              On selected date
-            </small>
-
-          </div>
-
-        </div>
-
-
-        {/* ABSENT */}
-
-        <div className="attendance-stat-card">
-
-          <div className="attendance-stat-icon red">
-
-            <UserX size={21} />
-
-          </div>
-
-          <div>
-
-            <span>
-              Absent
-            </span>
-
-            <strong>
-              {stats.absentToday}
-            </strong>
-
-            <small>
-              On selected date
-            </small>
-
-          </div>
-
-        </div>
-
-
-        {/* AVERAGE */}
-
-        <div className="attendance-stat-card">
-
-          <div className="attendance-stat-icon yellow">
-
-            <CalendarDays size={21} />
-
-          </div>
-
-          <div>
-
-            <span>
-              Average Attendance
-            </span>
-
-            <strong>
-              {stats.averageAttendance}%
-            </strong>
-
-            <small>
-              Selected filter
-            </small>
-
-          </div>
-
-        </div>
-
-      </div>
+</div>
 
 
       {/* ================= MAIN CARD ================= */}
@@ -946,7 +910,7 @@ const [alert, setAlert] = useState({
 
           <span className="attendance-record-count">
 
-            {attendanceRecords.length} Records Found
+            {filteredAttendanceRecords.length} Records Found
 
           </span>
 
@@ -986,9 +950,9 @@ const [alert, setAlert] = useState({
 
             <tbody>
 
-              {attendanceRecords.length > 0 ? (
+              {filteredAttendanceRecords.length > 0 ? (
 
-                attendanceRecords.map(
+                filteredAttendanceRecords.map(
                   (record) => {
 
                     const isPresent =

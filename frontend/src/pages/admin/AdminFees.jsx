@@ -39,6 +39,7 @@ const AdminFees = () => {
   const [students, setStudents] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [search, setSearch] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -100,16 +101,33 @@ const AdminFees = () => {
     fetchData();
   }, []);
 
-  const filteredStudents = students.filter((record) => {
-    const student = record.student || {};
-    const query = search.trim().toLowerCase();
+ const filteredStudents = students.filter((record) => {
+  const student = record.student || {};
+  const query = search.trim().toLowerCase();
 
-    return (
-      student.name?.toLowerCase().includes(query) ||
-      student.email?.toLowerCase().includes(query) ||
-      student.batchTiming?.toLowerCase().includes(query)
-    );
-  });
+  const matchesSearch =
+    student.name?.toLowerCase().includes(query) ||
+    student.email?.toLowerCase().includes(query) ||
+    student.batchTiming?.toLowerCase().includes(query);
+
+  let matchesFilter = true;
+
+  if (activeFilter === "pending") {
+    matchesFilter =
+      record.configured && record.status === "PENDING";
+  }
+
+  if (activeFilter === "completed") {
+    matchesFilter =
+      record.configured && record.status === "COMPLETED";
+  }
+
+  if (activeFilter === "configured") {
+    matchesFilter = record.configured === true;
+  }
+
+  return matchesSearch && matchesFilter;
+});
 
   const configuredCount = students.filter(
     (record) => record.configured
@@ -321,47 +339,73 @@ const AdminFees = () => {
         </div>
       )}
 
-      <section className="admin-fees-stats">
-        <article className="admin-fees-stat">
-          <span className="admin-fees-stat-icon blue">
-            <Users size={20} />
-          </span>
-          <div>
-            <p>Total Students</p>
-            <strong>{students.length}</strong>
-          </div>
-        </article>
+     <section className="admin-fees-stats">
 
-        <article className="admin-fees-stat">
-          <span className="admin-fees-stat-icon amber">
-            <Clock3 size={20} />
-          </span>
-          <div>
-            <p>Fee Pending</p>
-            <strong>{pendingCount}</strong>
-          </div>
-        </article>
+  <button
+    type="button"
+    className={`admin-fees-stat ${activeFilter === "all" ? "active" : ""}`}
+    onClick={() => setActiveFilter("all")}
+    aria-pressed={activeFilter === "all"}
+  >
+    <span className="admin-fees-stat-icon blue">
+      <Users size={20} />
+    </span>
 
-        <article className="admin-fees-stat">
-          <span className="admin-fees-stat-icon green">
-            <CheckCircle2 size={20} />
-          </span>
-          <div>
-            <p>Fee Completed</p>
-            <strong>{completedCount}</strong>
-          </div>
-        </article>
+    <div>
+      <p>Total Students</p>
+      <strong>{students.length}</strong>
+    </div>
+  </button>
 
-        <article className="admin-fees-stat">
-          <span className="admin-fees-stat-icon purple">
-            <IndianRupee size={20} />
-          </span>
-          <div>
-            <p>Fee Configured</p>
-            <strong>{configuredCount}</strong>
-          </div>
-        </article>
-      </section>
+  <button
+    type="button"
+    className={`admin-fees-stat ${activeFilter === "pending" ? "active" : ""}`}
+    onClick={() => setActiveFilter("pending")}
+    aria-pressed={activeFilter === "pending"}
+  >
+    <span className="admin-fees-stat-icon amber">
+      <Clock3 size={20} />
+    </span>
+
+    <div>
+      <p>Fee Pending</p>
+      <strong>{pendingCount}</strong>
+    </div>
+  </button>
+
+  <button
+    type="button"
+    className={`admin-fees-stat ${activeFilter === "completed" ? "active" : ""}`}
+    onClick={() => setActiveFilter("completed")}
+    aria-pressed={activeFilter === "completed"}
+  >
+    <span className="admin-fees-stat-icon green">
+      <CheckCircle2 size={20} />
+    </span>
+
+    <div>
+      <p>Fee Completed</p>
+      <strong>{completedCount}</strong>
+    </div>
+  </button>
+
+  <button
+    type="button"
+    className={`admin-fees-stat ${activeFilter === "configured" ? "active" : ""}`}
+    onClick={() => setActiveFilter("configured")}
+    aria-pressed={activeFilter === "configured"}
+  >
+    <span className="admin-fees-stat-icon purple">
+      <IndianRupee size={20} />
+    </span>
+
+    <div>
+      <p>Fee Configured</p>
+      <strong>{configuredCount}</strong>
+    </div>
+  </button>
+
+</section>
 
       <section className="admin-fees-panel">
         <div className="admin-fees-panel-header">

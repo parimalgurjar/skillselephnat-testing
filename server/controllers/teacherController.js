@@ -202,7 +202,233 @@ const getTeacherById = async (req, res) => {
     });
   }
 };
+/* =====================================================
+   COMMON TEACHER STUDENT METRICS
+   Used by Dashboard + Students page
+===================================================== */
 
+const getTeacherStudentOverview = async (teacherId) => {
+
+  const batches = await Batch.find({
+    status: "ACTIVE",
+    $or: [
+      { educator: teacherId },
+      { attendanceTeachers: teacherId },
+    ],
+  })
+    .select("_id name code batchTiming startTime endTime status")
+    .sort({ startTime: 1 })
+    .lean();
+
+  const batchIds = batches.map((batch) => batch._id);
+
+  const batchTimings = [
+    ...new Set(
+      batches
+        .map((batch) => batch.batchTiming?.trim())
+        .filter(Boolean)
+    ),
+  ];
+
+  const students = batchIds.length
+    ? await User.find({
+        role: "STUDENT",
+        $or: [
+          { batchId: { $in: batchIds } },
+          {
+            batchId: null,
+            batchTiming: { $in: batchTimings },
+          },
+        ],
+      })
+        .select(
+          "_id name email phone batchId batchTiming isActive status studentId"
+        )
+        .sort({ name: 1 })
+        .lean()
+    : [];
+
+  const studentIds = students.map((student) => student._id);
+
+  const [attendanceRecords, tasks] = await Promise.all([
+
+    studentIds.length
+      ? Attendance.find({
+          studentId: { $in: studentIds },
+        }).select("studentId status").lean()
+      : [],
+
+    batchIds.length
+      ? Task.find({
+          batchId: { $in: batchIds },
+        }).select("submissions").lean()
+      : [],
+  ]);
+
+  /* ATTENDANCE CALCULATION */
+
+  const attendanceMap = new Map();
+
+  attendanceRecords.forEach((record) => {
+
+    const id = String(record.studentId);
+
+    if (!attendanceMap.has(id)) {
+      attendanceMap.set(id, {
+        total: 0,
+        present: 0,
+      });
+    }
+
+    const item = attendanceMap.get(id);
+
+    item.total += 1;
+
+    if (record.status === "PRESENT") {
+      item.present += 1;
+    }
+  });
+
+  /* PERFORMANCE CALCULATION */
+
+  const performanceMap = new Map();
+
+  tasks.forEach((task) => {
+
+    (task.submissions || []).forEach((submission) => {
+
+      if (
+        submission.status !== "APPROVED" ||
+        !Number.isFinite(Number(submission.score))
+      ) {
+        return;
+      }
+
+      const id = String(submission.studentId);
+
+      if (!studentIds.some((studentId) => String(studentId) === id)) {
+        return;
+      }
+
+      if (!performanceMap.has(id)) {
+        performanceMap.set(id, {
+          total: 0,
+          count: 0,
+        });
+      }
+
+      const item = performanceMap.get(id);
+
+      item.total += Number(submission.score);
+      item.count += 1;
+    });
+  });
+
+  /* BATCH LOOKUP */
+
+  const batchMap = new Map();
+
+  batches.forEach((batch) => {
+    batchMap.set(String(batch._id), batch);
+  });
+
+  const timingMap = new Map();
+
+  batches.forEach((batch) => {
+    if (batch.batchTiming) {
+      timingMap.set(batch.batchTiming.trim(), batch);
+    }
+  });
+
+  /* FINAL STUDENT DATA */
+
+  const formattedStudents = students.map((student) => {
+
+    const id = String(student._id);
+
+    const attendance = attendanceMap.get(id);
+    const performance = performanceMap.get(id);
+
+    const batch =
+      (student.batchId
+        ? batchMap.get(String(student.batchId))
+        : null) ||
+      timingMap.get(student.batchTiming?.trim()) ||
+      null;
+
+    return {
+      ...student,
+
+      attendance:
+        attendance?.total > 0
+          ? Math.round(
+              (attendance.present / attendance.total) * 100
+            )
+          : null,
+
+      performance:
+        performance?.count > 0
+          ? Math.round(
+              performance.total / performance.count
+            )
+          : null,
+
+      batch: batch
+        ? {
+            _id: batch._id,
+            name: batch.name,
+            code: batch.code,
+            startTime: batch.startTime,
+            endTime: batch.endTime,
+            batchTiming: batch.batchTiming,
+            status: batch.status,
+          }
+        : null,
+
+      batchId: batch?._id || student.batchId || null,
+
+      batchTiming:
+        batch?.batchTiming || student.batchTiming || "",
+    };
+  });
+
+  /* COMMON STATISTICS */
+
+  const activeStudents = formattedStudents.filter(
+    (student) =>
+      student.isActive === true &&
+      student.status === "ACTIVE"
+  ).length;
+
+  const attendanceValues = formattedStudents
+    .filter((student) => student.attendance !== null)
+    .map((student) => student.attendance);
+
+  const performanceValues = formattedStudents
+    .filter((student) => student.performance !== null)
+    .map((student) => student.performance);
+
+  const average = (values) =>
+    values.length
+      ? Math.round(
+          values.reduce((sum, value) => sum + value, 0) /
+            values.length
+        )
+      : 0;
+
+  return {
+    batches,
+    students: formattedStudents,
+
+    stats: {
+      totalStudents: formattedStudents.length,
+      activeStudents,
+      totalBatches: batches.length,
+      avgAttendance: average(attendanceValues),
+      performance: average(performanceValues),
+    },
+  };
+};
 /* =====================================================
    GET TEACHER DASHBOARD
 
@@ -217,6 +443,7 @@ const getTeacherById = async (req, res) => {
 
 const getTeacherDashboard = async (req, res) => {
   try {
+
     const teacherId = req.user._id || req.user.id;
 
     if (!mongoose.isValidObjectId(teacherId)) {
@@ -226,109 +453,18 @@ const getTeacherDashboard = async (req, res) => {
       });
     }
 
-    /* ================= ASSIGNED BATCHES ================= */
+    const overview = await getTeacherStudentOverview(teacherId);
 
-    const assignedBatches = await Batch.find({
-      $or: [
-        { educator: teacherId },
-        { attendanceTeachers: teacherId },
-      ],
-    })
-      .select("_id name code batchTiming startTime endTime status")
-      .sort({ startTime: 1 })
-      .lean();
+    const { batches, stats } = overview;
 
-    /* ================= BATCH IDS AND TIMINGS ================= */
-
-    const batchIds = assignedBatches.map((batch) => batch._id);
-
-    const assignedBatchTimings = [
-      ...new Set(
-        assignedBatches
-          .map((batch) => batch.batchTiming?.trim())
-          .filter(Boolean)
-      ),
-    ];
-
-    /* ================= STUDENTS IN ASSIGNED BATCHES ================= */
-
-    const students = batchIds.length
-      ? await User.find({
-          role: "STUDENT",
-          $or: [
-            {
-              batchId: { $in: batchIds },
-            },
-            {
-              batchId: null,
-              batchTiming: { $in: assignedBatchTimings },
-            },
-          ],
-        })
-          .select(
-            "_id name email phone batchId batchTiming isActive status"
-          )
-          .lean()
-      : [];
-
-    const totalStudents = students.length;
-    const totalBatches = assignedBatches.length;
-
-    /* ================= CURRENT MONTH ================= */
-
-    const now = new Date();
-
-    const startOfMonth = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      1
-    );
-
-    const endOfMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-      999
-    );
-
-    const studentIds = students.map((student) => student._id);
-
-    /* ================= MONTHLY ATTENDANCE ================= */
-
-    const attendanceRecords =
-      studentIds.length > 0
-        ? await Attendance.find({
-            studentId: { $in: studentIds },
-            date: {
-              $gte: startOfMonth,
-              $lte: endOfMonth,
-            },
-          }).lean()
-        : [];
-
-    let avgAttendance = 0;
-
-    if (attendanceRecords.length > 0) {
-      const presentCount = attendanceRecords.filter(
-        (record) => record.status === "PRESENT"
-      ).length;
-
-      avgAttendance = Math.round(
-        (presentCount / attendanceRecords.length) * 100
-      );
-    }
-
-    /* ================= ACTIVE TASKS ================= */
+    /* ACTIVE TASKS */
 
     const activeTasks = await Task.countDocuments({
       createdBy: teacherId,
       status: "ACTIVE",
     });
 
-    /* ================= RECENT TASKS ================= */
+    /* RECENT TASKS */
 
     const recentTaskDocuments = await Task.find({
       createdBy: teacherId,
@@ -348,48 +484,46 @@ const getTeacherDashboard = async (req, res) => {
       createdAt: task.createdAt,
     }));
 
-    /* ================= UPCOMING CLASSES ================= */
+    /* UPCOMING CLASSES */
 
-    const upcomingClasses = assignedBatches.map((batch, index) => ({
+    const upcomingClasses = batches.map((batch, index) => ({
       id: index + 1,
       _id: batch._id,
+
       time:
         batch.batchTiming ||
         `${batch.startTime || ""} ${batch.endTime || ""}`.trim(),
-      title: batch.name || "Scheduled Class",
-      batch: batch.code || batch.name || "",
-      status:
-        batch.status === "ACTIVE"
-          ? "Active"
-          : batch.status || "Upcoming",
-    }));
 
-    /* ================= RESPONSE ================= */
+      title: batch.name || "Scheduled Class",
+
+      batch: batch.code || batch.name || "",
+
+      status: "Active",
+    }));
 
     return res.status(200).json({
       success: true,
+
       dashboard: {
-        totalStudents,
-        totalBatches,
+        ...stats,
         activeTasks,
-        avgAttendance,
-        performance: 0,
         upcomingClasses,
         recentTasks,
-        batches: assignedBatches.map((batch) => ({
+
+        batches: batches.map((batch) => ({
           _id: batch._id,
           name: batch.name,
           code: batch.code,
           startTime: batch.startTime,
           endTime: batch.endTime,
-          batchTiming:
-            batch.batchTiming ||
-            `${batch.startTime || ""} ${batch.endTime || ""}`.trim(),
+          batchTiming: batch.batchTiming,
           status: batch.status,
         })),
       },
     });
+
   } catch (error) {
+
     console.error("Teacher Dashboard Error:", error);
 
     return res.status(500).json({
@@ -398,7 +532,6 @@ const getTeacherDashboard = async (req, res) => {
     });
   }
 };
-
 /* =====================================================
    UPDATE TEACHER
 ===================================================== */
@@ -574,6 +707,7 @@ const updateTeacher = async (req, res) => {
 
 const getMyStudents = async (req, res) => {
   try {
+
     const teacherId = req.user._id || req.user.id;
 
     if (!mongoose.isValidObjectId(teacherId)) {
@@ -583,109 +717,22 @@ const getMyStudents = async (req, res) => {
       });
     }
 
-    const batches = await Batch.find({
-      status: "ACTIVE",
-      $or: [
-        { educator: teacherId },
-        { attendanceTeachers: teacherId },
-      ],
-    })
-      .select("_id name code batchTiming startTime endTime status")
-      .sort({ startTime: 1 })
-      .lean();
-
-    const batchById = new Map();
-    const batchByTiming = new Map();
-
-    batches.forEach((batch) => {
-      batchById.set(String(batch._id), batch);
-
-      if (batch.batchTiming) {
-        const timing = batch.batchTiming.trim();
-
-        if (!batchByTiming.has(timing)) {
-          batchByTiming.set(timing, batch);
-        }
-      }
-    });
-
-    const assignedBatchIds = batches.map((batch) => batch._id);
-
-    const assignedBatchTimings = [
-      ...new Set(
-        batches
-          .map((batch) => batch.batchTiming?.trim())
-          .filter(Boolean)
-      ),
-    ];
-
-    const students = assignedBatchIds.length
-      ? await User.find({
-          role: "STUDENT",
-          $or: [
-            {
-              batchId: { $in: assignedBatchIds },
-            },
-            {
-              batchId: null,
-              batchTiming: { $in: assignedBatchTimings },
-            },
-          ],
-        })
-          .select("-password")
-          .sort({ name: 1 })
-          .lean()
-      : [];
-
-    const formattedStudents = students.map((student) => {
-      let resolvedBatch = null;
-
-      if (student.batchId) {
-        resolvedBatch =
-          batchById.get(String(student.batchId)) || null;
-      }
-
-      if (!resolvedBatch && student.batchTiming) {
-        resolvedBatch =
-          batchByTiming.get(student.batchTiming.trim()) || null;
-      }
-
-      return {
-        ...student,
-        batch: resolvedBatch
-          ? {
-              _id: resolvedBatch._id,
-              name: resolvedBatch.name,
-              code: resolvedBatch.code,
-              startTime: resolvedBatch.startTime,
-              endTime: resolvedBatch.endTime,
-              batchTiming: resolvedBatch.batchTiming,
-              status: resolvedBatch.status,
-            }
-          : null,
-        batchTiming:
-          resolvedBatch?.batchTiming || student.batchTiming || "",
-        batchId: resolvedBatch?._id || student.batchId || null,
-      };
-    });
+    const overview = await getTeacherStudentOverview(teacherId);
 
     return res.status(200).json({
       success: true,
-      count: formattedStudents.length,
-      students: formattedStudents,
-      batches: batches.map((batch) => ({
-        _id: batch._id,
-        name: batch.name,
-        code: batch.code,
-        startTime: batch.startTime,
-        endTime: batch.endTime,
-        batchTiming:
-          batch.batchTiming ||
-          `${batch.startTime || ""} ${batch.endTime || ""}`.trim(),
-        status: batch.status,
-      })),
+
+      count: overview.stats.totalStudents,
+
+      students: overview.students,
+
+      batches: overview.batches,
+
+      stats: overview.stats,
     });
+
   } catch (error) {
+
     console.error("Get My Students Error:", error);
 
     return res.status(500).json({

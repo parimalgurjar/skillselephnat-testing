@@ -468,3 +468,38 @@
     transform: none;
   }
 }
+
+.teacher-stat-card {
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.teacher-stat-card:hover {
+  transform: translateY(-3px);
+  border-color: #b8c9f5;
+  box-shadow: 0 8px 20px rgba(0, 18, 79, 0.08);
+}
+
+.teacher-stat-card:focus-visible {
+  outline: 3px solid #9db4ff;
+  outline-offset: 3px;
+}
+
+/* CLICKABLE STAT CARDS */
+
+button.teacher-stat-card {
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  appearance: none;
+  background: #ffffff;
+}
+
+button.teacher-stat-card:focus-visible {
+  outline: 3px solid #9db4ff;
+  outline-offset: 3px;
+}

@@ -370,3 +370,31 @@
   :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
   :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
 }
+/* CLICKABLE ATTENDANCE STAT CARDS */
+
+.attendance-stat-card {
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.attendance-stat-card:hover {
+  border-color: #f6af1d;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(1, 20, 81, 0.08);
+}
+
+.attendance-stat-card.selected {
+  border: 1px solid #f6af1d;
+  background: #fffcf4;
+  box-shadow: inset 0 0 0 1px #f6af1d;
+}
+
+.attendance-stat-card:focus-visible {
+  outline: 3px solid rgba(246, 175, 29, 0.3);
+  outline-offset: 3px;
+}

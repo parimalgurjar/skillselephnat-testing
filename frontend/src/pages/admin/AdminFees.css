@@ -103,7 +103,31 @@
   background: #fff;
   box-shadow: 0 4px 15px #152c5a05;
 }
+.admin-fees-stat {
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
+.admin-fees-stat:hover {
+  transform: translateY(-3px);
+  border-color: #b8c9f5;
+  box-shadow: 0 8px 22px #152c5a12;
+}
+
+.admin-fees-stat.active {
+  border: 2px solid #1d44fa;
+  background: #f7f9ff;
+  box-shadow: 0 5px 18px #1d44fa12;
+}
+
+.admin-fees-stat:focus-visible {
+  outline: 3px solid #9db4ff;
+  outline-offset: 3px;
+}
 .admin-fees-stat-icon {
   display: grid;
   place-items: center;

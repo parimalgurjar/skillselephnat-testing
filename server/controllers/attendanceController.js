@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
    CONSTANTS
 ===================================================== */
 
-const ATTENDANCE_EDIT_HOURS = 12;
+const ATTENDANCE_EDIT_HOURS = 96;
 
 /* =====================================================
    HELPER - VALID MONGODB ID
@@ -1329,7 +1329,7 @@ if (
           return res.status(403).json({
             success: false,
             message:
-              "Attendance editing time has expired. Teachers can edit only within 12 hours.",
+              "Attendance editing time has expired. Teachers can edit only within 4 days.",
           });
         }
       }

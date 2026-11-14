@@ -58,16 +58,20 @@ const TeacherProfile = () => {
       if (response?.success) {
         const teacher = response.teacher;
 
-        const formattedProfile = {
-          name: teacher.name || "",
-          email: teacher.email || "",
-          phone: teacher.phone || "",
-          avatar: teacher.avatar || "",
-          joiningDate: teacher.joiningDate || "",
-          specializations: teacher.specializations || [],
-          status: teacher.status || "",
-          role: teacher.role || "TEACHER",
-        };
+    const formattedProfile = {
+  _id: teacher._id || teacher.id || "",
+  name: teacher.name || "",
+  email: teacher.email || "",
+  phone: teacher.phone || "",
+  avatar: teacher.avatar || "",
+  joiningDate: teacher.joiningDate || "",
+  specializations: teacher.specializations || [],
+  status: teacher.status || "",
+  isActive: teacher.status
+    ? teacher.status === "ACTIVE"
+    : Boolean(teacher.isActive),
+  role: teacher.role || "TEACHER",
+};
 
         setProfile(formattedProfile);
         setOriginalProfile(formattedProfile);
