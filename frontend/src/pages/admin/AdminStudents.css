@@ -54,7 +54,9 @@
   margin-bottom: 24px;
 }
 
+
 .admin-student-stat-card {
+  width: 100%;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
@@ -62,7 +64,28 @@
   display: flex;
   align-items: center;
   gap: 14px;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
+
+.admin-student-stat-card:hover {
+  border-color: #f5ad18;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(0, 18, 79, 0.07);
+}
+
+.admin-student-stat-card.selected {
+  border: 2px solid #f5ad18;
+  background: #fffcf4;
+}
+
+.admin-student-stat-card:focus-visible {
+  outline: 3px solid rgba(245, 173, 24, 0.3);
+  outline-offset: 3px;
+}
+
 
 .admin-student-icon {
   width: 46px;
@@ -1071,5 +1094,110 @@
   .status-action-btn {
     padding: 0 9px;
     font-size: 9px;
+  }
+}
+
+/* =========================================
+   ADMIN STUDENTS - FINAL UI FIXES
+========================================= */
+
+/* Correct page label */
+.admin-students-page .admin-page-label {
+  color: #f6af1d;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+/* Stats cards reset */
+.admin-students-page .admin-student-stat-card {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  min-width: 0;
+  color: #001451;
+  font-family: inherit;
+  border: 1px solid #e5e7eb;
+  outline: none;
+}
+
+/* Selected stats card */
+.admin-students-page .admin-student-stat-card.selected {
+  border: 1px solid #f5ad18;
+  box-shadow: inset 0 0 0 1px #f5ad18;
+  background: #fffcf4;
+}
+
+/* Smooth hover */
+.admin-students-page .admin-student-stat-card:hover {
+  border-color: #f5ad18;
+  transform: translateY(-2px);
+}
+
+/* Prevent content overflow */
+.admin-students-page .admin-student-stat-card > div {
+  min-width: 0;
+}
+
+.admin-students-page .admin-student-stat-card strong {
+  line-height: 1.3;
+}
+
+.admin-students-page .admin-student-stat-card span,
+.admin-students-page .admin-student-stat-card small {
+  line-height: 1.5;
+}
+
+/* Modal status buttons */
+.admin-students-page .student-status-actions {
+  flex-wrap: wrap;
+}
+
+.admin-students-page .status-action-btn {
+  white-space: nowrap;
+}
+
+/* Table actions */
+.admin-students-page .student-table-actions button {
+  flex-shrink: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .admin-students-page .admin-students-header h1 {
+    font-size: 24px;
+  }
+
+  .admin-students-page .admin-student-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .admin-students-page .admin-student-stat-card {
+    width: 100%;
+    padding: 16px;
+  }
+
+  .admin-students-page .admin-students-table-header {
+    align-items: stretch;
+  }
+
+  .admin-students-page .admin-students-actions {
+    width: 100%;
+  }
+}
+
+/* Small screen */
+@media (max-width: 420px) {
+  .admin-students-page {
+    padding: 10px;
+  }
+
+  .admin-students-page .admin-student-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-students-page .student-modal-overlay {
+    padding: 8px;
   }
 }

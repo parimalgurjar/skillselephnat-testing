@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useMemo,
@@ -13,7 +14,6 @@ import {
   Edit,
   Trash2,
   X,
-  UserCog,
 } from "lucide-react";
 
 import api from "../../services/api";
@@ -28,7 +28,6 @@ const initialFormState = {
   phone: "",
   batchId: "",
   batchTiming: "",
-  
   joiningDate: "",
   status: "ACTIVE",
 };
@@ -36,19 +35,17 @@ const initialFormState = {
 /* =====================================================
    FORMAT TIME TO AM/PM
 ===================================================== */
+
 const formatTimeToAMPM = (time) => {
   if (!time) return "";
 
-  // Already formatted
   if (/am|pm/i.test(time)) {
     return time;
   }
 
   const parts = time.split(":");
 
-  if (!parts.length) {
-    return time;
-  }
+  if (!parts.length) return time;
 
   const hours = Number(parts[0]);
   const minutes = Number(parts[1] || 0);
@@ -58,7 +55,6 @@ const formatTimeToAMPM = (time) => {
   }
 
   const date = new Date();
-
   date.setHours(hours, minutes, 0, 0);
 
   return date.toLocaleTimeString("en-IN", {
@@ -101,9 +97,7 @@ const getBatchTimingDisplay = (batch) => {
 ===================================================== */
 
 const getBatchId = (student) => {
-  if (!student?.batchId) {
-    return "";
-  }
+  if (!student?.batchId) return "";
 
   if (typeof student.batchId === "object") {
     return student.batchId._id || student.batchId.id || "";
@@ -113,19 +107,20 @@ const getBatchId = (student) => {
 };
 
 /* =====================================================
-   GET TEACHER ID SAFELY
+   STUDENT STATUS HELPER
+
+   ACTIVE = Active
+   INACTIVE / REJECTED / other status = Inactive
 ===================================================== */
 
-const getTeacherId = (student) => {
-  if (!student?.teacherId) {
-    return "";
-  }
+const isStudentActive = (student) => {
+  if (student?.isActive === false) return false;
 
-  if (typeof student.teacherId === "object") {
-    return student.teacherId._id || student.teacherId.id || "";
-  }
+  const status = String(student?.status || "").toUpperCase();
 
-  return student.teacherId;
+  if (!status) return true;
+
+  return status === "ACTIVE";
 };
 
 /* =====================================================
@@ -144,13 +139,13 @@ const AdminStudents = () => {
 
   const [batchFilter, setBatchFilter] = useState("All Batches");
 
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
   const [showModal, setShowModal] = useState(false);
 
   const [editingStudent, setEditingStudent] = useState(null);
 
   const [students, setStudents] = useState([]);
-
-  const [teachers, setTeachers] = useState([]);
 
   const [batches, setBatches] = useState([]);
 
@@ -194,58 +189,29 @@ const AdminStudents = () => {
   };
 
   /* =====================================================
-     FETCH TEACHERS
+     FETCH BATCHES
   ===================================================== */
 
-  const fetchTeachers = async () => {
+  const fetchBatches = async () => {
     try {
-      const response = await api.get("/teachers");
+      const response = await api.get("/batches");
 
-      const allTeachers = response.data?.teachers || [];
+      const batchList = response.data?.batches || [];
 
-      const activeTeachers = allTeachers.filter((teacher) => {
-        const isTeacher = teacher.role === "TEACHER";
+      const activeBatches = batchList.filter(
+        (batch) => batch.status !== "INACTIVE"
+      );
 
-        const isActive =
-          teacher.isActive !== false && teacher.status !== "INACTIVE";
-
-        return isTeacher && isActive;
-      });
-
-      setTeachers(activeTeachers);
+      setBatches(activeBatches);
     } catch (error) {
       console.error(
-        "Fetch Teachers Error:",
+        "Fetch Batches Error:",
         error.response?.data || error
       );
 
-      setTeachers([]);
+      setBatches([]);
     }
   };
-
-  /* =====================================================
-     FETCH BATCHES
-  ===================================================== */
-const fetchBatches = async () => {
-  try {
-    const response = await api.get("/batches");
-
-    const batchList = response.data?.batches || [];
-
-    const activeBatches = batchList.filter(
-      (batch) => batch.status !== "INACTIVE"
-    );
-
-    setBatches(activeBatches);
-  } catch (error) {
-    console.error(
-      "Fetch Batches Error:",
-      error.response?.data || error
-    );
-
-    setBatches([]);
-  }
-};
 
   /* =====================================================
      INITIAL LOAD
@@ -258,7 +224,6 @@ const fetchBatches = async () => {
 
         await Promise.all([
           fetchStudents(),
-          fetchTeachers(),
           fetchBatches(),
         ]);
       } finally {
@@ -294,7 +259,6 @@ const fetchBatches = async () => {
 
     let batch = batchMap[studentBatchId];
 
-    // If batchId is populated object
     if (!batch && typeof student.batchId === "object") {
       batch = student.batchId;
     }
@@ -321,11 +285,8 @@ const fetchBatches = async () => {
 
   const handleAddStudent = () => {
     setEditingStudent(null);
-
     setFormError("");
-
     setFormData(initialFormState);
-
     setShowModal(true);
   };
 
@@ -337,30 +298,21 @@ const fetchBatches = async () => {
     const { batchTiming } = getStudentBatchDetails(student);
 
     setEditingStudent(student);
-
     setFormError("");
 
     setFormData({
       name: student.name || "",
-
       email: student.email || "",
-
       password: "",
-
       phone: student.phone || "",
-
       batchId: getBatchId(student),
-
       batchTiming: batchTiming || "",
-
 
       joiningDate: student.joiningDate
         ? new Date(student.joiningDate).toISOString().split("T")[0]
         : "",
 
-      status:
-        student.status ||
-        (student.isActive === false ? "INACTIVE" : "ACTIVE"),
+      status: isStudentActive(student) ? "ACTIVE" : "INACTIVE",
     });
 
     setShowModal(true);
@@ -374,11 +326,8 @@ const fetchBatches = async () => {
     if (submitting) return;
 
     setShowModal(false);
-
     setEditingStudent(null);
-
     setFormError("");
-
     setFormData(initialFormState);
   };
 
@@ -397,11 +346,6 @@ const fetchBatches = async () => {
 
   /* =====================================================
      BATCH CHANGE
-
-     Auto:
-     - Batch ID
-     - Batch Timing
-     - Assigned Teacher
   ===================================================== */
 
   const handleBatchChange = (e) => {
@@ -412,7 +356,6 @@ const fetchBatches = async () => {
         ...previous,
         batchId: "",
         batchTiming: "",
-        
       }));
 
       return;
@@ -422,9 +365,7 @@ const fetchBatches = async () => {
       (batch) => batch._id === selectedBatchId
     );
 
-    if (!selectedBatch) {
-      return;
-    }
+    if (!selectedBatch) return;
 
     const timing = getBatchTimingDisplay(selectedBatch);
 
@@ -437,11 +378,8 @@ const fetchBatches = async () => {
 
     setFormData((previous) => ({
       ...previous,
-
       batchId: selectedBatchId,
-
       batchTiming: timing,
-
       teacherId: batchTeacherId || previous.teacherId,
     }));
   };
@@ -455,7 +393,6 @@ const fetchBatches = async () => {
 
     try {
       setSubmitting(true);
-
       setFormError("");
 
       if (
@@ -464,37 +401,26 @@ const fetchBatches = async () => {
         !formData.phone.trim()
       ) {
         setFormError("Name, email and phone are required");
-
         return;
       }
 
       if (!formData.batchId) {
         setFormError("Please select a batch");
-
         return;
       }
 
       if (!editingStudent && !formData.password.trim()) {
         setFormError("Temporary password is required");
-
         return;
       }
 
       const payload = {
         name: formData.name.trim(),
-
         email: formData.email.trim().toLowerCase(),
-
         phone: formData.phone.trim(),
-
         batchId: formData.batchId,
-
         batchTiming: formData.batchTiming,
-
-        
-
         joiningDate: formData.joiningDate || null,
-
         status: formData.status,
       };
 
@@ -503,7 +429,10 @@ const fetchBatches = async () => {
       }
 
       if (editingStudent) {
-        await api.put(`/students/${editingStudent._id}`, payload);
+        await api.put(
+          `/students/${editingStudent._id}`,
+          payload
+        );
       } else {
         await api.post("/students", payload);
       }
@@ -511,6 +440,7 @@ const fetchBatches = async () => {
       await fetchStudents();
 
       handleCloseModal();
+
     } catch (error) {
       console.error(
         "Save Student Error:",
@@ -520,127 +450,132 @@ const fetchBatches = async () => {
       setFormError(
         error.response?.data?.message || "Failed to save student"
       );
+
     } finally {
       setSubmitting(false);
     }
   };
 
-  
-/* =====================================================
-   ACTIVATE / DEACTIVATE STUDENT
-===================================================== */
-
-const handleStudentStatus = (student, action) => {
-  const isActivating = action === "activate";
-
-  setAlert({
-    isOpen: true,
-    type: "warning",
-    title: isActivating
-      ? "Activate Student"
-      : "Deactivate Student",
-
-    message: isActivating
-      ? `Are you sure you want to activate ${student.name}?`
-      : `Are you sure you want to deactivate ${student.name}? Student data will remain safe.`,
-
-    confirmText: isActivating
-      ? "Activate"
-      : "Deactivate",
-
-    confirmAction: async () => {
-      try {
-        await api.patch(
-          `/students/${student._id}/${action}`
-        );
-
-        setAlert({
-          isOpen: true,
-          type: "success",
-          title: isActivating
-            ? "Student Activated"
-            : "Student Deactivated",
-          message: isActivating
-            ? `${student.name} is now active.`
-            : `${student.name} has been deactivated.`,
-        });
-
-        await fetchStudents();
-
-      } catch (error) {
-        console.error(
-          "Student Status Error:",
-          error.response?.data || error
-        );
-
-        setAlert({
-          isOpen: true,
-          type: "error",
-          title: "Status Update Failed",
-          message:
-            error.response?.data?.message ||
-            "Unable to update student status.",
-        });
-      }
-    },
-  });
-};
   /* =====================================================
-   PERMANENT DELETE STUDENT
-===================================================== */
+     ACTIVATE / DEACTIVATE STUDENT
+  ===================================================== */
 
-const handleDelete = (student) => {
-  setAlert({
-    isOpen: true,
-    type: "warning",
-    title: "Permanently Delete Student",
+  const handleStudentStatus = (student, action) => {
+    const isActivating = action === "activate";
 
-    message:
-      `Are you sure you want to permanently delete ${student.name}? All associated attendance, fees, tasks, doubts and notifications will also be deleted. This action cannot be undone.`,
+    setAlert({
+      isOpen: true,
+      type: "warning",
 
-    confirmAction: async () => {
-      setAlert((previous) => ({
-        ...previous,
-        isOpen: false,
-      }));
+      title: isActivating
+        ? "Activate Student"
+        : "Deactivate Student",
 
-      try {
-        await api.delete(
-          `/students/${student._id}`
-        );
+      message: isActivating
+        ? `Are you sure you want to activate ${student.name}?`
+        : `Are you sure you want to deactivate ${student.name}? Student data will remain safe.`,
 
-        setStudents((previous) =>
-          previous.filter(
-            (item) => item._id !== student._id
-          )
-        );
+      confirmText: isActivating
+        ? "Activate"
+        : "Deactivate",
 
-        setAlert({
-          isOpen: true,
-          type: "success",
-          title: "Student Deleted",
-          message:
-            `${student.name} and associated database records have been deleted successfully.`,
-        });
+      confirmAction: async () => {
+        try {
+          await api.patch(
+            `/students/${student._id}/${action}`
+          );
 
-      } catch (error) {
-        console.error(
-          "Delete Student Error:",
-          error.response?.data || error
-        );
+          setAlert({
+            isOpen: true,
+            type: "success",
 
-        setAlert({
-          isOpen: true,
-          type: "error",
-          title: "Delete Failed",
-          message:
-            error.response?.data?.message ||
-            "Unable to delete student.",
-        });
-      }
-    },
-  });
-};
+            title: isActivating
+              ? "Student Activated"
+              : "Student Deactivated",
+
+            message: isActivating
+              ? `${student.name} is now active.`
+              : `${student.name} has been deactivated.`,
+          });
+
+          await fetchStudents();
+
+        } catch (error) {
+          console.error(
+            "Student Status Error:",
+            error.response?.data || error
+          );
+
+          setAlert({
+            isOpen: true,
+            type: "error",
+            title: "Status Update Failed",
+
+            message:
+              error.response?.data?.message ||
+              "Unable to update student status.",
+          });
+        }
+      },
+    });
+  };
+
+  /* =====================================================
+     PERMANENT DELETE STUDENT
+  ===================================================== */
+
+  const handleDelete = (student) => {
+    setAlert({
+      isOpen: true,
+      type: "warning",
+      title: "Permanently Delete Student",
+
+      message:
+        `Are you sure you want to permanently delete ${student.name}? All associated attendance, fees, tasks, doubts and notifications will also be deleted. This action cannot be undone.`,
+
+      confirmAction: async () => {
+        setAlert((previous) => ({
+          ...previous,
+          isOpen: false,
+        }));
+
+        try {
+          await api.delete(`/students/${student._id}`);
+
+          setStudents((previous) =>
+            previous.filter(
+              (item) => item._id !== student._id
+            )
+          );
+
+          setAlert({
+            isOpen: true,
+            type: "success",
+            title: "Student Deleted",
+
+            message:
+              `${student.name} and associated database records have been deleted successfully.`,
+          });
+
+        } catch (error) {
+          console.error(
+            "Delete Student Error:",
+            error.response?.data || error
+          );
+
+          setAlert({
+            isOpen: true,
+            type: "error",
+            title: "Delete Failed",
+
+            message:
+              error.response?.data?.message ||
+              "Unable to delete student.",
+          });
+        }
+      },
+    });
+  };
 
   /* =====================================================
      FILTER STUDENTS
@@ -650,7 +585,8 @@ const handleDelete = (student) => {
     const searchValue = search.trim().toLowerCase();
 
     return students.filter((student) => {
-      const { batchName, batchTiming } = getStudentBatchDetails(student);
+      const { batchName, batchTiming } =
+        getStudentBatchDetails(student);
 
       const teacherName =
         typeof student.teacherId === "object"
@@ -669,34 +605,32 @@ const handleDelete = (student) => {
       const studentBatchId = getBatchId(student);
 
       const matchesBatch =
-        batchFilter === "All Batches" || studentBatchId === batchFilter;
+        batchFilter === "All Batches" ||
+        studentBatchId === batchFilter;
 
-      return matchesSearch && matchesBatch;
+      const isActive = isStudentActive(student);
+
+      const matchesStatus =
+        statusFilter === "ALL" ||
+        (statusFilter === "ACTIVE" && isActive) ||
+        (statusFilter === "INACTIVE" && !isActive);
+
+      return matchesSearch && matchesBatch && matchesStatus;
     });
-  }, [students, search, batchFilter, batchMap]);
-
-  /* =====================================================
-     STATS
-  ===================================================== */
-
-  const totalStudents = students.length;
-
-  const activeStudents = students.filter(
-    (student) =>
-      student.status === "ACTIVE" ||
-      (!student.status && student.isActive !== false)
-  ).length;
-
-  const inactiveStudents = totalStudents - activeStudents;
+  }, [
+    students,
+    search,
+    batchFilter,
+    batchMap,
+    statusFilter,
+  ]);
 
   /* =====================================================
      DATE FORMAT
   ===================================================== */
 
   const formatDate = (date) => {
-    if (!date) {
-      return "—";
-    }
+    if (!date) return "—";
 
     const parsedDate = new Date(date);
 
@@ -712,24 +646,47 @@ const handleDelete = (student) => {
   };
 
   /* =====================================================
+     STUDENT STATS
+  ===================================================== */
+
+  const totalStudents = students.length;
+
+  const activeStudents = students.filter(
+    isStudentActive
+  ).length;
+
+  const inactiveStudents = students.filter(
+    (student) => !isStudentActive(student)
+  ).length;
+
+  /* =====================================================
      LOADING
   ===================================================== */
 
   if (loading) {
     return (
       <div className="admin-students-page">
-        <p style={{ padding: "40px" }}>Loading students...</p>
+        <p style={{ padding: "40px" }}>
+          Loading students...
+        </p>
       </div>
     );
   }
 
+  /* =====================================================
+     MAIN UI
+  ===================================================== */
+
   return (
     <div className="admin-students-page">
-      {/* ================= HEADER ================= */}
+
+      {/* HEADER */}
 
       <div className="admin-students-header">
         <div>
-          <span className="admin-page-label">ADMIN PORTAL</span>
+          <span className="admin-page-label">
+            ADMIN PORTAL
+          </span>
 
           <h1>Students Management</h1>
 
@@ -738,7 +695,10 @@ const handleDelete = (student) => {
           </p>
         </div>
 
-        <button className="add-student-btn" onClick={handleAddStudent}>
+        <button
+          className="add-student-btn"
+          onClick={handleAddStudent}
+        >
           <Plus size={18} />
           Add Student
         </button>
@@ -747,55 +707,83 @@ const handleDelete = (student) => {
       {/* ================= STATS ================= */}
 
       <div className="admin-student-stats">
-        <div className="admin-student-stat-card">
+
+        {/* TOTAL STUDENTS */}
+
+        <button
+          type="button"
+          className={`admin-student-stat-card ${
+            statusFilter === "ALL" ? "selected" : ""
+          }`}
+          onClick={() => setStatusFilter("ALL")}
+        >
           <div className="admin-student-icon navy">
             <Users size={21} />
           </div>
 
           <div>
             <span>Total Students</span>
-
             <strong>{totalStudents}</strong>
-
             <small>Across all batches</small>
           </div>
-        </div>
+        </button>
 
-        <div className="admin-student-stat-card">
+        {/* ACTIVE STUDENTS */}
+
+        <button
+          type="button"
+          className={`admin-student-stat-card ${
+            statusFilter === "ACTIVE" ? "selected" : ""
+          }`}
+          onClick={() => setStatusFilter("ACTIVE")}
+        >
           <div className="admin-student-icon green">
             <UserCheck size={21} />
           </div>
 
           <div>
             <span>Active Students</span>
-
             <strong>{activeStudents}</strong>
-
             <small>Currently enrolled</small>
           </div>
-        </div>
+        </button>
 
-        <div className="admin-student-stat-card">
+        {/* INACTIVE STUDENTS */}
+
+        <button
+          type="button"
+          className={`admin-student-stat-card ${
+            statusFilter === "INACTIVE" ? "selected" : ""
+          }`}
+          onClick={() => setStatusFilter("INACTIVE")}
+        >
           <div className="admin-student-icon red">
             <UserX size={21} />
           </div>
 
           <div>
             <span>Inactive Students</span>
-
             <strong>{inactiveStudents}</strong>
-
             <small>Account inactive</small>
           </div>
-        </div>
+        </button>
+
       </div>
 
       {/* ================= TABLE ================= */}
 
       <div className="admin-students-table-card">
+
         <div className="admin-students-table-header">
+
           <div>
-            <h2>All Students</h2>
+            <h2>
+              {statusFilter === "ACTIVE"
+                ? "Active Students"
+                : statusFilter === "INACTIVE"
+                ? "Inactive Students"
+                : "All Students"}
+            </h2>
 
             <p>
               View and manage registered students and teacher assignments.
@@ -803,6 +791,7 @@ const handleDelete = (student) => {
           </div>
 
           <div className="admin-students-actions">
+
             {/* SEARCH */}
 
             <div className="admin-student-search">
@@ -823,24 +812,34 @@ const handleDelete = (student) => {
               value={batchFilter}
               onChange={(e) => setBatchFilter(e.target.value)}
             >
-              <option value="All Batches">All Batches</option>
+              <option value="All Batches">
+                All Batches
+              </option>
 
               {batches.map((batch) => {
                 const timing = getBatchTimingDisplay(batch);
 
                 return (
-                  <option key={batch._id} value={batch._id}>
+                  <option
+                    key={batch._id}
+                    value={batch._id}
+                  >
                     {batch.name || batch.code || "Unnamed Batch"}
                     {timing ? ` (${timing})` : ""}
                   </option>
                 );
               })}
             </select>
+
           </div>
         </div>
 
+        {/* STUDENT TABLE */}
+
         <div className="admin-students-table-wrapper">
+
           <table className="admin-students-table">
+
             <thead>
               <tr>
                 <th>Student</th>
@@ -853,55 +852,68 @@ const handleDelete = (student) => {
             </thead>
 
             <tbody>
+
               {error ? (
                 <tr>
                   <td
                     colSpan="6"
-                    style={{ textAlign: "center", padding: "30px" }}
+                    style={{
+                      textAlign: "center",
+                      padding: "30px",
+                    }}
                   >
                     {error}
                   </td>
                 </tr>
+
               ) : filteredStudents.length === 0 ? (
                 <tr>
                   <td
                     colSpan="6"
-                    style={{ textAlign: "center", padding: "30px" }}
+                    style={{
+                      textAlign: "center",
+                      padding: "30px",
+                    }}
                   >
                     No students found
                   </td>
                 </tr>
+
               ) : (
                 filteredStudents.map((student) => {
                   const { batchName, batchTiming } =
                     getStudentBatchDetails(student);
 
-                  const teacher =
-                    typeof student.teacherId === "object"
-                      ? student.teacherId
-                      : null;
-
                   const studentStatus =
                     student.status ||
-                    (student.isActive === false ? "INACTIVE" : "ACTIVE");
+                    (student.isActive === false
+                      ? "INACTIVE"
+                      : "ACTIVE");
 
                   return (
                     <tr key={student._id}>
+
                       {/* STUDENT */}
 
                       <td>
                         <div className="admin-student-profile">
+
                           <div className="admin-student-avatar">
-                            {student.name?.charAt(0)?.toUpperCase() || "S"}
+                            {student.name
+                              ?.charAt(0)
+                              ?.toUpperCase() || "S"}
                           </div>
 
                           <div>
                             <strong>{student.name}</strong>
 
                             <span>
-                              {student._id?.slice(-8)?.toUpperCase()}
+                              {student._id
+                                ?.slice(-8)
+                                ?.toUpperCase()}
                             </span>
                           </div>
+
                         </div>
                       </td>
 
@@ -909,9 +921,13 @@ const handleDelete = (student) => {
 
                       <td>
                         <div className="student-contact">
-                          <span>{student.email || "—"}</span>
+                          <span>
+                            {student.email || "—"}
+                          </span>
 
-                          <small>{student.phone || "—"}</small>
+                          <small>
+                            {student.phone || "—"}
+                          </small>
                         </div>
                       </td>
 
@@ -919,15 +935,15 @@ const handleDelete = (student) => {
 
                       <td>
                         <div className="batch-details">
-                          <span className="batch-badge">{batchName}</span>
+                          <span className="batch-badge">
+                            {batchName}
+                          </span>
 
-                          {batchTiming && <small>{batchTiming}</small>}
+                          {batchTiming && (
+                            <small>{batchTiming}</small>
+                          )}
                         </div>
                       </td>
-
-                    
-
-                          
 
                       {/* JOINING DATE */}
 
@@ -942,7 +958,7 @@ const handleDelete = (student) => {
                       <td>
                         <span
                           className={`student-status ${
-                            studentStatus === "ACTIVE"
+                            isStudentActive(student)
                               ? "active"
                               : "inactive"
                           }`}
@@ -953,40 +969,41 @@ const handleDelete = (student) => {
 
                       {/* ACTIONS */}
 
-                    
+                      <td>
+                        <div className="student-table-actions">
 
-{/* ACTIONS */}
+                          <button
+                            type="button"
+                            title="Edit Student"
+                            onClick={() =>
+                              handleEditStudent(student)
+                            }
+                          >
+                            <Edit size={16} />
+                          </button>
 
-<td>
-  <div className="student-table-actions">
+                          <button
+                            type="button"
+                            className="delete-student-btn"
+                            title="Permanently Delete Student"
+                            onClick={() =>
+                              handleDelete(student)
+                            }
+                          >
+                            <Trash2 size={16} />
+                          </button>
 
-    {/* EDIT */}
-    <button
-      type="button"
-      title="Edit Student"
-      onClick={() => handleEditStudent(student)}
-    >
-      <Edit size={16} />
-    </button>
+                        </div>
+                      </td>
 
-    {/* DELETE */}
-    <button
-      type="button"
-      className="delete-student-btn"
-      title="Permanently Delete Student"
-      onClick={() => handleDelete(student)}
-    >
-      <Trash2 size={16} />
-    </button>
-
-  </div>
-</td>
                     </tr>
                   );
                 })
               )}
+
             </tbody>
           </table>
+
         </div>
       </div>
 
@@ -994,13 +1011,18 @@ const handleDelete = (student) => {
 
       {showModal && (
         <div className="student-modal-overlay">
+
           <div className="student-modal">
+
             {/* HEADER */}
 
             <div className="student-modal-header">
+
               <div>
                 <h2>
-                  {editingStudent ? "Edit Student" : "Add New Student"}
+                  {editingStudent
+                    ? "Edit Student"
+                    : "Add New Student"}
                 </h2>
 
                 <p>
@@ -1017,19 +1039,25 @@ const handleDelete = (student) => {
               >
                 <X size={20} />
               </button>
+
             </div>
 
             {/* FORM */}
 
             <form onSubmit={handleSubmit}>
+
               <div className="student-form">
+
                 {formError && (
-                  <div className="student-form-error">{formError}</div>
+                  <div className="student-form-error">
+                    {formError}
+                  </div>
                 )}
 
                 {/* NAME + EMAIL */}
 
                 <div className="student-form-row">
+
                   <div className="student-form-group">
                     <label>Full Name</label>
 
@@ -1055,11 +1083,13 @@ const handleDelete = (student) => {
                       disabled={submitting}
                     />
                   </div>
+
                 </div>
 
                 {/* PHONE + PASSWORD */}
 
                 <div className="student-form-row">
+
                   <div className="student-form-group">
                     <label>Phone Number</label>
 
@@ -1087,11 +1117,13 @@ const handleDelete = (student) => {
                       />
                     </div>
                   )}
+
                 </div>
 
-                {/* BATCH + TEACHER */}
+                {/* BATCH */}
 
                 <div className="student-form-row">
+
                   <div className="student-form-group">
                     <label>Batch</label>
 
@@ -1101,13 +1133,19 @@ const handleDelete = (student) => {
                       onChange={handleBatchChange}
                       disabled={submitting}
                     >
-                      <option value="">Select Batch</option>
+                      <option value="">
+                        Select Batch
+                      </option>
 
                       {batches.map((batch) => {
-                        const timing = getBatchTimingDisplay(batch);
+                        const timing =
+                          getBatchTimingDisplay(batch);
 
                         return (
-                          <option key={batch._id} value={batch._id}>
+                          <option
+                            key={batch._id}
+                            value={batch._id}
+                          >
                             {batch.name || batch.code || "Unnamed Batch"}
                             {timing ? ` (${timing})` : ""}
                           </option>
@@ -1116,91 +1154,89 @@ const handleDelete = (student) => {
                     </select>
                   </div>
 
-                  
                 </div>
 
                 {/* JOINING DATE + STATUS */}
 
-                {/* JOINING DATE + STATUS ACTIONS */}
+                <div className="student-form-row">
 
-<div className="student-form-row">
+                  <div className="student-form-group">
+                    <label>Joining Date</label>
 
-  {/* JOINING DATE */}
-  <div className="student-form-group">
-    <label>Joining Date</label>
+                    <input
+                      type="date"
+                      name="joiningDate"
+                      value={formData.joiningDate}
+                      onChange={handleChange}
+                      disabled={submitting}
+                    />
+                  </div>
 
-    <input
-      type="date"
-      name="joiningDate"
-      value={formData.joiningDate}
-      onChange={handleChange}
-      disabled={submitting}
-    />
-  </div>
+                  {editingStudent && (
+                    <div className="student-form-group">
 
-  {/* STATUS ACTIONS */}
-  {editingStudent && (
-    <div className="student-form-group">
-      <label>Student Status</label>
+                      <label>Student Status</label>
 
-      <div className="student-status-actions">
+                      <div className="student-status-actions">
 
-        <button
-          type="button"
-          className={
-            formData.status === "ACTIVE"
-              ? "status-action-btn active selected"
-              : "status-action-btn active"
-          }
-          onClick={() =>
-            setFormData((prev) => ({
-              ...prev,
-              status: "ACTIVE",
-            }))
-          }
-        >
-          ACTIVE
-        </button>
+                        <button
+                          type="button"
+                          className={
+                            formData.status === "ACTIVE"
+                              ? "status-action-btn active selected"
+                              : "status-action-btn active"
+                          }
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              status: "ACTIVE",
+                            }))
+                          }
+                        >
+                          ACTIVE
+                        </button>
 
-        <button
-          type="button"
-          className={
-            formData.status === "INACTIVE"
-              ? "status-action-btn inactive selected"
-              : "status-action-btn inactive"
-          }
-          onClick={() =>
-            setFormData((prev) => ({
-              ...prev,
-              status: "INACTIVE",
-            }))
-          }
-        >
-          INACTIVE
-        </button>
+                        <button
+                          type="button"
+                          className={
+                            formData.status === "INACTIVE"
+                              ? "status-action-btn inactive selected"
+                              : "status-action-btn inactive"
+                          }
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              status: "INACTIVE",
+                            }))
+                          }
+                        >
+                          INACTIVE
+                        </button>
 
-        <button
-          type="button"
-          className="status-action-btn delete"
-          onClick={() => {
-            setShowModal(false);
-            handleDelete(editingStudent);
-          }}
-        >
-          <Trash2 size={14} />
-          DELETE
-        </button>
+                        <button
+                          type="button"
+                          className="status-action-btn delete"
+                          onClick={() => {
+                            setShowModal(false);
+                            handleDelete(editingStudent);
+                          }}
+                        >
+                          <Trash2 size={14} />
+                          DELETE
+                        </button>
 
-      </div>
-    </div>
-  )}
+                      </div>
+                    </div>
+                  )}
 
-</div>
+                </div>
+
               </div>
 
               {/* FOOTER ACTIONS */}
 
               <div className="student-modal-footer">
+
                 <button
                   type="button"
                   className="cancel-student-btn"
@@ -1211,39 +1247,43 @@ const handleDelete = (student) => {
                 </button>
 
                 <button
-  type="submit"
-  className="create-student-btn"
-  disabled={submitting}
->
+                  type="submit"
+                  className="create-student-btn"
+                  disabled={submitting}
+                >
                   {submitting
                     ? "Saving..."
                     : editingStudent
                     ? "Update Student"
                     : "Add Student"}
                 </button>
+
               </div>
+
             </form>
           </div>
         </div>
       )}
 
-      {/* Alert Modal */}
+      {/* ALERT MODAL */}
+
       <AlertModal
-  isOpen={alert.isOpen}
-  onClose={() =>
-    setAlert((previous) => ({
-      ...previous,
-      isOpen: false,
-    }))
-  }
-  type={alert.type}
-  title={alert.title}
-  message={alert.message}
-  showCancel={Boolean(alert.confirmAction)}
-cancelText="Cancel"
-confirmText={alert.confirmText || "Confirm"}
-onConfirm={alert.confirmAction}
-/>
+        isOpen={alert.isOpen}
+        onClose={() =>
+          setAlert((previous) => ({
+            ...previous,
+            isOpen: false,
+          }))
+        }
+        type={alert.type}
+        title={alert.title}
+        message={alert.message}
+        showCancel={Boolean(alert.confirmAction)}
+        cancelText="Cancel"
+        confirmText={alert.confirmText || "Confirm"}
+        onConfirm={alert.confirmAction}
+      />
+
     </div>
   );
 };
