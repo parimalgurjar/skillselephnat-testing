@@ -134,7 +134,7 @@ const StudentDashboard = () => {
   ===================================================== */
 
   const attendanceStatus =
-    attendancePercentage >= 75
+    attendancePercentage >= 90
       ? "Good Standing"
       : "Needs Improvement";
 

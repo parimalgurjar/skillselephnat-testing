@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useState,
@@ -22,7 +23,13 @@ import "./AdminAttendance.css";
 const AdminAttendance = () => {
   /* GET TODAY DATE */
   const getTodayDate = () => {
-    return new Date().toISOString().split("T")[0];
+    const today = new Date();
+
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   };
 
   /* FORMAT TIME */
@@ -111,16 +118,22 @@ const AdminAttendance = () => {
 
   /* FETCH BATCHES */
   useEffect(() => {
+    let active = true;
+
     const fetchBatches = async () => {
       try {
         const response = await api.get("/attendance/my-batches");
 
-        if (response.data?.success) {
-          setBatches(response.data?.batches || []);
-        } else {
-          setBatches([]);
-        }
+        if (!active) return;
+
+        setBatches(
+          Array.isArray(response.data?.batches)
+            ? response.data.batches
+            : []
+        );
       } catch (error) {
+        if (!active) return;
+
         console.error(
           "Fetch batches error:",
           error.response?.data || error
@@ -131,10 +144,16 @@ const AdminAttendance = () => {
     };
 
     fetchBatches();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   /* FETCH ATTENDANCE */
   useEffect(() => {
+    let active = true;
+
     const fetchAttendance = async () => {
       try {
         setLoading(true);
@@ -156,12 +175,20 @@ const AdminAttendance = () => {
           params,
         });
 
+        if (!active) return;
+
         if (response.data?.success) {
-          setAttendanceRecords(response.data.records || []);
+          setAttendanceRecords(
+            Array.isArray(response.data.records)
+              ? response.data.records
+              : []
+          );
         } else {
           setAttendanceRecords([]);
         }
       } catch (error) {
+        if (!active) return;
+
         console.error(
           "Fetch attendance error:",
           error.response?.data || error
@@ -174,15 +201,23 @@ const AdminAttendance = () => {
 
         setAttendanceRecords([]);
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
     fetchAttendance();
+
+    return () => {
+      active = false;
+    };
   }, [selectedBatchId, selectedDate, search]);
 
   /* FETCH ATTENDANCE STATS */
   useEffect(() => {
+    let active = true;
+
     const fetchStats = async () => {
       try {
         const params = {
@@ -197,6 +232,8 @@ const AdminAttendance = () => {
           params,
         });
 
+        if (!active) return;
+
         if (response.data?.success) {
           setStats({
             totalStudents: response.data.stats?.totalStudents || 0,
@@ -208,6 +245,8 @@ const AdminAttendance = () => {
           });
         }
       } catch (error) {
+        if (!active) return;
+
         console.error(
           "Fetch attendance stats error:",
           error.response?.data || error
@@ -216,13 +255,21 @@ const AdminAttendance = () => {
     };
 
     fetchStats();
+
+    return () => {
+      active = false;
+    };
   }, [selectedDate, selectedBatchId]);
 
   /* FORMAT DATE */
   const formatDate = (dateValue) => {
     if (!dateValue) return "-";
 
-    return new Date(dateValue).toLocaleDateString("en-IN", {
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) return "-";
+
+    return date.toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -268,16 +315,24 @@ const AdminAttendance = () => {
   /* FILTER ATTENDANCE RECORDS */
   const filteredAttendanceRecords = attendanceRecords.filter(
     (record) => {
+      const status = String(record.status || "").toUpperCase();
+
       if (statusFilter === "PRESENT") {
-        return record.status === "PRESENT";
+        return status === "PRESENT";
       }
 
       if (statusFilter === "ABSENT") {
-        return record.status === "ABSENT";
+        return status === "ABSENT";
       }
 
       if (statusFilter === "LEAVE") {
-        return record.status === "LEAVE";
+        return status === "LEAVE";
+      }
+
+      // Average calculation includes Present + Absent.
+      // Leave records are excluded.
+      if (statusFilter === "AVERAGE") {
+        return status === "PRESENT" || status === "ABSENT";
       }
 
       return true;
@@ -314,17 +369,23 @@ const AdminAttendance = () => {
       record.status || "",
     ]);
 
+    const escapeCSVValue = (value) => {
+      let text = String(value ?? "");
+
+      // Prevent spreadsheet formula injection.
+      if (/^[=+\-@\t\r]/.test(text)) {
+        text = `'${text}`;
+      }
+
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+
     const csvContent = [
       headers,
       ...rows,
     ]
       .map((row) =>
-        row
-          .map(
-            (value) =>
-              `"${String(value ?? "").replace(/"/g, '""')}"`
-          )
-          .join(",")
+        row.map(escapeCSVValue).join(",")
       )
       .join("\r\n");
 
@@ -387,7 +448,17 @@ const AdminAttendance = () => {
             color: "#dc2626",
           }}
         >
-          {error}
+          <p>{error}</p>
+
+          <button
+            type="button"
+            onClick={() => {
+              setError("");
+              setSelectedDate((previous) => previous);
+            }}
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -519,7 +590,7 @@ const AdminAttendance = () => {
           <div>
             <span>Average Attendance</span>
             <strong>{stats.averageAttendance}%</strong>
-            <small>Selected date overview</small>
+            <small>Present + absent records</small>
           </div>
         </button>
 
@@ -534,7 +605,9 @@ const AdminAttendance = () => {
             <h2>Daily Attendance</h2>
 
             <p>
-              View attendance records for selected date and batch.
+              {statusFilter === "AVERAGE"
+                ? "Showing present and absent records included in average attendance. Leave is excluded."
+                : "View attendance records for selected date and batch."}
             </p>
           </div>
 
@@ -607,9 +680,13 @@ const AdminAttendance = () => {
             <tbody>
               {filteredAttendanceRecords.length > 0 ? (
                 filteredAttendanceRecords.map((record) => {
-                  const isPresent = record.status === "PRESENT";
-                  const isAbsent = record.status === "ABSENT";
-                  const isLeave = record.status === "LEAVE";
+                  const status = String(
+                    record.status || ""
+                  ).toUpperCase();
+
+                  const isPresent = status === "PRESENT";
+                  const isAbsent = status === "ABSENT";
+                  const isLeave = status === "LEAVE";
 
                   return (
                     <tr key={record._id}>

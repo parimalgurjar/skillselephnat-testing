@@ -1201,3 +1201,89 @@
     padding: 8px;
   }
 }
+/* =====================================================
+   ADMIN STUDENTS - RESPONSIVE FIX
+===================================================== */
+
+.admin-students-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.admin-students-page .admin-students-table-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.admin-students-page .admin-students-table-header {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.admin-students-page .admin-students-actions {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.admin-students-page .admin-student-search {
+  width: 100%;
+  max-width: 360px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.admin-students-page .admin-student-search input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.admin-students-page .batch-filter {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.admin-students-page .admin-students-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+.admin-students-page .admin-students-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+@media (max-width: 600px) {
+  .admin-students-page .admin-students-table-header {
+    align-items: stretch;
+  }
+
+  .admin-students-page .admin-students-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .admin-students-page .admin-student-search,
+  .admin-students-page .batch-filter {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .admin-students-page .admin-students-table-wrapper {
+    margin: 0;
+  }
+
+  .admin-students-page .admin-students-table th,
+  .admin-students-page .admin-students-table td {
+    white-space: nowrap;
+  }
+}
