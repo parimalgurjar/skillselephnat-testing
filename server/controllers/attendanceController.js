@@ -673,8 +673,9 @@ const totalRecords =
   await Attendance.countDocuments(dateFilter);
 
 // Leave excluded from attendance percentage
+// Present + Absent + Leave included in attendance percentage
 const eligibleRecords =
-  presentToday + absentToday;
+  presentToday + absentToday + leaveToday;
 
 // ATTENDANCE PERCENTAGE
 const averageAttendance =

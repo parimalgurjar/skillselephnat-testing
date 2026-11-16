@@ -313,9 +313,14 @@ const formatBatchTiming = (batch) => {
 
       // Average calculation includes Present + Absent.
       // Leave records are excluded.
-      if (statusFilter === "AVERAGE") {
-        return status === "PRESENT" || status === "ABSENT";
-      }
+     // Average calculation includes Present + Absent + Leave.
+if (statusFilter === "AVERAGE") {
+  return (
+    status === "PRESENT" ||
+    status === "ABSENT" ||
+    status === "LEAVE"
+  );
+}
 
       return true;
     }
@@ -572,7 +577,7 @@ const formatBatchTiming = (batch) => {
           <div>
             <span>Average Attendance</span>
             <strong>{stats.averageAttendance}%</strong>
-            <small>Present + absent records</small>
+            <small>Present + absent records + leave</small>
           </div>
         </button>
 
