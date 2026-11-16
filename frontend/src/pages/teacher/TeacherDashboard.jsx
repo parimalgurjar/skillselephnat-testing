@@ -17,6 +17,9 @@ import api from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
 import "./TeacherDashboard.css";
+import {
+  formatBatchTimingString,
+} from "../../utils/batchUtils";
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
@@ -335,14 +338,18 @@ const TeacherDashboard = () => {
                     <Clock size={15} />
 
                     <span>
-                      {classItem.time || "Time not set"}
-                    </span>
+  {classItem.time
+    ? formatBatchTimingString(classItem.time)
+    : "Time not set"}
+</span>
                   </div>
 
                   <div className="class-details">
                     <h3>
-                      {classItem.title || "Scheduled Class"}
-                    </h3>
+  {classItem.title
+    ? formatBatchTimingString(classItem.title)
+    : "Scheduled Class"}
+</h3>
 
                     <span>
                       {classItem.batch || ""}

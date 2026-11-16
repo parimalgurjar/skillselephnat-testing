@@ -1,64 +1,84 @@
+
+// Convert a single time into a consistent 12-hour AM/PM format.
 export const formatSingleTime = (time) => {
-  if (!time) return "";
+  if (time === null || time === undefined || time === "") {
+    return "";
+  }
 
-  const value = time.toString().trim();
+  const value = String(time).trim();
 
-  const parts = value.split(":");
+  // Supports both "03:30 PM" and "15:30".
+  const match = value.match(
+    /^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i
+  );
 
-  let hours = Number(parts[0]);
-  const minutes = Number(parts[1] || 0);
+  if (!match) return value;
+
+  let hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const existingPeriod = match[3]?.toUpperCase();
 
   if (
-    Number.isNaN(hours) ||
-    Number.isNaN(minutes)
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
   ) {
     return value;
   }
 
-  const period =
-    hours >= 12 ? "PM" : "AM";
+  let period;
 
-  hours = hours % 12 || 12;
+  if (existingPeriod) {
+    // Explicit AM/PM means the hour is already in 12-hour format.
+    if (hours < 1 || hours > 12) return value;
 
-  return `${hours}:${String(minutes).padStart(
-    2,
-    "0"
-  )} ${period}`;
+    period = existingPeriod;
+  } else {
+    // No suffix means the input is in 24-hour format.
+    period = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+  }
+
+  return `${hours}:${String(minutes).padStart(2, "0")} ${period}`;
 };
 
 
+// Format time values inside a complete batch timing string.
+// Example: "09:30 AM to 20:00" -> "9:30 AM to 8:00 PM"
+export const formatBatchTimingString = (timing) => {
+  if (!timing) return "-";
+
+  return String(timing).replace(
+    /(\d{1,2}:\d{2}\s*(?:AM|PM)?)/gi,
+    (time) => formatSingleTime(time)
+  );
+};
+
+
+// Get a consistently formatted batch timing.
 export const getBatchTiming = (batch) => {
   if (!batch) return "-";
 
-  /*
-    ALWAYS PREFER
-    startTime + endTime
-  */
-
-  if (
-    batch.startTime &&
-    batch.endTime
-  ) {
-    return `${formatSingleTime(
-      batch.startTime
-    )} - ${formatSingleTime(
+  if (batch.startTime && batch.endTime) {
+    return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
       batch.endTime
     )}`;
   }
 
-  /*
-    fallback only
-  */
+  if (batch.batchTiming) {
+    return formatBatchTimingString(batch.batchTiming);
+  }
 
-  return batch.batchTiming || "-";
+  return "-";
 };
 
 
+// Get the complete batch label.
 export const getBatchLabel = (batch) => {
   if (!batch) return "Unnamed Batch";
 
-  const timing =
-    getBatchTiming(batch);
+  const timing = getBatchTiming(batch);
 
   return batch.name
     ? `${batch.name} (${timing})`

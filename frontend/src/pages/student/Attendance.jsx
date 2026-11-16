@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { getMyAttendance } from "../../services/attendanceApi";
-
+import { formatBatchTimingString } from "../../utils/batchUtils";
 import "./Attendance.css";
 
 const DEFAULT_STATS = {
@@ -168,11 +168,15 @@ const Attendance = () => {
 
   const batchCode = batch?.code || student?.batch?.code || "";
 
-  const batchTiming =
-    batch?.displayTiming ||
-    batch?.batchTiming ||
-    student?.batchTiming ||
-    "";
+ const rawBatchTiming =
+  batch?.displayTiming ||
+  batch?.batchTiming ||
+  student?.batchTiming ||
+  "";
+
+const batchTiming = rawBatchTiming
+  ? formatBatchTimingString(rawBatchTiming)
+  : "";
 
   /* ATTENDANCE STATS */
   const attendanceStats = [

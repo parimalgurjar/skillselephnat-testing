@@ -12,7 +12,10 @@ import {
   Clock,
   ClipboardCheck,
 } from "lucide-react";
-
+import {
+  formatSingleTime,
+  formatBatchTimingString,
+} from "../../utils/batchUtils";
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import "./AdminBatches.css";
@@ -97,34 +100,27 @@ const AdminBatches = () => {
      FORMAT TIME TO AM/PM
   ============================================ */
 
-  const formatTimeToAMPM = (time) => {
-    if (!time) return "—";
+ 
+/* ============================================
+   FORMAT BATCH TIMING
+============================================ */
 
-    const [hours, minutes] = time.split(":");
-    const hour = Number(hours);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const formattedHour = hour % 12 || 12;
+const getBatchTiming = (batch) => {
+  if (!batch) return "Not Set";
 
-    return `${formattedHour}:${minutes || "00"} ${ampm}`;
-  };
+  if (batch.startTime && batch.endTime) {
+    return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
+      batch.endTime
+    )}`;
+  }
 
-  /* ============================================
-     FORMAT BATCH TIMING
-  ============================================ */
+  if (batch.batchTiming) {
+    return formatBatchTimingString(batch.batchTiming);
+  }
 
-  const getBatchTiming = (batch) => {
-    if (batch.batchTiming) {
-      return batch.batchTiming;
-    }
+  return "Not Set";
+};
 
-    if (batch.startTime && batch.endTime) {
-      return `${formatTimeToAMPM(batch.startTime)} - ${formatTimeToAMPM(
-        batch.endTime
-      )}`;
-    }
-
-    return "Not Set";
-  };
 
   /* ============================================
      FORMAT CLASS DAYS
@@ -416,9 +412,9 @@ const AdminBatches = () => {
       setSubmitting(true);
       setFormError("");
 
-      const batchTiming = `${formatTimeToAMPM(
-        formData.startTime
-      )} - ${formatTimeToAMPM(formData.endTime)}`;
+     const batchTiming = `${formatSingleTime(
+  formData.startTime
+)} - ${formatSingleTime(formData.endTime)}`;
 
       const payload = {
         name: formData.name.trim(),

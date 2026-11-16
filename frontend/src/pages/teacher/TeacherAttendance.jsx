@@ -14,7 +14,10 @@ import {
 
 import api from "../../services/api";
 import "./TeacherAttendance.css";
-
+import {
+  formatSingleTime,
+  formatBatchTimingString,
+} from "../../utils/batchUtils";
 const DEFAULT_ATTENDANCE_META = {
   isMarked: false,
   markedBy: null,
@@ -66,24 +69,7 @@ const TeacherAttendance = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const formatSingleTime = (time) => {
-    if (!time) return "";
 
-    const cleanedTime = time.toString().trim().replace(".", ":");
-    const parts = cleanedTime.split(":");
-
-    let hours = parseInt(parts[0], 10);
-    const minutes = parseInt(parts[1] || "0", 10);
-
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-      return time;
-    }
-
-    const period = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12;
-
-    return `${hours}:${minutes.toString().padStart(2, "0")} ${period}`;
-  };
 
   const formatDateTime = (date) => {
     if (!date) return "";
@@ -97,27 +83,39 @@ const TeacherAttendance = () => {
     });
   };
 
-  const getBatchLabel = (batch) => {
-    if (!batch) return "Unnamed Batch";
 
-    if (batch.displayTiming) {
-      return batch.name
-        ? `${batch.name} (${batch.displayTiming})`
-        : batch.displayTiming;
-    }
 
-    let timing = batch.batchTiming;
+const getBatchLabel = (batch) => {
+  if (!batch) return "Unnamed Batch";
 
-    if (!timing && batch.startTime && batch.endTime) {
-      timing = `${formatSingleTime(batch.startTime)} - ${formatSingleTime(batch.endTime)}`;
-    }
+  // Batch name already contains timing and date.
+  // Do not append timing a second time.
+  if (batch.name) {
+    return batch.name;
+  }
 
-    if (batch.name && timing) {
-      return `${batch.name} (${timing})`;
-    }
+  if (batch.code) {
+    return batch.code;
+  }
 
-    return batch.name || batch.code || timing || "Unnamed Batch";
-  };
+  if (batch.displayTiming) {
+    return formatBatchTimingString(batch.displayTiming);
+  }
+
+  if (batch.batchTiming) {
+    return formatBatchTimingString(batch.batchTiming);
+  }
+
+  if (batch.startTime && batch.endTime) {
+    return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
+      batch.endTime
+    )}`;
+  }
+
+  return "Unnamed Batch";
+};
+
+
 
   // LOAD BATCHES
   useEffect(() => {

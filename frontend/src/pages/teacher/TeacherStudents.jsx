@@ -4,79 +4,40 @@ import { Search, Users, Mail, TrendingUp } from "lucide-react";
 
 import api from "../../services/api";
 import "./TeacherStudents.css";
+import {
+  formatSingleTime,
+  formatBatchTimingString,
+} from "../../utils/batchUtils";
 
 /* =====================================================
    COMMON HELPERS
 ===================================================== */
 
-const formatSingleTime = (time) => {
-  if (!time) return "";
-
-  const cleanedTime = time.toString().trim().replace(".", ":");
-  const parts = cleanedTime.split(":");
-
-  let hours = parseInt(parts[0], 10);
-  const minutes = parseInt(parts[1] || "0", 10);
-
-  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-    return time;
-  }
-
-  const period = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12 || 12;
-
-  return `${hours}:${minutes.toString().padStart(2, "0")} ${period}`;
-};
-
-const formatBatchTiming = (timing) => {
-  if (!timing) return "-";
-
-  const value = timing.toString().trim();
-
-  if (value.includes("-")) {
-    const parts = value.split("-");
-
-    if (parts.length === 2) {
-      return `${formatSingleTime(parts[0])} - ${formatSingleTime(parts[1])}`;
-    }
-  }
-
-  if (value.includes(".") && value.includes(":")) {
-    const [startHour, endTime] = value.split(":");
-    const endParts = endTime.split(".");
-
-    if (endParts.length === 2) {
-      const start = `${startHour}:00`;
-      const end = `${endParts[0]}:${endParts[1]}`;
-
-      return `${formatSingleTime(start)} - ${formatSingleTime(end)}`;
-    }
-  }
-
-  return formatSingleTime(value);
-};
 
 const getBatchLabel = (batch) => {
   if (!batch) return "Unnamed Batch";
 
-  const batchTiming =
+  const timing =
     batch.batchTiming ||
     (batch.startTime && batch.endTime
       ? `${batch.startTime} - ${batch.endTime}`
       : "");
 
-  const formattedTiming = formatBatchTiming(batchTiming);
+  const formattedTiming = timing
+    ? formatBatchTimingString(timing)
+    : "";
 
-  if (batch.name && batchTiming) {
+  if (batch.name && formattedTiming) {
     return `${batch.name} (${formattedTiming})`;
   }
 
-  if (batch.code && batchTiming) {
+  if (batch.code && formattedTiming) {
     return `${batch.code} (${formattedTiming})`;
   }
 
   return batch.name || batch.code || formattedTiming || "Unnamed Batch";
 };
+
 
 const getStudentBatchId = (student) => {
   if (!student) return "";
@@ -100,6 +61,7 @@ const getStudentBatchId = (student) => {
   return "";
 };
 
+
 const getStudentBatchDisplay = (student) => {
   if (student.batch) {
     return getBatchLabel(student.batch);
@@ -110,11 +72,12 @@ const getStudentBatchDisplay = (student) => {
   }
 
   if (student.batchTiming) {
-    return formatBatchTiming(student.batchTiming);
+    return formatBatchTimingString(student.batchTiming);
   }
 
   return "-";
 };
+
 
 const isStudentActive = (student) => {
   return (

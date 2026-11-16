@@ -566,16 +566,27 @@
   gap: 12px;
 }
 
+
 .teacher-attendance-page .attendance-save-footer strong {
   color: #16a34a;
   font-size: 13px;
+  font-weight: 700;
 }
 
-.teacher-attendance-page .attendance-save-footer span {
+/* Absent - Red */
+.teacher-attendance-page .attendance-save-footer span:nth-of-type(1) {
   color: #dc2626;
   font-size: 13px;
   font-weight: 700;
 }
+
+/* Leave - Amber */
+.teacher-attendance-page .attendance-save-footer span:nth-of-type(2) {
+  color: #d97706;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 
 .teacher-attendance-page .save-attendance-btn {
   min-height: 42px;

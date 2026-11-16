@@ -492,20 +492,24 @@ const getTeacherDashboard = async (req, res) => {
 
     /* UPCOMING CLASSES */
 
-    const upcomingClasses = batches.map((batch, index) => ({
-      id: index + 1,
-      _id: batch._id,
+    
+const upcomingClasses = batches.map((batch, index) => ({
+  id: index + 1,
+  _id: batch._id,
 
-      time:
-        batch.batchTiming ||
-        `${batch.startTime || ""} ${batch.endTime || ""}`.trim(),
+  // Prefer the actual start and end time fields.
+  time:
+    batch.startTime && batch.endTime
+      ? `${batch.startTime} - ${batch.endTime}`
+      : batch.batchTiming || "",
 
-      title: batch.name || "Scheduled Class",
+  title: batch.name || "Scheduled Class",
 
-      batch: batch.code || batch.name || "",
+  batch: batch.code || batch.name || "",
 
-      status: "Active",
-    }));
+  status: "Active",
+}));
+
 
     return res.status(200).json({
       success: true,

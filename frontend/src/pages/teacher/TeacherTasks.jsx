@@ -17,7 +17,7 @@ import {
 
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
-
+import { getBatchTiming } from "../../utils/batchUtils";
 import "./TeacherTasks.css";
 
 const TeacherTasks = () => {
@@ -105,34 +105,7 @@ const TeacherTasks = () => {
     }
   };
 
-  const formatTimeTo12Hour = (time) => {
-    if (!time) return "";
-
-    const [hours, minutes] = time.trim().split(":");
-
-    let hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-
-    hour = hour % 12;
-    hour = hour || 12;
-
-    return `${hour}:${minutes} ${ampm}`;
-  };
-
-  const formatBatchTiming = (timing) => {
-    if (!timing) return "";
-
-    // Example: "09:00 - 10:30"
-    if (timing.includes("-")) {
-      const [startTime, endTime] = timing.split("-");
-
-      return `${formatTimeTo12Hour(startTime)} - ${formatTimeTo12Hour(
-        endTime
-      )}`;
-    }
-
-    return formatTimeTo12Hour(timing);
-  };
+ 
 
   /* =====================================================
      INITIAL LOAD
@@ -707,15 +680,19 @@ const TeacherTasks = () => {
                   >
                     <option value="">Select Batch Timing</option>
 
-                    {batchTimings.map((batch) => (
-                      <option key={batch._id} value={batch._id}>
-                        {batch.name
-                          ? `${batch.name} (${formatBatchTiming(
-                              batch.batchTiming
-                            )})`
-                          : formatBatchTiming(batch.batchTiming)}
-                      </option>
-                    ))}
+                   
+{batchTimings.map((batch) => {
+  const timing = getBatchTiming(batch);
+
+  return (
+    <option key={batch._id} value={batch._id}>
+      {batch.name && timing !== "-"
+        ? `${batch.name} (${timing})`
+        : batch.name || timing}
+    </option>
+  );
+})}
+
                   </select>
 
                   {batchTimings.length === 0 && (

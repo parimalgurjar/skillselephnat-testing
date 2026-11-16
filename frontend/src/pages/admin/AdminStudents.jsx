@@ -18,7 +18,10 @@ import {
 
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
-
+import {
+  formatSingleTime,
+  formatBatchTimingString,
+} from "../../utils/batchUtils";
 import "./AdminStudents.css";
 
 const initialFormState = {
@@ -36,33 +39,6 @@ const initialFormState = {
    FORMAT TIME TO AM/PM
 ===================================================== */
 
-const formatTimeToAMPM = (time) => {
-  if (!time) return "";
-
-  if (/am|pm/i.test(time)) {
-    return time;
-  }
-
-  const parts = time.split(":");
-
-  if (!parts.length) return time;
-
-  const hours = Number(parts[0]);
-  const minutes = Number(parts[1] || 0);
-
-  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-    return time;
-  }
-
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-
-  return date.toLocaleTimeString("en-IN", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-};
 
 /* =====================================================
    GET DISPLAY BATCH TIMING
@@ -71,26 +47,23 @@ const formatTimeToAMPM = (time) => {
 const getBatchTimingDisplay = (batch) => {
   if (!batch) return "";
 
+  if (batch.displayTiming) {
+    return formatBatchTimingString(batch.displayTiming);
+  }
+
   if (batch.startTime && batch.endTime) {
-    return `${formatTimeToAMPM(
-      batch.startTime
-    )} - ${formatTimeToAMPM(batch.endTime)}`;
+    return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
+      batch.endTime
+    )}`;
   }
 
   if (batch.batchTiming) {
-    const times = batch.batchTiming.split("-");
-
-    if (times.length === 2) {
-      return `${formatTimeToAMPM(
-        times[0].trim()
-      )} - ${formatTimeToAMPM(times[1].trim())}`;
-    }
-
-    return batch.batchTiming;
+    return formatBatchTimingString(batch.batchTiming);
   }
 
   return "";
 };
+
 
 /* =====================================================
    GET BATCH ID SAFELY

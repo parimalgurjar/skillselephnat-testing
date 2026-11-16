@@ -790,12 +790,9 @@ const createTeacherAnnouncement = async (
 module.exports = {
   getAnnouncements,
   getStudentAnnouncements,
-
   getMyAnnouncements,
-
   createAnnouncement,
   createTeacherAnnouncement,
-
   updateAnnouncement,
   deleteAnnouncement,
   togglePinAnnouncement,

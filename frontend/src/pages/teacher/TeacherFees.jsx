@@ -13,7 +13,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-
+import { formatBatchTimingString } from "../../utils/batchUtils";
 import api from "../../services/api";
 import "./TeacherFees.css";
 
@@ -43,20 +43,27 @@ const getBatchId = (student) => {
   return batch ? String(batch) : "";
 };
 
+
 const getBatchLabel = (student) => {
   const batch = student?.batchId;
 
   if (batch && typeof batch === "object") {
-    return (
-      batch.batchTiming ||
-      batch.name ||
-      student.batchTiming ||
-      "Batch not assigned"
-    );
+    const timing = batch.startTime && batch.endTime
+      ? `${batch.startTime} - ${batch.endTime}`
+      : batch.batchTiming || student?.batchTiming;
+
+    if (timing) {
+      return formatBatchTimingString(timing);
+    }
+
+    return batch.name || "Batch not assigned";
   }
 
-  return student?.batchTiming || "Batch not assigned";
+  return student?.batchTiming
+    ? formatBatchTimingString(student.batchTiming)
+    : "Batch not assigned";
 };
+
 
 const getBatchKey = (student) => {
   const batchId = getBatchId(student);

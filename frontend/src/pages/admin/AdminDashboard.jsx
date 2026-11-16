@@ -13,7 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import AlertModal from "../../components/common/AlertModal";
 import Card from "../../components/common/Card";
-
+import { formatBatchTimingString } from "../../utils/batchUtils";
 import {
   getStudents,
   getTeachers,
@@ -346,8 +346,9 @@ const confirmReject = async () => {
 
                       {user.role === "STUDENT"
                         ? `Student • ${
-                            user.batchTiming ||
-                            "No batch selected"
+                           user.batchTiming
+  ? formatBatchTimingString(user.batchTiming)
+  : "No batch selected"
                           }`
                         : `Teacher • ${
                             user.specializations?.length

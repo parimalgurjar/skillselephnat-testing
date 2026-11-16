@@ -15,7 +15,7 @@ import {
    ExternalLink
 
 } from "lucide-react";
-
+import { formatBatchTimingString } from "../../utils/batchUtils";
 import api from "../../services/api";
 
 import "./TeacherTaskReports.css";
@@ -104,19 +104,18 @@ const TeacherTaskReport = () => {
       return student.batch.code;
     }
 
-    if (
-      student.batch?.batchTiming
-    ) {
-      return student.batch.batchTiming;
-    }
+    if (student.batch?.batchTiming) {
+  return formatBatchTimingString(student.batch.batchTiming);
+}
 
+if (student.batchTiming) {
+  return formatBatchTimingString(student.batchTiming);
+}
     if (student.batchName) {
       return student.batchName;
     }
 
-    if (student.batchTiming) {
-      return student.batchTiming;
-    }
+    
 
     return "No Batch";
   };

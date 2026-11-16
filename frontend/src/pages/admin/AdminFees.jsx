@@ -13,7 +13,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-
+import { formatBatchTimingString } from "../../utils/batchUtils";
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import "./AdminFees.css";
@@ -464,7 +464,9 @@ const confirmRestoreAccess = async () => {
                           <strong>{student.name || "Unnamed student"}</strong>
                           <span>{student.email || "No email"}</span>
                           <small>
-                            {student.batchTiming || "Batch not assigned"}
+                            {student.batchTiming
+  ? formatBatchTimingString(student.batchTiming)
+  : "Batch not assigned"}
                           </small>
                         </div>
                       </td>

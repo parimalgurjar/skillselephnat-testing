@@ -15,7 +15,10 @@ import {
   XCircle,
   Clock,
 } from "lucide-react";
-
+import {
+  formatSingleTime,
+  formatBatchTimingString,
+} from "../../utils/batchUtils";
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import "./AdminAttendance.css";
@@ -32,49 +35,28 @@ const AdminAttendance = () => {
     return `${year}-${month}-${day}`;
   };
 
-  /* FORMAT TIME */
-  const formatTimeToAMPM = (time) => {
-    if (!time) return "";
+ 
 
-    const cleanedTime = time.toString().trim().replace(".", ":");
-    const [hours, minutes = "00"] = cleanedTime.split(":");
+/* FORMAT BATCH TIMING */
+const formatBatchTiming = (batch) => {
+  if (!batch) return "";
 
-    let hour = Number(hours);
+  if (batch.displayTiming) {
+    return formatBatchTimingString(batch.displayTiming);
+  }
 
-    if (Number.isNaN(hour)) return time;
+  if (batch.batchTiming) {
+    return formatBatchTimingString(batch.batchTiming);
+  }
 
-    const period = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12;
+  if (batch.startTime && batch.endTime) {
+    return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
+      batch.endTime
+    )}`;
+  }
 
-    return `${hour}:${minutes} ${period}`;
-  };
-
-  /* FORMAT BATCH TIMING */
-  const formatBatchTiming = (batch) => {
-    if (!batch) return "";
-
-    if (batch.displayTiming) {
-      return batch.displayTiming;
-    }
-
-    if (batch.batchTiming) {
-      const parts = batch.batchTiming
-        .split("-")
-        .map((item) => item.trim());
-
-      if (parts.length === 2) {
-        return `${formatTimeToAMPM(parts[0])} - ${formatTimeToAMPM(parts[1])}`;
-      }
-
-      return batch.batchTiming;
-    }
-
-    if (batch.startTime && batch.endTime) {
-      return `${formatTimeToAMPM(batch.startTime)} - ${formatTimeToAMPM(batch.endTime)}`;
-    }
-
-    return "";
-  };
+  return "";
+};
 
   /* GET BATCH LABEL */
   const getBatchLabel = (batch) => {

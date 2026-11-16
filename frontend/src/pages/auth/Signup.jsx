@@ -15,7 +15,7 @@ import {
   Check,
   ChevronDown,
 } from "lucide-react";
-
+import { getBatchTiming } from "../../utils/batchUtils";
 import { registerUser } from "../../services/authApi";
 import { getActiveSpecializations } from "../../services/specializationApi";
 
@@ -493,7 +493,9 @@ const Signup = () => {
                           key={batch._id}
                           value={batch._id}
                         >
-                          {batch.batchTiming}
+                          {getBatchTiming(batch) !== "-"
+  ? getBatchTiming(batch)
+  : "Timing not set"}
 
                           {batch.name
                             ? ` (${batch.name})`

@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import AlertModal from "../../components/common/AlertModal";
 import { getDoubts } from "../../services/doubtApi";
-
+import { formatBatchTimingString } from "../../utils/batchUtils";
 import "./TeacherDoubts.css";
 
 const TeacherDoubts = () => {
@@ -189,8 +189,9 @@ const [alertModal, setAlertModal] = useState({
                   </strong>
 
                   <span>
-                    {doubt.studentId?.batchTiming ||
-                      "Student"}
+                   {doubt.studentId?.batchTiming
+  ? formatBatchTimingString(doubt.studentId.batchTiming)
+  : "Student"}
                   </span>
                 </div>
               </div>

@@ -12,7 +12,10 @@ import {
   X,
   Send,
 } from "lucide-react";
-
+import {
+  formatSingleTime,
+  formatBatchTimingString,
+} from "../../utils/batchUtils";
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import "./TeacherAnnouncements.css";
@@ -78,98 +81,27 @@ const [alert, setAlert] = useState({
      FORMAT SINGLE TIME
   ===================================================== */
 
-  const formatSingleTime = (
-    time
-  ) => {
-    if (!time) return "";
+ 
+/* =====================================================
+   FORMAT BATCH TIMING
+===================================================== */
 
-    const cleanedTime =
-      time
-        .toString()
-        .trim()
-        .replace(".", ":");
+const formatBatchTiming = (batch) => {
+  if (!batch) return "";
 
-    const parts =
-      cleanedTime.split(":");
-
-    let hours =
-      parseInt(parts[0], 10);
-
-    const minutes =
-      parseInt(
-        parts[1] || "0",
-        10
-      );
-
-    if (
-      Number.isNaN(hours) ||
-      Number.isNaN(minutes)
-    ) {
-      return time;
-    }
-
-    const period =
-      hours >= 12
-        ? "PM"
-        : "AM";
-
-    hours =
-      hours % 12 || 12;
-
-    return `${hours}:${minutes
-      .toString()
-      .padStart(2, "0")} ${period}`;
-  };
-
-  /* =====================================================
-     FORMAT BATCH TIMING
-
-     SINGLE SOURCE OF DISPLAY:
-     Batch.startTime + Batch.endTime
-
-     batchTiming only fallback.
-  ===================================================== */
-
-  const formatBatchTiming = (
-    batch
-  ) => {
-    if (!batch) return "";
-
-    if (
-      batch.startTime &&
+  if (batch.startTime && batch.endTime) {
+    return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
       batch.endTime
-    ) {
-      return `${formatSingleTime(
-        batch.startTime
-      )} - ${formatSingleTime(
-        batch.endTime
-      )}`;
-    }
+    )}`;
+  }
 
-    if (batch.batchTiming) {
-      const value =
-        batch.batchTiming
-          .toString()
-          .trim();
+  if (batch.batchTiming) {
+    return formatBatchTimingString(batch.batchTiming);
+  }
 
-      if (value.includes("-")) {
-        const parts =
-          value.split("-");
+  return "";
+};
 
-        if (parts.length === 2) {
-          return `${formatSingleTime(
-            parts[0]
-          )} - ${formatSingleTime(
-            parts[1]
-          )}`;
-        }
-      }
-
-      return value;
-    }
-
-    return "";
-  };
 
   /* =====================================================
      BATCH LABEL
