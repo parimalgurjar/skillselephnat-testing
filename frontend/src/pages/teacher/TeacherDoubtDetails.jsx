@@ -23,7 +23,7 @@ import {
 } from "../../services/doubtApi";
 import AlertModal from "../../components/common/AlertModal";
 import "./TeacherDoubtDetails.css";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 const TeacherDoubtDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -356,9 +356,11 @@ const confirmResolve = async () => {
 
         <div className="teacher-doubt-student-info">
 
-          <div className="teacher-detail-avatar">
-            <User size={20} />
-          </div>
+          <ProfileAvatar
+  user={doubt.studentId}
+  size={44}
+  className="teacher-detail-avatar"
+/>
 
           <div>
             <strong>

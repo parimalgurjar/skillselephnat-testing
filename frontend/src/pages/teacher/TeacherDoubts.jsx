@@ -13,7 +13,7 @@ import AlertModal from "../../components/common/AlertModal";
 import { getDoubts } from "../../services/doubtApi";
 import { formatBatchTimingString } from "../../utils/batchUtils";
 import "./TeacherDoubts.css";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 const TeacherDoubts = () => {
   const navigate = useNavigate();
 
@@ -260,11 +260,11 @@ const TeacherDoubts = () => {
               <p>{doubt.description}</p>
 
               <div className="teacher-doubt-student">
-                <div className="teacher-student-avatar">
-                  {doubt.studentId?.name
-                    ?.charAt(0)
-                    ?.toUpperCase() || "S"}
-                </div>
+                <ProfileAvatar
+  user={doubt.studentId}
+  size={40}
+  className="teacher-student-avatar"
+/>
 
                 <div>
                   <strong>

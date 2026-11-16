@@ -10,6 +10,7 @@ import {
   ClipboardList,
   Loader2,
 } from "lucide-react";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 import api from "../../services/api";
 import "./TeacherTaskSubmissions.css";
 import AlertModal from "../../components/common/AlertModal";
@@ -186,9 +187,11 @@ const [alert, setAlert] = useState({
             return (
               <div className="submission-card" key={submission._id}>
                 <div className="submission-student">
-                  <div className="student-avatar">
-                    {student?.name?.charAt(0)?.toUpperCase() || "S"}
-                  </div>
+                 <ProfileAvatar
+  user={student}
+  size={42}
+  className="student-avatar"
+/>
 
                   <div>
                     <h3>{student?.name || "Student"}</h3>

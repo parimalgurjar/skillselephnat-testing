@@ -431,10 +431,10 @@ const getAttendance = async (
 
     const attendanceRecords =
       await Attendance.find(filter)
-        .populate({
-          path: "studentId",
-          select:
-            "name email phone batchId batchTiming",
+       .populate({
+  path: "studentId",
+  select:
+    "name email phone avatar batchId batchTiming",
           populate: {
             path: "batchId",
             select:
@@ -497,22 +497,25 @@ const getAttendance = async (
           return {
             _id: record._id,
 
-            student:
-              record.studentId
-                ? {
-                    _id:
-                      record.studentId._id,
+          student:
+  record.studentId
+    ? {
+        _id:
+          record.studentId._id,
 
-                    name:
-                      record.studentId.name,
+        name:
+          record.studentId.name,
 
-                    email:
-                      record.studentId.email,
+        email:
+          record.studentId.email,
 
-                    phone:
-                      record.studentId.phone,
-                  }
-                : null,
+        phone:
+          record.studentId.phone,
+
+        avatar:
+          record.studentId.avatar || "",
+      }
+    : null,
 
             batch: batch
               ? {

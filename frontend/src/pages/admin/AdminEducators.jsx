@@ -10,7 +10,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import { getActiveSpecializations } from "../../services/specializationApi";
@@ -489,9 +489,11 @@ const AdminEducators = () => {
 
                     <td>
                       <div className="admin-educator-profile">
-                        <div className="admin-educator-avatar">
-                          {educator.name?.charAt(0)?.toUpperCase()}
-                        </div>
+                        <ProfileAvatar
+  user={educator}
+  size={40}
+  className="admin-educator-avatar"
+/>
 
                         <div>
                           <strong>{educator.name}</strong>

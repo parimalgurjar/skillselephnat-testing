@@ -188,11 +188,20 @@ const menuItems = allMenuItems.filter(
               <span>EDUCATOR</span>
             </div>
 
-            <ProfileAvatar
-  user={user}
-  size={42}
-  className="teacher-avatar"
-/>
+      <button
+  type="button"
+  className="profile-avatar-button"
+  onClick={() => navigate("/teacher/profile")}
+  aria-label="Open teacher profile"
+  title="My Profile"
+>
+  <ProfileAvatar
+    user={user}
+    size={42}
+    className="teacher-avatar"
+  />
+</button>
+ 
           </div>
         </header>
 

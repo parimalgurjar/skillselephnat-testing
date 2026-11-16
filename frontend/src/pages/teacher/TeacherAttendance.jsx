@@ -11,7 +11,7 @@ import {
   Clock,
   Eye,
 } from "lucide-react";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 import api from "../../services/api";
 import "./TeacherAttendance.css";
 import {
@@ -657,9 +657,11 @@ const getBatchLabel = (batch) => {
                   <tr key={student._id}>
                     <td>
                       <div className="attendance-student-info">
-                        <div className="attendance-student-avatar">
-                          {student.initials}
-                        </div>
+                        <ProfileAvatar
+  user={student}
+  size={40}
+  className="attendance-student-avatar"
+/>
 
                         <div>
                           <strong>{student.name}</strong>

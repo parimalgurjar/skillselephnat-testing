@@ -56,14 +56,14 @@ const getConversationMessages = async (req, res) => {
     const notificationReadThrough = new Date().toISOString();
 
     await doubt.populate(
-      "replies.senderId",
-      "name email role"
-    );
+  "replies.senderId",
+  "name email role avatar"
+);
 
     const currentMessages = await DoubtMessage.find({
       doubtId: id,
     })
-      .populate("senderId", "name email role")
+      .populate("senderId", "name email role avatar")
       .sort({ createdAt: 1, _id: 1 })
       .lean();
 
@@ -216,7 +216,10 @@ if (file.mimetype.startsWith("image/")) {
       await doubt.save();
     }
 
-        await newMessage.populate("senderId", "name email role");
+        await newMessage.populate(
+  "senderId",
+  "name email role avatar"
+);
 
     await notify("DOUBT_MESSAGE", {
       actor: req.user._id,

@@ -17,7 +17,7 @@ import {
 import { formatBatchTimingString } from "../../utils/batchUtils";
 import api from "../../services/api";
 import "./TeacherTaskReports.css";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 const TeacherTaskReport = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -424,11 +424,11 @@ const TeacherTaskReport = () => {
 
             <div className="student-detail-header">
               <div className="student-detail-profile">
-                <div className="student-detail-avatar">
-                  {studentReport.student?.name
-                    ?.charAt(0)
-                    ?.toUpperCase() || "S"}
-                </div>
+              <ProfileAvatar
+  user={studentReport.student}
+  size={64}
+  className="student-detail-avatar"
+/>
 
                 <div>
                   <span>STUDENT TASK REPORT</span>
@@ -902,11 +902,11 @@ const TeacherTaskReport = () => {
                 key={student._id}
               >
                 <div className="teacher-student-report-info">
-                  <div className="teacher-student-avatar">
-                    {student.name
-                      ?.charAt(0)
-                      ?.toUpperCase() || "S"}
-                  </div>
+                  <ProfileAvatar
+  user={student}
+  size={40}
+  className="teacher-student-avatar"
+/>
 
                   <div>
                     <h3>{student.name}</h3>

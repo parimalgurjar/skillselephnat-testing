@@ -15,7 +15,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import {
@@ -871,11 +871,11 @@ const AdminStudents = () => {
                       <td>
                         <div className="admin-student-profile">
 
-                          <div className="admin-student-avatar">
-                            {student.name
-                              ?.charAt(0)
-                              ?.toUpperCase() || "S"}
-                          </div>
+                          <ProfileAvatar
+  user={student}
+  size={42}
+  className="admin-student-avatar"
+/>
 
                           <div>
                             <strong>{student.name}</strong>

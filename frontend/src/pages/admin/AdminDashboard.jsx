@@ -23,6 +23,7 @@ import {
 } from "../../services/adminApi";
 
 import api from "../../services/api";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 
 import "./AdminDashboard.css";
 import {
@@ -332,9 +333,11 @@ const confirmReject = async () => {
 
                 <div className="pending-user-info">
 
-                  <div className="pending-user-avatar">
-                    {user.name?.charAt(0)}
-                  </div>
+                 <ProfileAvatar
+  user={user}
+  size={46}
+  className="pending-user-avatar"
+/>
 
                   <div>
 

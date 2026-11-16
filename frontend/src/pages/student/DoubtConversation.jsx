@@ -21,7 +21,7 @@ import {
   getConversationMessages,
   sendDoubtMessage,
 } from "../../services/doubtApi";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 import { useAuth } from "../../context/AuthContext";
 import AlertModal from "../../components/common/AlertModal";
 import "./DoubtConversation.css";
@@ -283,18 +283,23 @@ const [audioBusy, setAudioBusy] = useState(false);
 
         <div className="conversation-meta">
 
-          <div className="conversation-teacher">
-            <User size={16} />
+         <div className="conversation-teacher">
+  {doubt.assignedTeacher && (
+    <ProfileAvatar
+      user={doubt.assignedTeacher}
+      size={32}
+    />
+  )}
 
-            <span>
-              Assigned Teacher:
-              <strong>
-                {" "}
-                {doubt.assignedTeacher?.name ||
-                  "Not assigned"}
-              </strong>
-            </span>
-          </div>
+  <span>
+    Assigned Teacher:
+    <strong>
+      {" "}
+      {doubt.assignedTeacher?.name ||
+        "Not assigned"}
+    </strong>
+  </span>
+</div>
 
           <span>
             {new Date(
@@ -325,11 +330,11 @@ const [audioBusy, setAudioBusy] = useState(false);
           {/* ORIGINAL DOUBT MESSAGE */}
 
           <div className="conversation-message se-chat-outgoing">
-            <div className="message-avatar">
-              {doubt.studentId?.name
-                ?.charAt(0)
-                ?.toUpperCase() || "S"}
-            </div>
+           <ProfileAvatar
+  user={doubt.studentId}
+  size={36}
+  className="message-avatar"
+/>
 
             <div className="message-content">
               <div className="message-user">
@@ -387,11 +392,18 @@ const isCurrentUser =
     : "se-chat-incoming"
 }`}
               >
-                <div className="message-avatar">
-                  {senderName
-                    .charAt(0)
-                    .toUpperCase()}
-                </div>
+               <ProfileAvatar
+  user={
+    item.senderId &&
+    typeof item.senderId === "object"
+      ? item.senderId
+      : isCurrentUser
+      ? user
+      : { name: senderName }
+  }
+  size={36}
+  className="message-avatar"
+/>
 
                 <div className="message-content">
                   <div className="message-user">

@@ -242,8 +242,8 @@ const getTeacherStudentOverview = async (teacherId) => {
         ],
       })
         .select(
-          "_id name email phone batchId batchTiming isActive status studentId"
-        )
+  "_id name email phone avatar batchId batchTiming isActive status studentId"
+)
         .sort({ name: 1 })
         .lean()
     : [];

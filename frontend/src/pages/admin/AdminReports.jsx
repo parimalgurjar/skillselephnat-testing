@@ -15,7 +15,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-
+import { formatBatchTimingString } from "../../utils/batchUtils";
 import api from "../../services/api";
 
 import "./AdminReports.css";
@@ -650,7 +650,7 @@ const AdminReports = () => {
 
                               <span className="batch-timing">
 
-                                {batch.batchTiming}
+                                {formatBatchTimingString(batch.batchTiming)}
 
                               </span>
 

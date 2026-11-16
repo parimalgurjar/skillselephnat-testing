@@ -1,3 +1,4 @@
+
 const Doubt = require("../models/Doubt");
 const User = require("../models/User");
 const mongoose = require("mongoose");
@@ -19,12 +20,7 @@ const escapeRegex = (text) => {
 
 const createDoubt = async (req, res) => {
   try {
-    const {
-      topic,
-      title,
-      description,
-      attachments,
-    } = req.body;
+    const { topic, title, description, attachments } = req.body;
 
     if (
       typeof topic !== "string" ||
@@ -45,8 +41,6 @@ const createDoubt = async (req, res) => {
     const cleanedTitle = title.trim();
     const cleanedDescription = description.trim();
 
-    /* FIND ASSIGNED TEACHER */
-
     const topicRegex = new RegExp(
       escapeRegex(cleanedTopic),
       "i"
@@ -66,12 +60,9 @@ const createDoubt = async (req, res) => {
     if (!assignedTeacher) {
       return res.status(404).json({
         success: false,
-        message:
-          "No active teacher is assigned to this topic",
+        message: "No active teacher is assigned to this topic",
       });
     }
-
-    /* PREPARE ATTACHMENTS */
 
     const uploadedAttachments = Array.isArray(attachments)
       ? [...attachments]
@@ -89,8 +80,6 @@ const createDoubt = async (req, res) => {
       uploadedAttachments.push(uploadedFile.secure_url);
     }
 
-    /* CREATE DOUBT */
-
     const doubt = await Doubt.create({
       studentId: req.user._id,
       topic: cleanedTopic,
@@ -100,14 +89,15 @@ const createDoubt = async (req, res) => {
       assignedTeacher: assignedTeacher._id,
       status: "PENDING",
     });
+
     await notify("DOUBT_CREATED", {
       actor: req.user._id,
       entity: doubt,
     });
+
     return res.status(201).json({
       success: true,
-      message:
-        "Doubt submitted successfully and assigned to teacher",
+      message: "Doubt submitted successfully and assigned to teacher",
       doubt,
     });
   } catch (error) {
@@ -134,27 +124,33 @@ const getDoubts = async (req, res) => {
       })
         .populate(
           "assignedTeacher",
-          "name email specializations"
+          "name email avatar specializations"
         )
         .sort({ createdAt: -1 });
+
     } else if (req.user.role === "TEACHER") {
       doubts = await Doubt.find({
         assignedTeacher: req.user._id,
       })
         .populate(
           "studentId",
-          "name email phone batchTiming"
+          "name email phone avatar batchTiming"
+        )
+        .populate(
+          "assignedTeacher",
+          "name email avatar specializations"
         )
         .sort({ createdAt: -1 });
+
     } else if (req.user.role === "ADMIN") {
       doubts = await Doubt.find()
         .populate(
           "studentId",
-          "name email phone batchTiming"
+          "name email phone avatar batchTiming"
         )
         .populate(
           "assignedTeacher",
-          "name email specializations"
+          "name email avatar specializations"
         )
         .sort({ createdAt: -1 });
     }
@@ -190,15 +186,15 @@ const getDoubtById = async (req, res) => {
     const doubt = await Doubt.findById(req.params.id)
       .populate(
         "studentId",
-        "name email phone batchTiming"
+        "name email phone avatar batchTiming"
       )
       .populate(
         "assignedTeacher",
-        "name email specializations"
+        "name email avatar specializations"
       )
       .populate(
         "replies.senderId",
-        "name email role"
+        "name email role avatar"
       );
 
     if (!doubt) {
@@ -222,13 +218,11 @@ const getDoubtById = async (req, res) => {
     if (
       req.user.role === "STUDENT" &&
       (!doubt.studentId ||
-        doubt.studentId._id.toString() !==
-          req.user._id.toString())
+        doubt.studentId._id.toString() !== req.user._id.toString())
     ) {
       return res.status(403).json({
         success: false,
-        message:
-          "You are not authorized to access this doubt",
+        message: "You are not authorized to access this doubt",
       });
     }
 
@@ -237,13 +231,11 @@ const getDoubtById = async (req, res) => {
     if (
       req.user.role === "TEACHER" &&
       (!doubt.assignedTeacher ||
-        doubt.assignedTeacher._id.toString() !==
-          req.user._id.toString())
+        doubt.assignedTeacher._id.toString() !== req.user._id.toString())
     ) {
       return res.status(403).json({
         success: false,
-        message:
-          "You are not authorized to access this doubt",
+        message: "You are not authorized to access this doubt",
       });
     }
 
@@ -277,10 +269,7 @@ const addDoubtReply = async (req, res) => {
       });
     }
 
-    if (
-      typeof message !== "string" ||
-      !message.trim()
-    ) {
+    if (typeof message !== "string" || !message.trim()) {
       return res.status(400).json({
         success: false,
         message: "Reply message is required",
@@ -301,13 +290,11 @@ const addDoubtReply = async (req, res) => {
     if (
       req.user.role === "STUDENT" &&
       (!doubt.studentId ||
-        doubt.studentId.toString() !==
-          req.user._id.toString())
+        doubt.studentId.toString() !== req.user._id.toString())
     ) {
       return res.status(403).json({
         success: false,
-        message:
-          "You are not authorized to reply to this doubt",
+        message: "You are not authorized to reply to this doubt",
       });
     }
 
@@ -316,13 +303,11 @@ const addDoubtReply = async (req, res) => {
     if (
       req.user.role === "TEACHER" &&
       (!doubt.assignedTeacher ||
-        doubt.assignedTeacher.toString() !==
-          req.user._id.toString())
+        doubt.assignedTeacher.toString() !== req.user._id.toString())
     ) {
       return res.status(403).json({
         success: false,
-        message:
-          "You are not authorized to reply to this doubt",
+        message: "You are not authorized to reply to this doubt",
       });
     }
 
@@ -331,8 +316,7 @@ const addDoubtReply = async (req, res) => {
     if (doubt.status === "RESOLVED") {
       return res.status(400).json({
         success: false,
-        message:
-          "Resolved doubts cannot receive new messages",
+        message: "Resolved doubts cannot receive new messages",
       });
     }
 
@@ -350,7 +334,7 @@ const addDoubtReply = async (req, res) => {
       doubt.status = "IN_PROGRESS";
     }
 
-        await doubt.save();
+    await doubt.save();
 
     const latestReply = doubt.replies[doubt.replies.length - 1];
 
@@ -402,13 +386,11 @@ const resolveDoubt = async (req, res) => {
 
     if (
       !doubt.assignedTeacher ||
-      doubt.assignedTeacher.toString() !==
-        req.user._id.toString()
+      doubt.assignedTeacher.toString() !== req.user._id.toString()
     ) {
       return res.status(403).json({
         success: false,
-        message:
-          "You are not authorized to resolve this doubt",
+        message: "You are not authorized to resolve this doubt",
       });
     }
 
@@ -419,7 +401,7 @@ const resolveDoubt = async (req, res) => {
       });
     }
 
-        doubt.status = "RESOLVED";
+    doubt.status = "RESOLVED";
     doubt.resolvedAt = new Date();
 
     await doubt.save();

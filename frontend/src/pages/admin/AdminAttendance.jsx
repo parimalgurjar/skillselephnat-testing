@@ -22,7 +22,7 @@ import {
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import "./AdminAttendance.css";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 const AdminAttendance = () => {
   /* GET TODAY DATE */
   const getTodayDate = () => {
@@ -676,11 +676,11 @@ const formatBatchTiming = (batch) => {
                       {/* STUDENT */}
                       <td>
                         <div className="attendance-student-profile">
-                          <div className="attendance-avatar">
-                            {record.student?.name
-                              ?.charAt(0)
-                              ?.toUpperCase() || "S"}
-                          </div>
+                          <ProfileAvatar
+  user={record.student}
+  size={39}
+  className="attendance-avatar"
+/>
 
                           <div>
                             <strong>

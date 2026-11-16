@@ -221,11 +221,19 @@ const AdminLayout = () => {
               <span>ADMIN</span>
             </div>
 
-            <ProfileAvatar
-  user={user}
-  size={42}
-  className="admin-avatar"
-/>
+       <button
+  type="button"
+  className="profile-avatar-button"
+  onClick={() => navigate("/admin/profile")}
+  aria-label="Open admin profile"
+  title="My Profile"
+>
+  <ProfileAvatar
+    user={user}
+    size={42}
+    className="admin-avatar"
+  />
+</button>
           </div>
         </header>
 

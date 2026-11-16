@@ -19,7 +19,7 @@ UserCheck,
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import "./AdminTaskReport.css";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 const AdminTaskReport = () => {
   /* =====================================================
      STATE
@@ -1100,13 +1100,11 @@ const handleDeleteTask = async (task) => {
                 />
 
 
-                <div className="reviewer-avatar">
-
-                  {teacher.name
-                    ?.charAt(0)
-                    ?.toUpperCase() || "T"}
-
-                </div>
+               <ProfileAvatar
+  user={teacher}
+  size={36}
+  className="reviewer-avatar"
+/>
 
 
                 <div className="reviewer-info">

@@ -500,9 +500,9 @@ const task =
       "name code batchTiming startTime endTime"
     )
     .populate(
-      "submissions.studentId",
-      "name email batchId batchTiming"
-    )
+  "submissions.studentId",
+  "name email avatar batchId batchTiming"
+)
     .populate(
       "submissions.reviewedBy",
       "name email"

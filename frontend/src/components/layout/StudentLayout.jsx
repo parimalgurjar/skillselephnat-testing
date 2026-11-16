@@ -206,17 +206,25 @@ const StudentLayout = () => {
                         <NotificationBell />
 
             <div className="student-profile">
-              <ProfileAvatar
-  user={user}
-  size={42}
-  className="student-avatar"
-/>
+  <button
+    type="button"
+    className="profile-avatar-button"
+    onClick={() => navigate("/student/profile")}
+    aria-label="Open student profile"
+    title="My Profile"
+  >
+    <ProfileAvatar
+      user={user}
+      size={42}
+      className="student-avatar"
+    />
+  </button>
 
-              <div>
-                <strong>{studentName}</strong>
-                <span>STUDENT</span>
-              </div>
-            </div>
+  <div>
+    <strong>{studentName}</strong>
+    <span>STUDENT</span>
+  </div>
+</div>
           </div>
         </header>
 

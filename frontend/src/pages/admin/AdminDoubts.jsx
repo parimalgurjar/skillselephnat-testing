@@ -11,7 +11,7 @@ import {
 import { getDoubts } from "../../services/doubtApi";
 import AlertModal from "../../components/common/AlertModal";
 import "./AdminDoubts.css";
-
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 const AdminDoubts = () => {
   const [doubts, setDoubts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -279,11 +279,11 @@ const AdminDoubts = () => {
 
                     <td>
                       <div className="admin-person">
-                        <div className="admin-avatar student-avatar">
-                          {doubt.studentId?.name
-                            ?.charAt(0)
-                            ?.toUpperCase() || "S"}
-                        </div>
+                       <ProfileAvatar
+  user={doubt.studentId}
+  size={40}
+  className="admin-avatar student-avatar"
+/>
 
                         <div>
                           <strong>
@@ -324,11 +324,11 @@ const AdminDoubts = () => {
                     <td>
                       {doubt.assignedTeacher ? (
                         <div className="admin-person">
-                          <div className="admin-avatar teacher-avatar">
-                            {doubt.assignedTeacher?.name
-                              ?.charAt(0)
-                              ?.toUpperCase() || "T"}
-                          </div>
+                          <ProfileAvatar
+  user={doubt.assignedTeacher}
+  size={40}
+  className="admin-avatar teacher-avatar"
+/>
 
                           <div>
                             <strong>

@@ -8,6 +8,7 @@ import {
   formatSingleTime,
   formatBatchTimingString,
 } from "../../utils/batchUtils";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 
 /* =====================================================
    COMMON HELPERS
@@ -541,9 +542,11 @@ const getStudentId = (student) => {
                       <td>
                         <div className="student-table-profile">
 
-                          <div className="student-table-avatar">
-                            {student.name?.charAt(0)?.toUpperCase() || "S"}
-                          </div>
+                          <ProfileAvatar
+  user={student}
+  size={40}
+  className="student-table-avatar"
+/>
 
                           <div>
                             <strong>
