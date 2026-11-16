@@ -1198,3 +1198,256 @@
     overflow-wrap: anywhere;
   }
 }
+
+
+/* PREMIUM CLICKABLE TASK REPORT SUMMARY CARDS */
+
+.teacher-task-report-page .teacher-report-summary-card {
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.teacher-task-report-page .teacher-report-summary-card::after {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  right: -30px;
+  bottom: -40px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.06;
+}
+
+.teacher-task-report-page .summary-blue {
+  background: linear-gradient(135deg, #eef2ff, #ffffff);
+  border-color: #c7d2fe;
+  color: #3730a3;
+}
+
+.teacher-task-report-page .summary-green {
+  background: linear-gradient(135deg, #ecfdf5, #ffffff);
+  border-color: #a7f3d0;
+  color: #047857;
+}
+
+.teacher-task-report-page .summary-yellow {
+  background: linear-gradient(135deg, #fffbeb, #ffffff);
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.teacher-task-report-page .teacher-report-summary-card h2 {
+  color: #011451;
+  font-weight: 800;
+}
+
+.teacher-task-report-page .teacher-report-summary-card small {
+  display: block;
+  margin-top: 7px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.teacher-task-report-page .teacher-report-summary-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(1, 20, 81, 0.09);
+}
+
+.teacher-task-report-page .teacher-report-summary-card.selected {
+  border: 2px solid currentColor;
+  box-shadow: 0 8px 22px rgba(1, 20, 81, 0.10);
+}
+
+.teacher-task-report-page .teacher-report-summary-card:focus-visible {
+  outline: 3px solid #f6af1d;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   CLEAN PROFESSIONAL SUMMARY CARDS
+========================================== */
+
+.teacher-task-report-page .teacher-report-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 24px 0 28px;
+}
+
+.teacher-task-report-page .teacher-report-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 112px;
+  padding: 20px 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.teacher-task-report-page .teacher-report-summary-card::after {
+  display: none;
+}
+
+.teacher-task-report-page .teacher-report-summary-card.summary-blue {
+  border-left: 4px solid #4169e1;
+}
+
+.teacher-task-report-page .teacher-report-summary-card.summary-green {
+  border-left: 4px solid #16a36a;
+}
+
+.teacher-task-report-page .teacher-report-summary-card.summary-yellow {
+  border-left: 4px solid #e6a008;
+}
+
+.teacher-task-report-page .teacher-summary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: 11px;
+}
+
+.teacher-task-report-page .teacher-summary-icon.blue {
+  background: #eef2ff;
+  color: #3657c8;
+}
+
+.teacher-task-report-page .teacher-summary-icon.green {
+  background: #ecfdf3;
+  color: #168653;
+}
+
+.teacher-task-report-page .teacher-summary-icon.yellow {
+  background: #fff8e7;
+  color: #c18408;
+}
+
+.teacher-task-report-page .teacher-report-summary-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+}
+
+.teacher-task-report-page .teacher-report-summary-card span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.teacher-task-report-page .teacher-report-summary-card h2 {
+  margin: 2px 0;
+  color: #011451;
+  font-size: 28px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.teacher-task-report-page .teacher-report-summary-card small {
+  margin-top: 2px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.teacher-task-report-page .teacher-report-summary-card:hover {
+  border-color: #a5b4fc;
+  box-shadow: 0 5px 16px rgba(1, 20, 81, 0.06);
+  transform: none;
+}
+
+.teacher-task-report-page .teacher-report-summary-card.selected {
+  border-color: #011451;
+  box-shadow: 0 0 0 1px #011451;
+  background: #f8faff;
+}
+
+.teacher-task-report-page .teacher-report-summary-card:focus-visible {
+  outline: 2px solid #f6af1d;
+  outline-offset: 3px;
+}
+
+@media (max-width: 650px) {
+  .teacher-task-report-page .teacher-report-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .teacher-task-report-page .teacher-report-summary-card {
+    min-height: 95px;
+    padding: 16px;
+  }
+}
+
+/* Pending Review - match other card borders */
+
+.teacher-task-report-page
+.teacher-report-summary-card.summary-yellow {
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #e6a008;
+}
+
+.teacher-task-report-page
+.teacher-report-summary-card.summary-yellow.selected {
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #e6a008;
+  box-shadow: 0 5px 16px rgba(1, 20, 81, 0.06);
+  background: #ffffff;
+}
+
+/* Student detail clickable summary cards */
+
+.student-detail-stats-grid .student-detail-stat {
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.student-detail-stats-grid .total-stat {
+  background: #f1f5ff;
+  border-color: #dbe5ff;
+}
+
+.student-detail-stats-grid .completed-stat {
+  background: #effaf3;
+  border-color: #ccebd7;
+}
+
+.student-detail-stats-grid .pending-stat {
+  background: #fff8e9;
+  border-color: #f5e4b8;
+}
+
+.student-detail-stats-grid .rejected-stat {
+  background: #fff1f1;
+  border-color: #f4d3d3;
+}
+
+.student-detail-stats-grid .student-detail-stat.selected {
+  border-color: #011451;
+  box-shadow: 0 0 0 1px #011451;
+}
+
+.student-detail-stats-grid .student-detail-stat:hover {
+  box-shadow: 0 4px 12px rgba(1, 20, 81, 0.07);
+}
+
+.student-detail-stats-grid .student-detail-stat:focus-visible {
+  outline: 2px solid #f6af1d;
+  outline-offset: 3px;
+}

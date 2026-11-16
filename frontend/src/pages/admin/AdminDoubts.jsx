@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   CircleHelp,
@@ -5,8 +6,6 @@ import {
   CheckCircle2,
   MessageSquare,
   Search,
-  User,
-  GraduationCap,
 } from "lucide-react";
 
 import { getDoubts } from "../../services/doubtApi";
@@ -17,12 +16,15 @@ const AdminDoubts = () => {
   const [doubts, setDoubts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-const [alert, setAlert] = useState({
-  isOpen: false,
-  type: "info",
-  title: "",
-  message: "",
-});
+  const [activeFilter, setActiveFilter] = useState("ALL");
+
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+
   const fetchDoubts = async () => {
     try {
       setLoading(true);
@@ -35,14 +37,13 @@ const [alert, setAlert] = useState({
     } catch (error) {
       console.error(error);
 
-     setAlert({
-  isOpen: true,
-  type: "error",
-  title: "Loading Failed",
-  message:
-    error.message ||
-    "Unable to fetch student doubts",
-});
+      setAlert({
+        isOpen: true,
+        type: "error",
+        title: "Loading Failed",
+        message:
+          error.message || "Unable to fetch student doubts",
+      });
     } finally {
       setLoading(false);
     }
@@ -56,29 +57,12 @@ const [alert, setAlert] = useState({
     switch (status) {
       case "RESOLVED":
         return "resolved";
-
       case "IN_PROGRESS":
         return "progress";
-
       default:
         return "pending";
     }
   };
-
-  const filteredDoubts = doubts.filter((doubt) => {
-    const searchValue = search.toLowerCase();
-
-    return (
-      doubt.title?.toLowerCase().includes(searchValue) ||
-      doubt.topic?.toLowerCase().includes(searchValue) ||
-      doubt.studentId?.name
-        ?.toLowerCase()
-        .includes(searchValue) ||
-      doubt.assignedTeacher?.name
-        ?.toLowerCase()
-        .includes(searchValue)
-    );
-  });
 
   const pendingCount = doubts.filter(
     (doubt) => doubt.status === "PENDING"
@@ -92,9 +76,39 @@ const [alert, setAlert] = useState({
     (doubt) => doubt.status === "RESOLVED"
   ).length;
 
+  const filteredDoubts = doubts.filter((doubt) => {
+    const searchValue = search.toLowerCase().trim();
+
+    const matchesSearch =
+      doubt.title?.toLowerCase().includes(searchValue) ||
+      doubt.topic?.toLowerCase().includes(searchValue) ||
+      doubt.studentId?.name?.toLowerCase().includes(searchValue) ||
+      doubt.studentId?.email?.toLowerCase().includes(searchValue) ||
+      doubt.assignedTeacher?.name?.toLowerCase().includes(searchValue);
+
+    const matchesFilter =
+      activeFilter === "ALL" ||
+      doubt.status === activeFilter;
+
+    return matchesSearch && matchesFilter;
+  });
+
+  const sectionTitle = {
+    ALL: "All Student Doubts",
+    PENDING: "Pending Doubts",
+    IN_PROGRESS: "In Progress Doubts",
+    RESOLVED: "Resolved Doubts",
+  };
+
+  const sectionDescription = {
+    ALL: "View doubts, assigned teachers and resolution status.",
+    PENDING: "Showing student doubts waiting for a response.",
+    IN_PROGRESS: "Showing doubts currently being handled by teachers.",
+    RESOLVED: "Showing doubts that have been resolved.",
+  };
+
   return (
     <div className="admin-doubts-page">
-
       {/* HEADER */}
 
       <div className="admin-doubts-header">
@@ -106,17 +120,22 @@ const [alert, setAlert] = useState({
           <h1>Student Doubts</h1>
 
           <p>
-            Monitor student doubts and track teacher
-            responses.
+            Monitor student doubts and track teacher responses.
           </p>
         </div>
       </div>
 
-      {/* STATS */}
+      {/* CLICKABLE STATS */}
 
       <div className="admin-doubt-stats">
-
-        <div className="admin-doubt-stat-card">
+        <button
+          type="button"
+          className={`admin-doubt-stat-card clickable total ${
+            activeFilter === "ALL" ? "selected" : ""
+          }`}
+          onClick={() => setActiveFilter("ALL")}
+          aria-pressed={activeFilter === "ALL"}
+        >
           <div className="admin-stat-icon total">
             <CircleHelp size={22} />
           </div>
@@ -125,9 +144,16 @@ const [alert, setAlert] = useState({
             <span>Total Doubts</span>
             <strong>{doubts.length}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="admin-doubt-stat-card">
+        <button
+          type="button"
+          className={`admin-doubt-stat-card clickable pending ${
+            activeFilter === "PENDING" ? "selected" : ""
+          }`}
+          onClick={() => setActiveFilter("PENDING")}
+          aria-pressed={activeFilter === "PENDING"}
+        >
           <div className="admin-stat-icon pending">
             <Clock3 size={22} />
           </div>
@@ -136,9 +162,16 @@ const [alert, setAlert] = useState({
             <span>Pending</span>
             <strong>{pendingCount}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="admin-doubt-stat-card">
+        <button
+          type="button"
+          className={`admin-doubt-stat-card clickable progress ${
+            activeFilter === "IN_PROGRESS" ? "selected" : ""
+          }`}
+          onClick={() => setActiveFilter("IN_PROGRESS")}
+          aria-pressed={activeFilter === "IN_PROGRESS"}
+        >
           <div className="admin-stat-icon progress">
             <MessageSquare size={22} />
           </div>
@@ -147,9 +180,16 @@ const [alert, setAlert] = useState({
             <span>In Progress</span>
             <strong>{progressCount}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="admin-doubt-stat-card">
+        <button
+          type="button"
+          className={`admin-doubt-stat-card clickable resolved ${
+            activeFilter === "RESOLVED" ? "selected" : ""
+          }`}
+          onClick={() => setActiveFilter("RESOLVED")}
+          aria-pressed={activeFilter === "RESOLVED"}
+        >
           <div className="admin-stat-icon resolved">
             <CheckCircle2 size={22} />
           </div>
@@ -158,22 +198,17 @@ const [alert, setAlert] = useState({
             <span>Resolved</span>
             <strong>{resolvedCount}</strong>
           </div>
-        </div>
-
+        </button>
       </div>
 
       {/* DOUBTS SECTION */}
 
       <div className="admin-doubts-container">
-
         <div className="admin-doubts-toolbar">
           <div>
-            <h2>All Student Doubts</h2>
+            <h2>{sectionTitle[activeFilter]}</h2>
 
-            <p>
-              View doubts, assigned teachers and
-              resolution status.
-            </p>
+            <p>{sectionDescription[activeFilter]}</p>
           </div>
 
           <div className="admin-doubt-search">
@@ -183,9 +218,7 @@ const [alert, setAlert] = useState({
               type="text"
               placeholder="Search doubts..."
               value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
         </div>
@@ -198,17 +231,35 @@ const [alert, setAlert] = useState({
           <div className="admin-no-doubts">
             <CircleHelp size={48} />
 
-            <h3>No doubts found</h3>
+            <h3>
+              {search
+                ? "No matching doubts found"
+                : activeFilter === "ALL"
+                ? "No doubts found"
+                : `No ${activeFilter
+                    .replace("_", " ")
+                    .toLowerCase()} doubts`}
+            </h3>
 
             <p>
-              Student doubts will appear here.
+              {search
+                ? "Try another search term."
+                : "Student doubts will appear here."}
             </p>
+
+            {activeFilter !== "ALL" && (
+              <button
+                type="button"
+                className="admin-doubt-reset-btn"
+                onClick={() => setActiveFilter("ALL")}
+              >
+                View All Doubts
+              </button>
+            )}
           </div>
         ) : (
           <div className="admin-doubts-table-wrapper">
-
             <table className="admin-doubts-table">
-
               <thead>
                 <tr>
                   <th>STUDENT</th>
@@ -222,16 +273,12 @@ const [alert, setAlert] = useState({
               </thead>
 
               <tbody>
-
                 {filteredDoubts.map((doubt) => (
-
                   <tr key={doubt._id}>
-
                     {/* STUDENT */}
 
                     <td>
                       <div className="admin-person">
-
                         <div className="admin-avatar student-avatar">
                           {doubt.studentId?.name
                             ?.charAt(0)
@@ -240,16 +287,13 @@ const [alert, setAlert] = useState({
 
                         <div>
                           <strong>
-                            {doubt.studentId?.name ||
-                              "Student"}
+                            {doubt.studentId?.name || "Student"}
                           </strong>
 
                           <span>
-                            {doubt.studentId?.email ||
-                              "No email"}
+                            {doubt.studentId?.email || "No email"}
                           </span>
                         </div>
-
                       </div>
                     </td>
 
@@ -261,10 +305,7 @@ const [alert, setAlert] = useState({
 
                         <span>
                           {doubt.description?.length > 55
-                            ? `${doubt.description.substring(
-                                0,
-                                55
-                              )}...`
+                            ? `${doubt.description.substring(0, 55)}...`
                             : doubt.description}
                         </span>
                       </div>
@@ -283,7 +324,6 @@ const [alert, setAlert] = useState({
                     <td>
                       {doubt.assignedTeacher ? (
                         <div className="admin-person">
-
                           <div className="admin-avatar teacher-avatar">
                             {doubt.assignedTeacher?.name
                               ?.charAt(0)
@@ -295,11 +335,8 @@ const [alert, setAlert] = useState({
                               {doubt.assignedTeacher.name}
                             </strong>
 
-                            <span>
-                              Teacher
-                            </span>
+                            <span>Teacher</span>
                           </div>
-
                         </div>
                       ) : (
                         <span className="not-assigned">
@@ -313,7 +350,6 @@ const [alert, setAlert] = useState({
                     <td>
                       <div className="reply-count">
                         <MessageSquare size={16} />
-
                         {doubt.replies?.length || 0}
                       </div>
                     </td>
@@ -333,7 +369,7 @@ const [alert, setAlert] = useState({
                         )}
 
                         {doubt.status
-                          .replace("_", " ")
+                          ?.replace("_", " ")
                           .toLowerCase()}
                       </span>
                     </td>
@@ -345,42 +381,34 @@ const [alert, setAlert] = useState({
                         {doubt.createdAt
                           ? new Date(
                               doubt.createdAt
-                            ).toLocaleDateString(
-                              "en-IN",
-                              {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )
+                            ).toLocaleDateString("en-IN", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
                           : "-"}
                       </span>
                     </td>
-
                   </tr>
-
                 ))}
-
               </tbody>
-
             </table>
-
           </div>
         )}
-
       </div>
-<AlertModal
-  isOpen={alert.isOpen}
-  onClose={() =>
-    setAlert((previous) => ({
-      ...previous,
-      isOpen: false,
-    }))
-  }
-  type={alert.type}
-  title={alert.title}
-  message={alert.message}
-/>
+
+      <AlertModal
+        isOpen={alert.isOpen}
+        onClose={() =>
+          setAlert((previous) => ({
+            ...previous,
+            isOpen: false,
+          }))
+        }
+        type={alert.type}
+        title={alert.title}
+        message={alert.message}
+      />
     </div>
   );
 };

@@ -660,105 +660,87 @@ const handleDeleteTask = async (task) => {
 
       {/* STATS */}
 
+     
+      {/* STATS */}
+
       <div className="task-stats-grid">
-
-        <div className="task-stat-card">
-
+        <button
+          type="button"
+          className={`task-stat-card clickable ${
+            statusFilter === "All" ? "selected" : ""
+          }`}
+          onClick={() => setStatusFilter("All")}
+          aria-pressed={statusFilter === "All"}
+        >
           <div className="task-stat-icon navy">
             <ClipboardList size={21} />
           </div>
 
           <div>
-
-            <span>
-              Total Tasks
-            </span>
-
-            <strong>
-              {totalTasks}
-            </strong>
-
-            <small>
-              All assignments
-            </small>
-
+            <span>Total Tasks</span>
+            <strong>{totalTasks}</strong>
+            <small>All assignments</small>
           </div>
+        </button>
 
-        </div>
-
-        <div className="task-stat-card">
-
+        <button
+          type="button"
+          className={`task-stat-card clickable ${
+            statusFilter === "In Progress" ? "selected" : ""
+          }`}
+          onClick={() => setStatusFilter("In Progress")}
+          aria-pressed={statusFilter === "In Progress"}
+        >
           <div className="task-stat-icon yellow">
             <Clock size={21} />
           </div>
 
           <div>
-
-            <span>
-              In Progress
-            </span>
-
-            <strong>
-              {inProgressTasks}
-            </strong>
-
-            <small>
-              Active assignments
-            </small>
-
+            <span>In Progress</span>
+            <strong>{inProgressTasks}</strong>
+            <small>Active assignments</small>
           </div>
+        </button>
 
-        </div>
-
-        <div className="task-stat-card">
-
+        <button
+          type="button"
+          className={`task-stat-card clickable ${
+            statusFilter === "Completed" ? "selected" : ""
+          }`}
+          onClick={() => setStatusFilter("Completed")}
+          aria-pressed={statusFilter === "Completed"}
+        >
           <div className="task-stat-icon green">
             <CheckCircle2 size={21} />
           </div>
 
           <div>
-
-            <span>
-              Completed
-            </span>
-
-            <strong>
-              {completedTasks}
-            </strong>
-
-            <small>
-              Successfully finished
-            </small>
-
+            <span>Completed</span>
+            <strong>{completedTasks}</strong>
+            <small>Successfully finished</small>
           </div>
+        </button>
 
-        </div>
-
-        <div className="task-stat-card">
-
+        <button
+          type="button"
+          className={`task-stat-card clickable ${
+            statusFilter === "Pending" ? "selected" : ""
+          }`}
+          onClick={() => setStatusFilter("Pending")}
+          aria-pressed={statusFilter === "Pending"}
+        >
           <div className="task-stat-icon red">
             <AlertCircle size={21} />
           </div>
 
           <div>
-
-            <span>
-              Pending
-            </span>
-
-            <strong>
-              {pendingTasks}
-            </strong>
-
-            <small>
-              Needs attention
-            </small>
-
+            <span>Pending</span>
+            <strong>{pendingTasks}</strong>
+            <small>Needs attention</small>
           </div>
-
-        </div>
-
+        </button>
       </div>
+
 
       {/* MAIN CARD */}
 
@@ -768,13 +750,23 @@ const handleDeleteTask = async (task) => {
 
           <div>
 
-            <h2>
-              All Tasks
-            </h2>
+           
+<h2>
+  {statusFilter === "All"
+    ? "All Tasks"
+    : statusFilter === "In Progress"
+    ? "In Progress Tasks"
+    : statusFilter === "Completed"
+    ? "Completed Tasks"
+    : "Pending Tasks"}
+</h2>
 
-            <p>
-              Monitor assignments and student submissions.
-            </p>
+<p>
+  {statusFilter === "All"
+    ? "Monitor assignments and student submissions."
+    : `Showing all ${statusFilter.toLowerCase()} tasks.`}
+</p>
+
 
           </div>
 

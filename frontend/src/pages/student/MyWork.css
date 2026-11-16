@@ -1041,3 +1041,78 @@
     width: 100%;
   }
 }
+
+/* Clickable summary cards */
+
+.my-work-page .work-summary-card {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.my-work-page .work-summary-card.total {
+  background: #f1f5ff;
+  border-color: #dbe5ff;
+}
+
+.my-work-page .work-summary-card.in-progress {
+  background: #fff8e9;
+  border-color: #f5e4b8;
+}
+
+.my-work-page .work-summary-card.submitted {
+  background: #effaf3;
+  border-color: #ccebd7;
+}
+
+.my-work-page .work-summary-card.selected {
+  border-color: #011451;
+  box-shadow: 0 0 0 1px #011451;
+}
+
+.my-work-page .work-summary-card:hover {
+  box-shadow: 0 4px 12px rgba(1, 20, 81, 0.07);
+}
+
+.my-work-page .work-summary-card:focus-visible {
+  outline: 2px solid #f6af1d;
+  outline-offset: 3px;
+}
+
+/* Clear filter button */
+
+.my-work-page .work-clear-filter {
+  border: 1px solid #dbe3f0;
+  background: #fff;
+  color: #011451;
+  border-radius: 8px;
+  padding: 9px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.my-work-page .work-clear-filter:hover {
+  background: #f1f5ff;
+  border-color: #011451;
+}
+
+.tasks-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .tasks-section-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}

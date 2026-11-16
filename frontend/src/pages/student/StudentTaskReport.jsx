@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ClipboardCheck,
@@ -14,57 +15,39 @@ import {
 } from "lucide-react";
 
 import api from "../../services/api";
-
 import "./StudentTaskReport.css";
 
-
 const StudentTaskReport = () => {
-  /* =====================================================
-     STATES
-  ===================================================== */
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [report, setReport] =
-    useState(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
-
-  const [submittingTaskId, setSubmittingTaskId] =
-    useState(null);
-
+  const [submittingTaskId, setSubmittingTaskId] = useState(null);
   const [submissionLinks, setSubmissionLinks] = useState({});
   const [selectedImages, setSelectedImages] = useState({});
 
+  const [activeFilter, setActiveFilter] = useState("ALL");
 
-  /* =====================================================
-     FETCH MY TASK REPORT
-  ===================================================== */
+  const progressSectionRef = useRef(null);
+
+  /* FETCH MY TASK REPORT */
 
   const fetchMyTaskReport = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await api.get(
-        "/task-report/my-report"
-      );
+      const response = await api.get("/task-report/my-report");
 
       if (response.data?.success) {
         setReport(response.data);
       } else {
         setError(
-          response.data?.message ||
-            "Unable to load task report"
+          response.data?.message || "Unable to load task report"
         );
       }
     } catch (error) {
-      console.error(
-        "Fetch My Task Report Error:",
-        error
-      );
+      console.error("Fetch My Task Report Error:", error);
 
       setError(
         error.response?.data?.message ||
@@ -75,15 +58,11 @@ const StudentTaskReport = () => {
     }
   };
 
-
   useEffect(() => {
     fetchMyTaskReport();
   }, []);
 
-
-  /* =====================================================
-     SUBMIT TASK FOR APPROVAL
-  ===================================================== */
+  /* SUBMIT TASK FOR APPROVAL */
 
   const handleSubmitTask = async (taskId) => {
     try {
@@ -105,7 +84,7 @@ const StudentTaskReport = () => {
         `/task-report/tasks/${taskId}/submit`,
         formData,
         {
-            timeout: 120000,
+          timeout: 120000,
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -142,11 +121,7 @@ const StudentTaskReport = () => {
     }
   };
 
-
-
-  /* =====================================================
-     STATUS CONFIG
-  ===================================================== */
+  /* STATUS CONFIG */
 
   const getStatusConfig = (status) => {
     switch (status) {
@@ -180,578 +155,542 @@ const StudentTaskReport = () => {
     }
   };
 
+  /* TASK FILTER */
 
-  /* =====================================================
-     LOADING
-  ===================================================== */
+  const filteredCategories = useMemo(() => {
+    if (!report?.categories) return [];
+
+    return report.categories
+      .map((category) => ({
+        ...category,
+        tasks: (category.tasks || []).filter((task) => {
+          if (activeFilter === "ALL") return true;
+          return task.status === activeFilter;
+        }),
+      }))
+      .filter((category) => category.tasks.length > 0);
+  }, [report, activeFilter]);
+
+  const filteredTaskCount = filteredCategories.reduce(
+    (total, category) => total + category.tasks.length,
+    0
+  );
+
+  const handleFilterClick = (filter) => {
+    setActiveFilter(filter);
+  };
+
+  const handleScoreClick = () => {
+    setActiveFilter("ALL");
+
+    setTimeout(() => {
+      progressSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 50);
+  };
+
+  /* LOADING */
 
   if (loading && !report) {
     return (
       <div className="student-task-report-page">
-
         <div className="student-task-report-loading">
-
           <Loader2
             size={32}
             className="student-task-report-spinner"
           />
 
-          <p>
-            Loading your task report...
-          </p>
-
+          <p>Loading your task report...</p>
         </div>
-
       </div>
     );
   }
 
-
-  /* =====================================================
-     PAGE
-  ===================================================== */
+  /* PAGE */
 
   return (
     <div className="student-task-report-page">
-
-      {/* ===============================================
-          HEADER
-      =============================================== */}
+      {/* HEADER */}
 
       <div className="student-task-report-header">
-
         <div>
-
           <span className="student-task-report-label">
             LEARNING PROGRESS
           </span>
 
-          <h1>
-            My Task Report
-          </h1>
+          <h1>My Task Report</h1>
 
           <p>
-            Track your assigned tasks and submit
-            completed work for teacher approval.
+            Track your assigned tasks and submit completed work
+            for teacher approval.
           </p>
-
         </div>
-
 
         <div className="student-task-report-header-icon">
           <ClipboardCheck size={30} />
         </div>
-
       </div>
 
-
-      {/* ===============================================
-          ERROR
-      =============================================== */}
+      {/* ERROR */}
 
       {error && (
         <div className="student-task-report-error">
-
           <AlertTriangle size={18} />
 
-          <span>
-            {error}
-          </span>
+          <span>{error}</span>
 
-          <button
-            type="button"
-            onClick={fetchMyTaskReport}
-          >
+          <button type="button" onClick={fetchMyTaskReport}>
             Try Again
           </button>
-
         </div>
       )}
 
-
-      {/* ===============================================
-          STATS
-      =============================================== */}
+      {/* STATS */}
 
       <div className="student-task-stats-grid">
+        {/* TOTAL TASKS */}
 
-        {/* TOTAL */}
-
-        <div className="student-task-stat-card">
-
+        <button
+          type="button"
+          className={`student-task-stat-card total-stat ${
+            activeFilter === "ALL" ? "selected" : ""
+          }`}
+          onClick={() => handleFilterClick("ALL")}
+          aria-pressed={activeFilter === "ALL"}
+        >
           <div className="student-task-stat-icon blue">
             <ListChecks size={22} />
           </div>
 
           <div>
-
-            <span>
-              Total Tasks
-            </span>
+            <span>Total Tasks</span>
 
             <strong>
               {report?.stats?.totalTasks || 0}
             </strong>
-
           </div>
-
-        </div>
-
+        </button>
 
         {/* COMPLETED */}
 
-        <div className="student-task-stat-card">
-
+        <button
+          type="button"
+          className={`student-task-stat-card completed-stat ${
+            activeFilter === "COMPLETED" ? "selected" : ""
+          }`}
+          onClick={() => handleFilterClick("COMPLETED")}
+          aria-pressed={activeFilter === "COMPLETED"}
+        >
           <div className="student-task-stat-icon green">
             <CheckCircle2 size={22} />
           </div>
 
           <div>
-
-            <span>
-              Completed
-            </span>
+            <span>Completed</span>
 
             <strong>
               {report?.stats?.completedTasks || 0}
             </strong>
-
           </div>
-
-        </div>
-
+        </button>
 
         {/* PENDING */}
 
-        <div className="student-task-stat-card">
-
+        <button
+          type="button"
+          className={`student-task-stat-card pending-stat ${
+            activeFilter === "PENDING" ? "selected" : ""
+          }`}
+          onClick={() => handleFilterClick("PENDING")}
+          aria-pressed={activeFilter === "PENDING"}
+        >
           <div className="student-task-stat-icon yellow">
             <Clock3 size={22} />
           </div>
 
           <div>
-
-            <span>
-              Pending Review
-            </span>
+            <span>Pending Review</span>
 
             <strong>
               {report?.stats?.pendingTasks || 0}
             </strong>
-
           </div>
+        </button>
 
-        </div>
+        {/* OVERALL SCORE */}
 
-
-        {/* SCORE */}
-
-        <div className="student-task-stat-card score-card">
-
+        <button
+          type="button"
+          className="student-task-stat-card score-card"
+          onClick={handleScoreClick}
+          title="View overall progress"
+        >
           <div>
-
-            <span>
-              Overall Score
-            </span>
+            <span>Overall Score</span>
 
             <strong>
               {report?.stats?.score || 0}%
             </strong>
-
           </div>
-
-        </div>
-
+        </button>
       </div>
 
+      {/* PROGRESS BAR */}
 
-      {/* ===============================================
-          PROGRESS BAR
-      =============================================== */}
-
-      <div className="student-task-progress-card">
-
+      <div
+        className="student-task-progress-card"
+        ref={progressSectionRef}
+        id="student-overall-progress"
+      >
         <div className="student-task-progress-header">
-
           <div>
-
-            <h3>
-              Overall Progress
-            </h3>
+            <h3>Overall Progress</h3>
 
             <p>
-              Complete tasks and get teacher
-              approval to improve your score.
+              Complete tasks and get teacher approval to improve
+              your score.
             </p>
-
           </div>
 
           <strong>
             {report?.stats?.score || 0}%
           </strong>
-
         </div>
 
-
         <div className="student-task-progress-track">
-
           <div
             className="student-task-progress-fill"
             style={{
-              width: `${report?.stats?.score || 0}%`,
+              width: `${Math.min(
+                100,
+                Math.max(0, Number(report?.stats?.score) || 0)
+              )}%`,
             }}
           />
-
         </div>
-
       </div>
 
-
-      {/* ===============================================
-          EMPTY STATE
-      =============================================== */}
+      {/* EMPTY STATE */}
 
       {!loading &&
         !error &&
         report?.categories?.length === 0 && (
           <div className="student-task-report-empty">
-
             <ClipboardCheck size={45} />
 
-            <h3>
-              No Tasks Assigned Yet
-            </h3>
+            <h3>No Tasks Assigned Yet</h3>
 
             <p>
-              Your teacher hasn't assigned any
-              tasks yet.
+              Your teacher hasn't assigned any tasks yet.
             </p>
-
           </div>
         )}
 
+      {/* FILTERED TASKS */}
 
-      {/* ===============================================
-          CATEGORIES
-      =============================================== */}
+      {report?.categories?.length > 0 && (
+        <>
+          <div className="student-task-filter-heading">
+            <div>
+              <h2>
+                {activeFilter === "ALL"
+                  ? "All Assigned Tasks"
+                  : activeFilter === "COMPLETED"
+                  ? "Completed Tasks"
+                  : "Pending Review Tasks"}
+              </h2>
 
-      <div className="student-task-categories">
+              <p>
+                Showing {filteredTaskCount} task(s)
+              </p>
+            </div>
 
-        {report?.categories?.map(
-          (category, categoryIndex) => (
-            <div
-              className="student-task-category"
-              key={category._id}
-            >
+            {activeFilter !== "ALL" && (
+              <button
+                type="button"
+                className="student-task-clear-filter"
+                onClick={() => setActiveFilter("ALL")}
+              >
+                View All Tasks
+              </button>
+            )}
+          </div>
 
-              {/* CATEGORY HEADER */}
+          {filteredCategories.length === 0 ? (
+            <div className="student-task-report-empty">
+              <ClipboardCheck size={45} />
 
-              <div className="student-task-category-header">
+              <h3>
+                {activeFilter === "COMPLETED"
+                  ? "No Completed Tasks"
+                  : "No Pending Tasks"}
+              </h3>
 
-                <div className="student-task-category-title">
+              <p>
+                There are no tasks available in this category.
+              </p>
 
-                  <div className="student-task-category-number">
+              <button
+                type="button"
+                className="student-task-clear-filter"
+                onClick={() => setActiveFilter("ALL")}
+              >
+                View All Tasks
+              </button>
+            </div>
+          ) : (
+            <div className="student-task-categories">
+              {filteredCategories.map((category, categoryIndex) => (
+                <div
+                  className="student-task-category"
+                  key={category._id}
+                >
+                  {/* CATEGORY HEADER */}
 
-                    {String(
-                      categoryIndex + 1
-                    ).padStart(2, "0")}
+                  <div className="student-task-category-header">
+                    <div className="student-task-category-title">
+                      <div className="student-task-category-number">
+                        {String(categoryIndex + 1).padStart(2, "0")}
+                      </div>
 
+                      <div>
+                        <h2>{category.name}</h2>
+
+                        {category.description && (
+                          <p>{category.description}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="student-task-category-count">
+                      {category.tasks.length} Tasks
+                    </div>
                   </div>
 
+                  {/* TASK LIST */}
 
-                  <div>
+                  <div className="student-task-list">
+                    {category.tasks.map((task, taskIndex) => {
+                      const statusConfig = getStatusConfig(task.status);
 
-                    <h2>
-                      {category.name}
-                    </h2>
+                      const isSubmitting =
+                        submittingTaskId === task._id;
 
-                    {category.description && (
-                      <p>
-                        {category.description}
-                      </p>
-                    )}
+                      const canSubmit =
+                        task.status === "NOT_STARTED" ||
+                        task.status === "REJECTED";
 
-                  </div>
+                      return (
+                        <div
+                          className="student-task-card"
+                          key={task._id}
+                        >
+                          {/* TASK NUMBER */}
 
-                </div>
+                          <div className="student-task-number">
+                            {taskIndex + 1}
+                          </div>
 
+                          {/* TASK INFO */}
 
-                <div className="student-task-category-count">
+                          <div className="student-task-info">
+                            <h3>{task.title}</h3>
 
-                  {category.tasks?.length || 0} Tasks
+                            {task.description && (
+                              <p>{task.description}</p>
+                            )}
 
-                </div>
+                            {/* REJECTION REASON */}
 
-              </div>
+                            {task.status === "REJECTED" &&
+                              task.rejectionReason && (
+                                <div className="student-task-rejection-reason">
+                                  <strong>Rejection Reason:</strong>
 
+                                  <span>
+                                    {task.rejectionReason}
+                                  </span>
+                                </div>
+                              )}
 
-              {/* =========================================
-                  TASK LIST
-              ========================================= */}
+                            {/* SUBMITTED WORK */}
 
-              <div className="student-task-list">
+                            {(task.submissionLink ||
+                              task.submissionImages?.length > 0) && (
+                              <div className="student-task-submitted-work">
+                                {task.submissionLink && (
+                                  <a
+                                    className="student-task-submitted-link"
+                                    href={task.submissionLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <Link2 size={15} />
+                                    View submitted project
+                                  </a>
+                                )}
 
-                {category.tasks?.map(
-                  (task, taskIndex) => {
-                    const statusConfig =
-                      getStatusConfig(
-                        task.status
-                      );
+                                {task.submissionImages?.length > 0 && (
+                                  <div className="student-task-submitted-images">
+                                    {task.submissionImages.map(
+                                      (image, index) => (
+                                        <a
+                                          key={
+                                            image.publicId ||
+                                            image.url ||
+                                            index
+                                          }
+                                          href={image.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          <img
+                                            src={image.url}
+                                            alt={`Submitted work ${index + 1}`}
+                                            loading="lazy"
+                                          />
+                                        </a>
+                                      )
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
 
-                    const isSubmitting =
-                      submittingTaskId ===
-                      task._id;
+                          {/* TASK ACTION */}
 
-                    const canSubmit =
-                      task.status ===
-                        "NOT_STARTED" ||
-                      task.status ===
-                        "REJECTED";
+                          <div className="student-task-action">
+                            {/* STATUS */}
 
+                            <span
+                              className={`student-task-status ${statusConfig.className}`}
+                            >
+                              {statusConfig.icon}
+                              {statusConfig.label}
+                            </span>
 
-                    return (
-                      <div
-                        className="student-task-card"
-                        key={task._id}
-                      >
+                            {/* SUBMISSION FORM */}
 
-                        {/* TASK NUMBER */}
+                            {canSubmit && (
+                              <div className="student-task-submission-form">
+                                <label className="student-task-field-label">
+                                  <Link2 size={16} />
+                                  Project / Website Link
+                                  <span>Optional</span>
+                                </label>
 
-                        <div className="student-task-number">
-
-                          {taskIndex + 1}
-
-                        </div>
-
-
-                        {/* TASK INFO */}
-
-                        <div className="student-task-info">
-
-                          <h3>
-                            {task.title}
-                          </h3>
-
-                          {task.description && (
-                            <p>
-                              {task.description}
-                            </p>
-                          )}
-
-
-                          {/* REJECTION REASON */}
-
-                          {task.status ===
-                            "REJECTED" &&
-                            task.rejectionReason && (
-                              <div className="student-task-rejection-reason">
-
-                                <strong>
-                                  Rejection Reason:
-                                </strong>
-
-                                <span>
-                                  {
-                                    task.rejectionReason
+                                <input
+                                  type="url"
+                                  className="student-task-link-input"
+                                  placeholder="https://your-project.com"
+                                  value={submissionLinks[task._id] || ""}
+                                  onChange={(event) =>
+                                    setSubmissionLinks((previous) => ({
+                                      ...previous,
+                                      [task._id]: event.target.value,
+                                    }))
                                   }
-                                </span>
+                                />
 
+                                <label className="student-task-field-label">
+                                  <ImagePlus size={16} />
+                                  Attach Notes / Work Images
+                                  <span>Optional · Max 10</span>
+                                </label>
+
+                                <input
+                                  type="file"
+                                  className="student-task-image-input"
+                                  accept="image/jpeg,image/png,image/webp"
+                                  multiple
+                                  onChange={(event) => {
+                                    const files = Array.from(
+                                      event.target.files || []
+                                    );
+
+                                    if (files.length > 10) {
+                                      setError(
+                                        "You can upload a maximum of 10 images."
+                                      );
+                                      event.target.value = "";
+                                      return;
+                                    }
+
+                                    const oversizedFile = files.find(
+                                      (file) =>
+                                        file.size > 5 * 1024 * 1024
+                                    );
+
+                                    if (oversizedFile) {
+                                      setError(
+                                        "Each image must be 5 MB or smaller."
+                                      );
+                                      event.target.value = "";
+                                      return;
+                                    }
+
+                                    setError("");
+
+                                    setSelectedImages((previous) => ({
+                                      ...previous,
+                                      [task._id]: files,
+                                    }));
+                                  }}
+                                />
+
+                                {(selectedImages[task._id] || []).length >
+                                  0 && (
+                                  <p className="student-task-selected-files">
+                                    {selectedImages[task._id].length} image(s)
+                                    selected
+                                  </p>
+                                )}
                               </div>
                             )}
 
+                            {/* SUBMIT BUTTON */}
 
-                          {/* SUBMITTED WORK DISPLAY */}
-
-                          {(task.submissionLink ||
-                            task.submissionImages?.length > 0) && (
-                            <div className="student-task-submitted-work">
-                              {task.submissionLink && (
-                                <a
-                                  className="student-task-submitted-link"
-                                  href={task.submissionLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <Link2 size={15} />
-                                  View submitted project
-                                </a>
-                              )}
-
-                              {task.submissionImages?.length > 0 && (
-                                <div className="student-task-submitted-images">
-                                  {task.submissionImages.map((image, index) => (
-                                    <a
-                                      key={image.publicId || image.url || index}
-                                      href={image.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      <img
-                                        src={image.url}
-                                        alt={`Submitted work ${index + 1}`}
-                                        loading="lazy"
-                                      />
-                                    </a>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
-
-                        </div>
-
-
-                        {/* TASK ACTION */}
-
-                        <div className="student-task-action">
-
-                          {/* STATUS */}
-
-                          <span
-                            className={`student-task-status ${statusConfig.className}`}
-                          >
-
-                            {
-                              statusConfig.icon
-                            }
-
-                            {
-                              statusConfig.label
-                            }
-
-                          </span>
-
-
-                          {canSubmit && (
-                            <div className="student-task-submission-form">
-                              <label className="student-task-field-label">
-                                <Link2 size={16} />
-                                Project / Website Link
-                                <span>Optional</span>
-                              </label>
-
-                              <input
-                                type="url"
-                                className="student-task-link-input"
-                                placeholder="https://your-project.com"
-                                value={submissionLinks[task._id] || ""}
-                                onChange={(event) =>
-                                  setSubmissionLinks((previous) => ({
-                                    ...previous,
-                                    [task._id]: event.target.value,
-                                  }))
+                            {canSubmit && (
+                              <button
+                                type="button"
+                                className="student-submit-task-btn"
+                                disabled={isSubmitting}
+                                onClick={() =>
+                                  handleSubmitTask(task._id)
                                 }
-                              />
-
-                              <label className="student-task-field-label">
-                                <ImagePlus size={16} />
-                                Attach Notes / Work Images
-                                <span>Optional · Max 10</span>
-                              </label>
-
-                              <input
-                                type="file"
-                                className="student-task-image-input"
-                                accept="image/jpeg,image/png,image/webp"
-                                multiple
-                                onChange={(event) => {
-                                  const files = Array.from(
-                                    event.target.files || []
-                                  );
-
-                                if (files.length > 10) {
-  setError("You can upload a maximum of 10 images.");
-  event.target.value = "";
-  return;
-}
-
-                                  const oversizedFile = files.find(
-                                    (file) => file.size > 5 * 1024 * 1024
-                                  );
-
-                                  if (oversizedFile) {
-                                    setError(
-                                      "Each image must be 5 MB or smaller."
-                                    );
-                                    event.target.value = "";
-                                    return;
-                                  }
-
-                                  setError("");
-
-                                  setSelectedImages((previous) => ({
-                                    ...previous,
-                                    [task._id]: files,
-                                  }));
-                                }}
-                              />
-
-                              {(selectedImages[task._id] || []).length > 0 && (
-                                <p className="student-task-selected-files">
-                                  {selectedImages[task._id].length} image(s) selected
-                                </p>
-                              )}
-                            </div>
-                          )}
-
-                          {/* SUBMIT BUTTON */}
-
-                          {canSubmit && (
-                            <button
-                              type="button"
-                              className="student-submit-task-btn"
-                              disabled={
-                                isSubmitting
-                              }
-                              onClick={() =>
-                                handleSubmitTask(
-                                  task._id
-                                )
-                              }
-                            >
-
-                              {isSubmitting ? (
-                                <>
-                                  <Loader2
-                                    size={15}
-                                    className="student-task-spinner"
-                                  />
-
-                                  Submitting...
-
-                                </>
-                              ) : (
-                                <>
-                                  <Send
-                                    size={15}
-                                  />
-
-                                  Submit for Approval
-
-                                </>
-                              )}
-
-                            </button>
-                          )}
-
+                              >
+                                {isSubmitting ? (
+                                  <>
+                                    <Loader2
+                                      size={15}
+                                      className="student-task-spinner"
+                                    />
+                                    Submitting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Send size={15} />
+                                    Submit for Approval
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
                         </div>
-
-                      </div>
-                    );
-                  }
-                )}
-
-              </div>
-
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
-          )
-        )}
-
-      </div>
-
+          )}
+        </>
+      )}
     </div>
   );
 };
-
 
 export default StudentTaskReport;

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -9,7 +10,6 @@ import {
   CheckCircle2,
   Clock,
   Search,
-  MoreVertical,
   X,
   Trash2,
   ListPlus,
@@ -22,17 +22,16 @@ import "./TeacherTasks.css";
 
 const TeacherTasks = () => {
   const navigate = useNavigate();
+
   const [showModal, setShowModal] = useState(false);
-
   const [search, setSearch] = useState("");
-
   const [tasks, setTasks] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [creating, setCreating] = useState(false);
-
   const [batchTimings, setBatchTimings] = useState([]);
+
+  const [activeFilter, setActiveFilter] = useState("ALL");
+
   const [alert, setAlert] = useState({
     isOpen: false,
     type: "error",
@@ -46,13 +45,7 @@ const TeacherTasks = () => {
     batch: "",
     priority: "Medium",
     dueDate: "",
-
-    tasks: [
-      {
-        title: "",
-        description: "",
-      },
-    ],
+    tasks: [{ title: "", description: "" }],
   });
 
   /* =====================================================
@@ -105,12 +98,6 @@ const TeacherTasks = () => {
     }
   };
 
- 
-
-  /* =====================================================
-     INITIAL LOAD
-  ===================================================== */
-
   useEffect(() => {
     fetchTasks();
     fetchBatchTimings();
@@ -134,7 +121,6 @@ const TeacherTasks = () => {
   ===================================================== */
 
   const handleChecklistChange = (index, field, value) => {
-    
     setFormData((prev) => {
       const updatedTasks = [...prev.tasks];
 
@@ -157,10 +143,8 @@ const TeacherTasks = () => {
   const addChecklistTask = () => {
     setFormData((prev) => ({
       ...prev,
-
       tasks: [
         ...prev.tasks,
-
         {
           title: "",
           description: "",
@@ -187,8 +171,9 @@ const TeacherTasks = () => {
 
     setFormData((prev) => ({
       ...prev,
-
-      tasks: prev.tasks.filter((_, taskIndex) => taskIndex !== index),
+      tasks: prev.tasks.filter(
+        (_, taskIndex) => taskIndex !== index
+      ),
     }));
   };
 
@@ -203,13 +188,7 @@ const TeacherTasks = () => {
       batch: "",
       priority: "Medium",
       dueDate: "",
-
-      tasks: [
-        {
-          title: "",
-          description: "",
-        },
-      ],
+      tasks: [{ title: "", description: "" }],
     });
   };
 
@@ -238,7 +217,6 @@ const TeacherTasks = () => {
         title: "Title Required",
         message: "Please enter task title",
       });
-
       return;
     }
 
@@ -262,7 +240,9 @@ const TeacherTasks = () => {
       return;
     }
 
-    const cleanedTasks = formData.tasks.filter((task) => task.title.trim());
+    const cleanedTasks = formData.tasks.filter(
+      (task) => task.title.trim()
+    );
 
     if (cleanedTasks.length === 0) {
       setAlert({
@@ -271,7 +251,6 @@ const TeacherTasks = () => {
         title: "Checklist Required",
         message: "Please add at least one checklist task",
       });
-
       return;
     }
 
@@ -291,20 +270,13 @@ const TeacherTasks = () => {
 
       const payload = {
         title: formData.title.trim(),
-
         description: formData.description.trim(),
-
         batchId: formData.batch,
-
         priority: formData.priority,
-
         dueDate: formData.dueDate,
-
         tasks: cleanedTasks.map((task, index) => ({
           title: task.title.trim(),
-
           description: task.description.trim(),
-
           order: index + 1,
         })),
       };
@@ -320,8 +292,9 @@ const TeacherTasks = () => {
         });
 
         resetForm();
-
         setShowModal(false);
+        setActiveFilter("ALL");
+        setSearch("");
 
         await fetchTasks();
       }
@@ -332,7 +305,9 @@ const TeacherTasks = () => {
         isOpen: true,
         type: "error",
         title: "Creation Failed",
-        message: error.response?.data?.message || "Unable to create task",
+        message:
+          error.response?.data?.message ||
+          "Unable to create task",
       });
     } finally {
       setCreating(false);
@@ -340,20 +315,7 @@ const TeacherTasks = () => {
   };
 
   /* =====================================================
-     FILTER TASKS
-  ===================================================== */
-
-  const filteredTasks = tasks.filter((task) => {
-    const searchValue = search.toLowerCase();
-
-    return (
-      task.title?.toLowerCase().includes(searchValue) ||
-      task.batch?.toLowerCase().includes(searchValue)
-    );
-  });
-
-  /* =====================================================
-     STATS
+     TASK STATISTICS
   ===================================================== */
 
   const totalTasks = tasks.length;
@@ -367,18 +329,44 @@ const TeacherTasks = () => {
   ).length;
 
   const totalSubmissions = tasks.reduce(
-    (total, task) => total + (task.submitted || 0),
+    (total, task) =>
+      total + Number(task.submitted || 0),
     0
   );
+
+  /* =====================================================
+     SEARCH + CARD FILTER
+  ===================================================== */
+
+  const filteredTasks = useMemo(() => {
+    const searchValue = search.toLowerCase().trim();
+
+    return tasks.filter((task) => {
+      const matchesSearch =
+        task.title?.toLowerCase().includes(searchValue) ||
+        task.batch?.toLowerCase().includes(searchValue) ||
+        task.description?.toLowerCase().includes(searchValue);
+
+      let matchesFilter = true;
+
+      if (activeFilter === "ACTIVE") {
+        matchesFilter = task.displayStatus === "Active";
+      } else if (activeFilter === "COMPLETED") {
+        matchesFilter = task.displayStatus === "Completed";
+      } else if (activeFilter === "SUBMISSIONS") {
+        matchesFilter = Number(task.submitted || 0) > 0;
+      }
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [tasks, search, activeFilter]);
 
   /* =====================================================
      FORMAT DATE
   ===================================================== */
 
   const formatDate = (date) => {
-    if (!date) {
-      return "No date";
-    }
+    if (!date) return "No date";
 
     return new Date(date).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -407,91 +395,147 @@ const TeacherTasks = () => {
     }
   };
 
+  /* =====================================================
+     SELECT CARD FILTER
+  ===================================================== */
+
+  const handleStatFilter = (filter) => {
+    setActiveFilter((current) =>
+      current === filter && filter !== "ALL" ? "ALL" : filter
+    );
+  };
+
+  /* =====================================================
+     RENDER
+  ===================================================== */
+
   return (
     <div className="teacher-tasks-page">
-      {/* =============================================
-          HEADER
-      ============================================= */}
+      {/* HEADER */}
 
       <div className="teacher-tasks-header">
         <div>
-          <span className="teacher-page-label">EDUCATOR PORTAL</span>
+          <span className="teacher-page-label">
+            EDUCATOR PORTAL
+          </span>
 
           <h1>Tasks & Assignments</h1>
 
-          <p>Create, assign and track student assignments.</p>
+          <p>
+            Create, assign and track student assignments.
+          </p>
         </div>
 
-        <button className="create-task-btn" onClick={() => setShowModal(true)}>
+        <button
+          className="create-task-btn"
+          type="button"
+          onClick={() => setShowModal(true)}
+        >
           <Plus size={18} />
           Create New Task
         </button>
       </div>
 
-      {/* =============================================
-          STATS
-      ============================================= */}
+      {/* STAT CARDS */}
 
       <div className="task-stats-grid">
-        <div className="task-stat-card">
+        <button
+          type="button"
+          className={`task-stat-card clickable-task-stat ${
+            activeFilter === "ALL" ? "selected" : ""
+          }`}
+          onClick={() => handleStatFilter("ALL")}
+          aria-pressed={activeFilter === "ALL"}
+        >
           <div className="task-stat-icon blue">
             <ClipboardList size={21} />
           </div>
 
-          <div>
+          <div className="task-stat-content">
             <span>Total Tasks</span>
-
             <strong>{totalTasks}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="task-stat-card">
+        <button
+          type="button"
+          className={`task-stat-card clickable-task-stat ${
+            activeFilter === "ACTIVE" ? "selected" : ""
+          }`}
+          onClick={() => handleStatFilter("ACTIVE")}
+          aria-pressed={activeFilter === "ACTIVE"}
+        >
           <div className="task-stat-icon yellow">
             <Clock size={21} />
           </div>
 
-          <div>
+          <div className="task-stat-content">
             <span>Active Tasks</span>
-
             <strong>{activeTasks}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="task-stat-card">
+        <button
+          type="button"
+          className={`task-stat-card clickable-task-stat ${
+            activeFilter === "COMPLETED" ? "selected" : ""
+          }`}
+          onClick={() => handleStatFilter("COMPLETED")}
+          aria-pressed={activeFilter === "COMPLETED"}
+        >
           <div className="task-stat-icon green">
             <CheckCircle2 size={21} />
           </div>
 
-          <div>
+          <div className="task-stat-content">
             <span>Completed</span>
-
             <strong>{completedTasks}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="task-stat-card">
+        <button
+          type="button"
+          className={`task-stat-card clickable-task-stat ${
+            activeFilter === "SUBMISSIONS" ? "selected" : ""
+          }`}
+          onClick={() => handleStatFilter("SUBMISSIONS")}
+          aria-pressed={activeFilter === "SUBMISSIONS"}
+        >
           <div className="task-stat-icon purple">
             <Users size={21} />
           </div>
 
-          <div>
+          <div className="task-stat-content">
             <span>Total Submissions</span>
-
             <strong>{totalSubmissions}</strong>
           </div>
-        </div>
+        </button>
       </div>
 
-      {/* =============================================
-          TASK LIST
-      ============================================= */}
+      {/* TASK LIST */}
 
       <div className="teacher-task-list-card">
         <div className="task-list-header">
           <div>
-            <h2>All Tasks</h2>
+            <h2>
+              {activeFilter === "ACTIVE"
+                ? "Active Tasks"
+                : activeFilter === "COMPLETED"
+                ? "Completed Tasks"
+                : activeFilter === "SUBMISSIONS"
+                ? "Tasks with Submissions"
+                : "All Tasks"}
+            </h2>
 
-            <p>Manage your assignments and submissions.</p>
+            <p>
+              {activeFilter === "ACTIVE"
+                ? "Showing active assignments."
+                : activeFilter === "COMPLETED"
+                ? "Showing completed assignments."
+                : activeFilter === "SUBMISSIONS"
+                ? "Showing assignments with student submissions."
+                : "Manage your assignments and submissions."}
+            </p>
           </div>
 
           <div className="task-search-box">
@@ -507,23 +551,40 @@ const TeacherTasks = () => {
         </div>
 
         {loading ? (
-          <div className="task-state">Loading tasks...</div>
+          <div className="task-state">
+            Loading tasks...
+          </div>
         ) : filteredTasks.length === 0 ? (
-          <div className="task-state">No tasks found</div>
+          <div className="task-state">
+            {search
+              ? "No matching tasks found"
+              : activeFilter === "ACTIVE"
+              ? "No active tasks found"
+              : activeFilter === "COMPLETED"
+              ? "No completed tasks found"
+              : activeFilter === "SUBMISSIONS"
+              ? "No tasks with submissions found"
+              : "No tasks found"}
+          </div>
         ) : (
           <div className="tasks-grid">
             {filteredTasks.map((task) => {
-              const submitted = task.submitted || 0;
-
-              const total = task.totalStudents || 0;
+              const submitted = Number(task.submitted || 0);
+              const total = Number(task.totalStudents || 0);
 
               const percentage =
-                total > 0 ? Math.round((submitted / total) * 100) : 0;
+                total > 0
+                  ? Math.round((submitted / total) * 100)
+                  : 0;
 
-              const displayStatus = task.displayStatus || "Active";
+              const displayStatus =
+                task.displayStatus || "Active";
 
               return (
-                <div className="teacher-task-card" key={task._id}>
+                <div
+                  className="teacher-task-card"
+                  key={task._id}
+                >
                   <div className="task-card-top">
                     <div className="task-icon-box">
                       <ClipboardList size={20} />
@@ -537,15 +598,14 @@ const TeacherTasks = () => {
                       >
                         {displayStatus}
                       </span>
-
-                      
                     </div>
                   </div>
 
                   <h3>{task.title}</h3>
 
                   <p className="task-description">
-                    {task.description || "No description provided"}
+                    {task.description ||
+                      "No description provided"}
                   </p>
 
                   <div className="task-checklist-count">
@@ -559,14 +619,14 @@ const TeacherTasks = () => {
                   <div className="task-details">
                     <div>
                       <Users size={15} />
-
                       <span>{task.batch}</span>
                     </div>
 
                     <div>
                       <CalendarDays size={15} />
-
-                      <span>Due: {formatDate(task.dueDate)}</span>
+                      <span>
+                        Due: {formatDate(task.dueDate)}
+                      </span>
                     </div>
                   </div>
 
@@ -597,7 +657,9 @@ const TeacherTasks = () => {
                     type="button"
                     className="view-task-btn"
                     onClick={() =>
-                      navigate(`/teacher/tasks/${task._id}/submissions`)
+                      navigate(
+                        `/teacher/tasks/${task._id}/submissions`
+                      )
                     }
                   >
                     View Submissions
@@ -609,20 +671,17 @@ const TeacherTasks = () => {
         )}
       </div>
 
-      {/* =============================================
-          CREATE TASK MODAL
-      ============================================= */}
+      {/* CREATE TASK MODAL */}
 
       {showModal && (
         <div className="task-modal-overlay">
           <div className="task-modal">
-            {/* HEADER */}
-
             <div className="task-modal-header">
               <div>
                 <h2>Create New Task</h2>
-
-                <p>Create an assignment for your students.</p>
+                <p>
+                  Create an assignment for your students.
+                </p>
               </div>
 
               <button
@@ -634,9 +693,10 @@ const TeacherTasks = () => {
               </button>
             </div>
 
-            {/* FORM */}
-
-            <form className="task-form" onSubmit={handleCreateTask}>
+            <form
+              className="task-form"
+              onSubmit={handleCreateTask}
+            >
               {/* TITLE */}
 
               <div className="task-form-group">
@@ -678,21 +738,24 @@ const TeacherTasks = () => {
                     onChange={handleChange}
                     required
                   >
-                    <option value="">Select Batch Timing</option>
+                    <option value="">
+                      Select Batch Timing
+                    </option>
 
-                   
-{batchTimings.map((batch) => {
-  const timing = getBatchTiming(batch);
+                    {batchTimings.map((batch) => {
+                      const timing = getBatchTiming(batch);
 
-  return (
-    <option key={batch._id} value={batch._id}>
-      {batch.name && timing !== "-"
-        ? `${batch.name} (${timing})`
-        : batch.name || timing}
-    </option>
-  );
-})}
-
+                      return (
+                        <option
+                          key={batch._id}
+                          value={batch._id}
+                        >
+                          {batch.name && timing !== "-"
+                            ? `${batch.name} (${timing})`
+                            : batch.name || timing}
+                        </option>
+                      );
+                    })}
                   </select>
 
                   {batchTimings.length === 0 && (
@@ -726,23 +789,20 @@ const TeacherTasks = () => {
                   onChange={handleChange}
                 >
                   <option value="Low">Low</option>
-
                   <option value="Medium">Medium</option>
-
                   <option value="High">High</option>
                 </select>
               </div>
 
-              {/* =========================================
-                  CHECKLIST
-              ========================================= */}
+              {/* CHECKLIST */}
 
               <div className="checklist-section">
                 <div className="checklist-header">
                   <div>
                     <h3>Task Checklist</h3>
-
-                    <p>Add the steps students need to complete.</p>
+                    <p>
+                      Add the steps students need to complete.
+                    </p>
                   </div>
 
                   <span>
@@ -753,8 +813,13 @@ const TeacherTasks = () => {
 
                 <div className="checklist-items">
                   {formData.tasks.map((task, index) => (
-                    <div className="checklist-item" key={index}>
-                      <div className="checklist-number">{index + 1}</div>
+                    <div
+                      className="checklist-item"
+                      key={index}
+                    >
+                      <div className="checklist-number">
+                        {index + 1}
+                      </div>
 
                       <div className="checklist-inputs">
                         <input
@@ -788,7 +853,9 @@ const TeacherTasks = () => {
                       <button
                         type="button"
                         className="remove-checklist-btn"
-                        onClick={() => removeChecklistTask(index)}
+                        onClick={() =>
+                          removeChecklistTask(index)
+                        }
                         disabled={formData.tasks.length === 1}
                         title="Remove task"
                       >
@@ -834,6 +901,7 @@ const TeacherTasks = () => {
       )}
 
       {/* ALERT MODAL */}
+
       <AlertModal
         isOpen={alert.isOpen}
         onClose={() =>

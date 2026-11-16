@@ -1001,3 +1001,97 @@ width: 100%;
     height: 64px;
   }
 }
+
+/* Clickable student task summary cards */
+
+.student-task-report-page .student-task-stat-card {
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.student-task-report-page .student-task-stat-card.total-stat {
+  background: #f1f5ff;
+  border-color: #dbe5ff;
+}
+
+.student-task-report-page .student-task-stat-card.completed-stat {
+  background: #effaf3;
+  border-color: #ccebd7;
+}
+
+.student-task-report-page .student-task-stat-card.pending-stat {
+  background: #fff8e9;
+  border-color: #f5e4b8;
+}
+
+.student-task-report-page .student-task-stat-card.score-card {
+  cursor: pointer;
+}
+
+.student-task-report-page .student-task-stat-card.selected {
+  border-color: #011451;
+  box-shadow: 0 0 0 1px #011451;
+}
+
+.student-task-report-page .student-task-stat-card:hover {
+  box-shadow: 0 4px 12px rgba(1, 20, 81, 0.07);
+}
+
+.student-task-report-page .student-task-stat-card:focus-visible {
+  outline: 2px solid #f6af1d;
+  outline-offset: 3px;
+}
+
+/* Filter heading */
+
+.student-task-filter-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0 16px;
+}
+
+.student-task-filter-heading h2 {
+  margin: 0 0 5px;
+  color: #011451;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.student-task-filter-heading p {
+  margin: 0;
+  color: #718096;
+  font-size: 13px;
+}
+
+.student-task-clear-filter {
+  border: 1px solid #dbe3f0;
+  background: #fff;
+  color: #011451;
+  border-radius: 8px;
+  padding: 9px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.student-task-clear-filter:hover {
+  background: #f1f5ff;
+  border-color: #011451;
+}
+
+@media (max-width: 600px) {
+  .student-task-filter-heading {
+    align-items: flex-start;
+  }
+
+  .student-task-filter-heading h2 {
+    font-size: 17px;
+  }
+}
