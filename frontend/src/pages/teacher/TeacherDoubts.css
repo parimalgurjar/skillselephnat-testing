@@ -1,5 +1,7 @@
+
 .teacher-doubts-page {
   width: 100%;
+  min-width: 0;
 }
 
 /* ================= HEADER ================= */
@@ -11,6 +13,7 @@
 .teacher-doubts-header h1 {
   margin: 0 0 6px;
   font-size: 28px;
+  font-weight: 700;
   color: #111827;
 }
 
@@ -24,16 +27,35 @@
 
 .teacher-doubt-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
   margin-bottom: 28px;
 }
 
-.teacher-doubt-stat-card {
+.teacher-doubts-page .teacher-doubt-stat-card {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 18px 20px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.teacher-doubt-stat-card > div:last-child {
+  min-width: 0;
 }
 
 .teacher-doubt-stat-card span {
@@ -44,20 +66,63 @@
 }
 
 .teacher-doubt-stat-card strong {
+  display: block;
   font-size: 28px;
+  line-height: 1.2;
   color: #111827;
 }
 
-.teacher-doubt-stat-card.pending {
-  border-left: 4px solid #f59e0b;
+/* Card hover */
+
+.teacher-doubts-page .teacher-doubt-stat-card:hover {
+  border-color: #b8c5df;
+  box-shadow: 0 5px 15px rgba(1, 20, 81, 0.06);
 }
 
-.teacher-doubt-stat-card.progress {
-  border-left: 4px solid #2563eb;
+/* Selected card */
+
+.teacher-doubts-page .teacher-doubt-stat-card.selected {
+  border-color: #011451;
+  box-shadow: 0 0 0 1px #011451;
+  background: #f8faff;
 }
 
-.teacher-doubt-stat-card.resolved {
-  border-left: 4px solid #10b981;
+/* Focus */
+
+.teacher-doubts-page .teacher-doubt-stat-card:focus-visible {
+  outline: 2px solid #f6af1d;
+  outline-offset: 3px;
+}
+
+/* ================= STAT ICONS ================= */
+
+.teacher-doubt-stat-card .admin-stat-icon,
+.teacher-doubt-stat-card .teacher-stat-icon {
+  flex-shrink: 0;
+}
+
+.teacher-doubt-stat-card .admin-stat-icon.total,
+.teacher-doubt-stat-card .teacher-stat-icon.total {
+  background: #eef2ff;
+  color: #011451;
+}
+
+.teacher-doubt-stat-card .admin-stat-icon.pending,
+.teacher-doubt-stat-card .teacher-stat-icon.pending {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.teacher-doubt-stat-card .admin-stat-icon.progress,
+.teacher-doubt-stat-card .teacher-stat-icon.progress {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.teacher-doubt-stat-card .admin-stat-icon.resolved,
+.teacher-doubt-stat-card .teacher-stat-icon.resolved {
+  background: #ecfdf5;
+  color: #059669;
 }
 
 /* ================= LOADING / EMPTY ================= */
@@ -93,16 +158,14 @@
 
 .teacher-doubts-list {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(330px, 1fr)
-  );
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   gap: 20px;
 }
 
 /* ================= DOUBT CARD ================= */
 
 .teacher-doubt-card {
+  min-width: 0;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -137,7 +200,7 @@
 /* ================= STATUS ================= */
 
 .teacher-doubt-status {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 6px 9px;
@@ -145,6 +208,7 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: capitalize;
+  white-space: nowrap;
 }
 
 .teacher-doubt-status.pending {
@@ -175,7 +239,6 @@
   color: #6b7280;
   font-size: 14px;
   line-height: 1.6;
-
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -189,19 +252,19 @@
   align-items: center;
   gap: 10px;
   margin-top: 20px;
+  min-width: 0;
 }
 
 .teacher-student-avatar {
   width: 38px;
   height: 38px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: #011451;
   color: #ffffff;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 14px;
   font-weight: 700;
 }
@@ -210,6 +273,7 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
 }
 
 .teacher-doubt-student strong {
@@ -228,10 +292,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
+  gap: 12px;
   margin-top: 20px;
   padding-top: 15px;
-
   border-top: 1px solid #f1f1f1;
 }
 
@@ -239,7 +302,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-
   color: #6b7280;
   font-size: 12px;
 }
@@ -251,16 +313,13 @@
 .teacher-doubt-footer button {
   border: none;
   background: transparent;
-
   color: #011451;
-
   display: flex;
   align-items: center;
   gap: 4px;
-
+  font-family: inherit;
   font-size: 13px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
@@ -272,13 +331,24 @@
 
 @media (max-width: 1100px) {
   .teacher-doubt-stats {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-doubts-header h1 {
+    font-size: 25px;
+  }
+
+  .teacher-doubts-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 600px) {
   .teacher-doubt-stats {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .teacher-doubts-list {
@@ -290,46 +360,17 @@
     flex-direction: column;
   }
 }
-/* REMAINING FILE POLISH — RESPONSIVE + PREMIUM UI */
-:where(.page-header, .section-header, .content-header) { gap: 14px; flex-wrap: wrap; }
-:where(.card, .content-card, .form-card, .table-card, .panel) { border-color: #e3eaf5; box-shadow: 0 8px 24px rgba(1,20,81,.045); transition: box-shadow .2s ease, border-color .2s ease; }
-:where(.card, .content-card, .form-card, .table-card, .panel):hover { border-color: #cfdaee; box-shadow: 0 12px 30px rgba(1,20,81,.075); }
-:where(.form-group, .field-group, .input-group) { min-width: 0; }
-:where(.form-group input, .form-group select, .form-group textarea, .field-group input, .field-group select, .field-group textarea, .input-group input, .input-group select, .input-group textarea) { width: 100%; max-width: 100%; }
-@media (max-width: 768px) {
-  :where(.page-header, .section-header, .content-header) { align-items: stretch; }
-  :where(.table-container, .table-wrapper, .responsive-table) { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  :where(.grid-2, .form-grid, .two-column, .form-row) { grid-template-columns: 1fr; }
-  :where(.modal, .dialog, .modal-content) { width: 100%; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow-y: auto; }
-}
-@media (max-width: 480px) {
-  :where(.card, .content-card, .form-card, .table-card, .panel) { border-radius: 14px; }
-  :where(.actions, .button-group, .form-actions) { width: 100%; flex-wrap: wrap; }
-  :where(.actions button, .button-group button, .form-actions button) { flex: 1 1 140px; max-width: 100%; }
-}
 
-/* Clickable doubt summary cards */
+@media (max-width: 380px) {
+  .teacher-doubt-stat-card {
+    padding: 15px;
+  }
 
-.teacher-doubts-page .teacher-doubt-stat-card {
-  width: 100%;
-  text-align: left;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
+  .teacher-doubt-card {
+    padding: 16px;
+  }
 
-.teacher-doubts-page .teacher-doubt-stat-card:hover {
-  border-color: #b8c5df;
-  box-shadow: 0 5px 15px rgba(1, 20, 81, 0.06);
-}
-
-.teacher-doubts-page .teacher-doubt-stat-card.selected {
-  border: 1px solid #011451;
-  box-shadow: 0 0 0 1px #011451;
-  background: #f8faff;
-}
-
-.teacher-doubts-page .teacher-doubt-stat-card:focus-visible {
-  outline: 2px solid #f6af1d;
-  outline-offset: 3px;
+  .teacher-doubt-footer {
+    align-items: flex-start;
+  }
 }
