@@ -2,9 +2,10 @@
 .teacher-doubts-page {
   width: 100%;
   min-width: 0;
+  color: #111827;
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 
 .teacher-doubts-header {
   margin-bottom: 28px;
@@ -13,17 +14,19 @@
 .teacher-doubts-header h1 {
   margin: 0 0 6px;
   font-size: 28px;
+  line-height: 1.3;
   font-weight: 700;
-  color: #111827;
+  color: #011451;
 }
 
 .teacher-doubts-header p {
   margin: 0;
-  color: #6b7280;
+  color: #64748b;
   font-size: 14px;
+  line-height: 1.6;
 }
 
-/* ================= STATS ================= */
+/* SUMMARY CARDS */
 
 .teacher-doubt-stats {
   display: grid;
@@ -33,109 +36,155 @@
 }
 
 .teacher-doubts-page .teacher-doubt-stat-card {
+  position: relative;
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
+  min-height: 112px;
+  padding: 19px 20px;
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 20px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 9px;
+  overflow: hidden;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #011451;
   border-radius: 12px;
   font-family: inherit;
   text-align: left;
   cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-}
-
-.teacher-doubt-stat-card > div:last-child {
-  min-width: 0;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .teacher-doubt-stat-card span {
   display: block;
+  margin: 0;
+  color: #64748b;
   font-size: 13px;
-  color: #6b7280;
-  margin-bottom: 8px;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .teacher-doubt-stat-card strong {
   display: block;
-  font-size: 28px;
-  line-height: 1.2;
-  color: #111827;
+  color: #011451;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Card hover */
+/* TOTAL */
+
+.teacher-doubts-page .teacher-doubt-stat-card:first-child {
+  border-left-color: #315efb;
+}
+
+.teacher-doubts-page .teacher-doubt-stat-card:first-child strong {
+  color: #011451;
+}
+
+/* PENDING */
+
+.teacher-doubts-page .teacher-doubt-stat-card.pending {
+  border-left-color: #e58a00;
+}
+
+.teacher-doubts-page .teacher-doubt-stat-card.pending strong {
+  color: #b96b00;
+}
+
+/* IN PROGRESS */
+
+.teacher-doubts-page .teacher-doubt-stat-card.progress {
+  border-left-color: #3974e8;
+}
+
+.teacher-doubts-page .teacher-doubt-stat-card.progress strong {
+  color: #2563eb;
+}
+
+/* RESOLVED */
+
+.teacher-doubts-page .teacher-doubt-stat-card.resolved {
+  border-left-color: #10a36a;
+}
+
+.teacher-doubts-page .teacher-doubt-stat-card.resolved strong {
+  color: #07834f;
+}
+
+/* HOVER */
 
 .teacher-doubts-page .teacher-doubt-stat-card:hover {
-  border-color: #b8c5df;
-  box-shadow: 0 5px 15px rgba(1, 20, 81, 0.06);
+  border-color: #cbd5e1;
+  box-shadow: 0 5px 16px rgba(1, 20, 81, 0.07);
 }
 
-/* Selected card */
+.teacher-doubts-page .teacher-doubt-stat-card.pending:hover {
+  border-left-color: #e58a00;
+}
+
+.teacher-doubts-page .teacher-doubt-stat-card.progress:hover {
+  border-left-color: #3974e8;
+}
+
+.teacher-doubts-page .teacher-doubt-stat-card.resolved:hover {
+  border-left-color: #10a36a;
+}
+
+/* SELECTED */
 
 .teacher-doubts-page .teacher-doubt-stat-card.selected {
-  border-color: #011451;
-  box-shadow: 0 0 0 1px #011451;
-  background: #f8faff;
+  background: #f5f7ff;
+  border-top-color: #cbd5ff;
+  border-right-color: #cbd5ff;
+  border-bottom-color: #cbd5ff;
+  box-shadow: 0 0 0 1px rgba(1, 20, 81, 0.08);
 }
 
-/* Focus */
+.teacher-doubts-page .teacher-doubt-stat-card.pending.selected {
+  background: #fffaf0;
+  border-top-color: #f5d59b;
+  border-right-color: #f5d59b;
+  border-bottom-color: #f5d59b;
+}
+
+.teacher-doubts-page .teacher-doubt-stat-card.progress.selected {
+  background: #f3f7ff;
+  border-top-color: #c7d9ff;
+  border-right-color: #c7d9ff;
+  border-bottom-color: #c7d9ff;
+}
+
+.teacher-doubts-page .teacher-doubt-stat-card.resolved.selected {
+  background: #f0fbf5;
+  border-top-color: #b9e8d0;
+  border-right-color: #b9e8d0;
+  border-bottom-color: #b9e8d0;
+}
 
 .teacher-doubts-page .teacher-doubt-stat-card:focus-visible {
   outline: 2px solid #f6af1d;
   outline-offset: 3px;
 }
 
-/* ================= STAT ICONS ================= */
-
-.teacher-doubt-stat-card .admin-stat-icon,
-.teacher-doubt-stat-card .teacher-stat-icon {
-  flex-shrink: 0;
-}
-
-.teacher-doubt-stat-card .admin-stat-icon.total,
-.teacher-doubt-stat-card .teacher-stat-icon.total {
-  background: #eef2ff;
-  color: #011451;
-}
-
-.teacher-doubt-stat-card .admin-stat-icon.pending,
-.teacher-doubt-stat-card .teacher-stat-icon.pending {
-  background: #fff7ed;
-  color: #ea580c;
-}
-
-.teacher-doubt-stat-card .admin-stat-icon.progress,
-.teacher-doubt-stat-card .teacher-stat-icon.progress {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.teacher-doubt-stat-card .admin-stat-icon.resolved,
-.teacher-doubt-stat-card .teacher-stat-icon.resolved {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-/* ================= LOADING / EMPTY ================= */
+/* LOADING / EMPTY */
 
 .teacher-doubts-loading,
 .teacher-no-doubts {
-  min-height: 350px;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 30px 20px;
   text-align: center;
-  color: #6b7280;
+  color: #64748b;
 }
 
 .teacher-no-doubts svg {
@@ -145,37 +194,40 @@
 
 .teacher-no-doubts h3 {
   margin: 0 0 8px;
-  color: #111827;
+  color: #011451;
+  font-size: 18px;
 }
 
 .teacher-no-doubts p {
   max-width: 450px;
   margin: 0;
+  font-size: 14px;
   line-height: 1.6;
 }
 
-/* ================= DOUBTS GRID ================= */
+/* DOUBTS GRID */
 
 .teacher-doubts-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
+  align-items: stretch;
 }
 
-/* ================= DOUBT CARD ================= */
+/* DOUBT CARD */
 
 .teacher-doubt-card {
   min-width: 0;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
   padding: 20px;
-  transition: 0.2s ease;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .teacher-doubt-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 20px rgba(1, 20, 81, 0.06);
 }
 
 .teacher-doubt-card-top {
@@ -183,27 +235,33 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
-/* ================= TOPIC ================= */
+/* TOPIC */
 
 .teacher-doubt-topic {
-  background: #eef2ff;
-  color: #011451;
+  display: inline-flex;
+  align-items: center;
+  max-width: 65%;
   padding: 6px 10px;
+  overflow: hidden;
+  background: #f0f3fb;
+  color: #011451;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* ================= STATUS ================= */
+/* STATUS */
 
 .teacher-doubt-status {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 9px;
+  padding: 6px 10px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 600;
@@ -212,60 +270,64 @@
 }
 
 .teacher-doubt-status.pending {
-  background: #fff7ed;
-  color: #c2410c;
+  background: #fff7e8;
+  color: #b96b00;
 }
 
 .teacher-doubt-status.progress {
-  background: #eff6ff;
+  background: #edf4ff;
   color: #2563eb;
 }
 
 .teacher-doubt-status.resolved {
-  background: #ecfdf5;
-  color: #059669;
+  background: #eaf8f0;
+  color: #07834f;
 }
 
-/* ================= CONTENT ================= */
+/* CONTENT */
 
 .teacher-doubt-card h3 {
-  margin: 0 0 10px;
-  font-size: 17px;
+  margin: 0 0 9px;
   color: #111827;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .teacher-doubt-card > p {
   margin: 0;
-  color: #6b7280;
+  color: #64748b;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.65;
   display: -webkit-box;
   line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
-/* ================= STUDENT ================= */
+/* STUDENT */
 
 .teacher-doubt-student {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 11px;
   min-width: 0;
+  margin-top: 22px;
 }
 
 .teacher-student-avatar {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  border-radius: 50%;
-  background: #011451;
-  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #011451;
+  color: #ffffff;
+  border-radius: 50%;
   font-size: 14px;
   font-weight: 700;
 }
@@ -273,21 +335,24 @@
 .teacher-doubt-student div:last-child {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
 }
 
 .teacher-doubt-student strong {
+  color: #1e293b;
   font-size: 13px;
-  color: #111827;
+  font-weight: 650;
 }
 
 .teacher-doubt-student span {
+  color: #94a3b8;
   font-size: 11px;
-  color: #6b7280;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
-/* ================= FOOTER ================= */
+/* FOOTER */
 
 .teacher-doubt-footer {
   display: flex;
@@ -296,14 +361,14 @@
   gap: 12px;
   margin-top: 20px;
   padding-top: 15px;
-  border-top: 1px solid #f1f1f1;
+  border-top: 1px solid #edf0f5;
 }
 
 .teacher-doubt-footer > div {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #6b7280;
+  gap: 7px;
+  color: #64748b;
   font-size: 12px;
 }
 
@@ -312,23 +377,31 @@
 }
 
 .teacher-doubt-footer button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 0;
   border: none;
   background: transparent;
   color: #011451;
-  display: flex;
-  align-items: center;
-  gap: 4px;
   font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
   cursor: pointer;
 }
 
 .teacher-doubt-footer button:hover {
+  color: #315efb;
   text-decoration: underline;
 }
 
-/* ================= RESPONSIVE ================= */
+.teacher-doubt-footer button:focus-visible {
+  outline: 2px solid #f6af1d;
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+/* RESPONSIVE */
 
 @media (max-width: 1100px) {
   .teacher-doubt-stats {
@@ -343,13 +416,27 @@
 
   .teacher-doubts-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .teacher-doubt-card {
+    padding: 17px;
   }
 }
 
 @media (max-width: 600px) {
   .teacher-doubt-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
+  }
+
+  .teacher-doubts-page .teacher-doubt-stat-card {
+    min-height: 100px;
+    padding: 15px;
+  }
+
+  .teacher-doubt-stat-card strong {
+    font-size: 26px;
   }
 
   .teacher-doubts-list {
@@ -357,21 +444,25 @@
   }
 
   .teacher-doubt-card-top {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
   }
 }
 
 @media (max-width: 380px) {
-  .teacher-doubt-stat-card {
-    padding: 15px;
+  .teacher-doubt-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-doubts-page .teacher-doubt-stat-card {
+    min-height: 85px;
   }
 
   .teacher-doubt-card {
-    padding: 16px;
+    padding: 15px;
   }
 
   .teacher-doubt-footer {
-    align-items: flex-start;
+    align-items: center;
   }
 }
