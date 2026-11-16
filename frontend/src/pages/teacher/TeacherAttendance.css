@@ -1,7 +1,8 @@
 
 /* =========================================
    TEACHER ATTENDANCE — COMPLETE CSS
-   Scoped to prevent conflicts with other panels
+   Responsive + Clickable Statistics
+   Scoped to Teacher Attendance only
 ========================================= */
 
 .teacher-attendance-page {
@@ -18,7 +19,9 @@
   box-sizing: border-box;
 }
 
-/* HEADER */
+/* =========================================
+   HEADER
+========================================= */
 
 .teacher-attendance-page .teacher-attendance-header {
   display: flex;
@@ -53,7 +56,9 @@
   margin: 0;
 }
 
-/* MARK ALL PRESENT */
+/* =========================================
+   MARK ALL PRESENT
+========================================= */
 
 .teacher-attendance-page .mark-all-present-btn {
   min-height: 42px;
@@ -84,7 +89,9 @@
   cursor: not-allowed;
 }
 
-/* FILTER / CONTROLS */
+/* =========================================
+   FILTER / CONTROLS
+========================================= */
 
 .teacher-attendance-page .attendance-controls-card {
   width: 100%;
@@ -146,19 +153,22 @@
   box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.07);
 }
 
-/* STATS GRID */
+/* =========================================
+   STATISTICS GRID
+========================================= */
 
 .teacher-attendance-page .attendance-stats-grid {
   width: 100%;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
 
 .teacher-attendance-page .attendance-stat-card {
   min-width: 0;
+  width: 100%;
   background: #ffffff;
   border: 1px solid #e8edf4;
   border-radius: 14px;
@@ -168,13 +178,48 @@
   gap: 14px;
   overflow: hidden;
   box-shadow: 0 5px 18px rgba(1, 20, 81, 0.035);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.teacher-attendance-page .attendance-stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(1, 20, 81, 0.08);
+/* =========================================
+   CLICKABLE STAT CARDS
+========================================= */
+
+.teacher-attendance-page .clickable-stat-card {
+  text-align: left;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
 }
+
+.teacher-attendance-page .clickable-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(1, 20, 81, 0.09);
+}
+
+.teacher-attendance-page .clickable-stat-card.selected {
+  border: 2px solid #011451;
+  background: #f5f7ff;
+  box-shadow: 0 5px 18px rgba(1, 20, 81, 0.08);
+}
+
+.teacher-attendance-page .clickable-stat-card:focus-visible {
+  outline: 3px solid #f6af1d;
+  outline-offset: 3px;
+}
+
+.teacher-attendance-page .clickable-stat-card:active {
+  transform: scale(0.98);
+}
+
+/* STAT ICONS */
 
 .teacher-attendance-page .attendance-stat-icon {
   width: 46px;
@@ -235,7 +280,9 @@
   overflow-wrap: anywhere;
 }
 
-/* ATTENDANCE LIST */
+/* =========================================
+   ATTENDANCE LIST
+========================================= */
 
 .teacher-attendance-page .attendance-list-card {
   width: 100%;
@@ -271,7 +318,9 @@
   line-height: 1.5;
 }
 
-/* SEARCH */
+/* =========================================
+   SEARCH
+========================================= */
 
 .teacher-attendance-page .attendance-search {
   width: 240px;
@@ -315,7 +364,9 @@
   box-shadow: none;
 }
 
-/* TABLE */
+/* =========================================
+   TABLE
+========================================= */
 
 .teacher-attendance-page .attendance-table-wrapper {
   width: 100%;
@@ -363,7 +414,9 @@
   border-bottom: none;
 }
 
-/* STUDENT INFO */
+/* =========================================
+   STUDENT INFO
+========================================= */
 
 .teacher-attendance-page .attendance-student-info {
   display: flex;
@@ -407,7 +460,9 @@
   overflow-wrap: anywhere;
 }
 
-/* CONTACT */
+/* =========================================
+   CONTACT
+========================================= */
 
 .teacher-attendance-page .attendance-contact {
   display: flex;
@@ -426,7 +481,9 @@
   font-size: 11px;
 }
 
-/* STATUS BUTTONS */
+/* =========================================
+   STATUS BUTTONS
+========================================= */
 
 .teacher-attendance-page .attendance-status-buttons {
   display: flex;
@@ -494,7 +551,9 @@
   cursor: not-allowed;
 }
 
-/* SAVE FOOTER */
+/* =========================================
+   SAVE FOOTER
+========================================= */
 
 .teacher-attendance-page .attendance-save-footer {
   padding: 16px 24px;
@@ -547,12 +606,12 @@
 }
 
 /* =========================================
-   RESPONSIVE — TABLET
+   TABLET — 3 COLUMNS
 ========================================= */
 
 @media (max-width: 1100px) {
   .teacher-attendance-page .attendance-stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .teacher-attendance-page .attendance-controls-card {
@@ -561,7 +620,7 @@
 }
 
 /* =========================================
-   RESPONSIVE — MOBILE
+   MOBILE — 2 COLUMNS
 ========================================= */
 
 @media (max-width: 650px) {
@@ -651,7 +710,9 @@
   }
 }
 
-/* SMALL MOBILE */
+/* =========================================
+   SMALL MOBILE — 1 COLUMN
+========================================= */
 
 @media (max-width: 380px) {
   .teacher-attendance-page .attendance-stats-grid {
@@ -670,14 +731,5 @@
 
   .teacher-attendance-page .teacher-attendance-header h1 {
     font-size: 21px;
-  }
-}
-.teacher-attendance-page .attendance-stats-grid {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
-@media (max-width: 1100px) {
-  .teacher-attendance-page .attendance-stats-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

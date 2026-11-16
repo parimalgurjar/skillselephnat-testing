@@ -207,7 +207,7 @@ const AdminLayout = () => {
             <div>
               <span>ADMINISTRATION PORTAL</span>
               <h3>
-  Welcome back, {adminName
+  Welcome Back, {adminName
     ? adminName.charAt(0).toUpperCase() + adminName.slice(1)
     : "Admin"}
 </h3>

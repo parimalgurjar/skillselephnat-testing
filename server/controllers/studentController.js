@@ -10,6 +10,7 @@ const Doubt = require("../models/Doubt");
 const DoubtMessage = require("../models/DoubtMessage");
 const Notification = require("../models/Notification");
 const Task = require("../models/Task");
+const generateStudentId = require("../utils/generateStudentId");
 const isValidObjectId = (id) =>
   mongoose.Types.ObjectId.isValid(id);
 
@@ -293,6 +294,7 @@ const createStudent = async (req, res) => {
       role: "STUDENT",
 
       avatar: avatar?.trim() || "",
+      studentId: await generateStudentId(),
 
       /*
         CANONICAL BATCH RELATION

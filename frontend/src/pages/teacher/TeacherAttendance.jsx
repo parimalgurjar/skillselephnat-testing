@@ -1,8 +1,5 @@
-import {
-  useEffect,
-  useState,
-} from "react";
 
+import { useEffect, useState } from "react";
 import {
   CalendarDays,
   Users,
@@ -18,32 +15,57 @@ import {
 import api from "../../services/api";
 import "./TeacherAttendance.css";
 
+const DEFAULT_ATTENDANCE_META = {
+  isMarked: false,
+  markedBy: null,
+  createdAt: null,
+  editableUntil: null,
+  isOwner: false,
+  isLocked: false,
+  canEdit: true,
+};
+
+const formatStudent = (student) => ({
+  ...student,
+  id: student._id,
+  initials: student.name
+    ? student.name
+        .split(" ")
+        .map((word) => word.charAt(0))
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "ST",
+  status:
+    student.attendanceStatus === "ABSENT"
+      ? "Absent"
+      : student.attendanceStatus === "LEAVE"
+        ? "Leave"
+        : "Present",
+  alreadyMarked: Boolean(student.attendanceStatus),
+});
+
 const TeacherAttendance = () => {
   const [batches, setBatches] = useState([]);
   const [selectedBatchId, setSelectedBatchId] = useState("");
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-  const [students, setStudents] = useState([]);
 
-  const [attendanceMeta, setAttendanceMeta] = useState({
-    isMarked: false,
-    markedBy: null,
-    createdAt: null,
-    editableUntil: null,
-    isOwner: false,
-    isLocked: false,
-    canEdit: true,
-  });
+  const [students, setStudents] = useState([]);
+  const [attendanceMeta, setAttendanceMeta] = useState(
+    DEFAULT_ATTENDANCE_META
+  );
 
   const [search, setSearch] = useState("");
+  const [activeStatFilter, setActiveStatFilter] = useState("TOTAL");
+
   const [loading, setLoading] = useState(true);
   const [studentsLoading, setStudentsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  /* FORMAT SINGLE TIME */
   const formatSingleTime = (time) => {
     if (!time) return "";
 
@@ -63,7 +85,6 @@ const TeacherAttendance = () => {
     return `${hours}:${minutes.toString().padStart(2, "0")} ${period}`;
   };
 
-  /* FORMAT DATE TIME */
   const formatDateTime = (date) => {
     if (!date) return "";
 
@@ -76,7 +97,6 @@ const TeacherAttendance = () => {
     });
   };
 
-  /* GET BATCH LABEL */
   const getBatchLabel = (batch) => {
     if (!batch) return "Unnamed Batch";
 
@@ -99,8 +119,10 @@ const TeacherAttendance = () => {
     return batch.name || batch.code || timing || "Unnamed Batch";
   };
 
-  /* LOAD BATCHES */
+  // LOAD BATCHES
   useEffect(() => {
+    let active = true;
+
     const loadBatches = async () => {
       try {
         setLoading(true);
@@ -109,31 +131,40 @@ const TeacherAttendance = () => {
         const response = await api.get("/attendance/my-batches");
         const fetchedBatches = response.data?.batches || [];
 
+        if (!active) return;
+
         setBatches(fetchedBatches);
 
         if (fetchedBatches.length > 0) {
           setSelectedBatchId(fetchedBatches[0]._id);
         }
       } catch (error) {
-        console.error("Load Batches Error:", error);
+        if (!active) return;
 
+        console.error("Load Batches Error:", error);
         setError(
           error.response?.data?.message || "Unable to load batches"
         );
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
     loadBatches();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  /* LOAD STUDENTS */
+  // LOAD STUDENTS
   useEffect(() => {
     if (!selectedBatchId || !selectedDate) {
       setStudents([]);
       return;
     }
+
+    let active = true;
 
     const loadStudents = async () => {
       try {
@@ -148,74 +179,46 @@ const TeacherAttendance = () => {
           },
         });
 
-        const fetchedStudents = response.data?.students || [];
+        if (!active) return;
 
         setAttendanceMeta(
-          response.data?.attendanceMeta || {
-            isMarked: false,
-            markedBy: null,
-            createdAt: null,
-            editableUntil: null,
-            isOwner: false,
-            isLocked: false,
-            canEdit: true,
-          }
+          response.data?.attendanceMeta || DEFAULT_ATTENDANCE_META
         );
 
-        const formattedStudents = fetchedStudents.map((student) => ({
-          ...student,
-          id: student._id,
-
-          initials: student.name
-            ? student.name
-                .split(" ")
-                .map((word) => word.charAt(0))
-                .join("")
-                .slice(0, 2)
-                .toUpperCase()
-            : "ST",
-
-          status:
-            student.attendanceStatus === "ABSENT"
-              ? "Absent"
-              : student.attendanceStatus === "LEAVE"
-                ? "Leave"
-                : "Present",
-
-          alreadyMarked: Boolean(student.attendanceStatus),
-        }));
-
-        setStudents(formattedStudents);
+        const fetchedStudents = response.data?.students || [];
+        setStudents(fetchedStudents.map(formatStudent));
       } catch (error) {
-        console.error("Load Students Error:", error);
+        if (!active) return;
 
+        console.error("Load Students Error:", error);
         setError(
           error.response?.data?.message || "Unable to load students"
         );
-
         setStudents([]);
       } finally {
-        setStudentsLoading(false);
+        if (active) setStudentsLoading(false);
       }
     };
 
     loadStudents();
+
+    return () => {
+      active = false;
+    };
   }, [selectedBatchId, selectedDate]);
 
-  /* UPDATE ATTENDANCE */
+  // UPDATE ATTENDANCE
   const updateAttendance = (id, status) => {
     if (!attendanceMeta.canEdit) return;
 
     setStudents((previousStudents) =>
       previousStudents.map((student) =>
-        student.id === id
-          ? { ...student, status }
-          : student
+        student.id === id ? { ...student, status } : student
       )
     );
   };
 
-  /* MARK ALL PRESENT */
+  // MARK ALL PRESENT
   const markAllPresent = () => {
     if (!attendanceMeta.canEdit) return;
 
@@ -227,7 +230,7 @@ const TeacherAttendance = () => {
     );
   };
 
-  /* SAVE ATTENDANCE */
+  // SAVE ATTENDANCE
   const saveAttendance = async () => {
     try {
       if (!attendanceMeta.canEdit) {
@@ -276,31 +279,8 @@ const TeacherAttendance = () => {
         }
       );
 
-      const refreshedStudents = refreshResponse.data?.students || [];
-
       setStudents(
-        refreshedStudents.map((student) => ({
-          ...student,
-          id: student._id,
-
-          initials: student.name
-            ? student.name
-                .split(" ")
-                .map((word) => word.charAt(0))
-                .join("")
-                .slice(0, 2)
-                .toUpperCase()
-            : "ST",
-
-          status:
-            student.attendanceStatus === "ABSENT"
-              ? "Absent"
-              : student.attendanceStatus === "LEAVE"
-                ? "Leave"
-                : "Present",
-
-          alreadyMarked: Boolean(student.attendanceStatus),
-        }))
+        (refreshResponse.data?.students || []).map(formatStudent)
       );
 
       setAttendanceMeta(
@@ -308,7 +288,6 @@ const TeacherAttendance = () => {
       );
     } catch (error) {
       console.error("Save Attendance Error:", error);
-
       setError(
         error.response?.data?.message || "Unable to save attendance"
       );
@@ -317,7 +296,7 @@ const TeacherAttendance = () => {
     }
   };
 
-  /* COUNTS */
+  // COUNTS
   const presentCount = students.filter(
     (student) => student.status === "Present"
   ).length;
@@ -340,23 +319,37 @@ const TeacherAttendance = () => {
         )
       : 0;
 
-  /* SEARCH */
+  // SEARCH + STAT FILTER
   const filteredStudents = students.filter((student) => {
-    const searchValue = search.toLowerCase();
+    const searchValue = search.toLowerCase().trim();
 
-    return (
+    const matchesSearch =
       student.name?.toLowerCase().includes(searchValue) ||
       student.email?.toLowerCase().includes(searchValue) ||
-      student.phone?.toLowerCase().includes(searchValue)
-    );
+      student.phone?.toLowerCase().includes(searchValue);
+
+    let matchesStatus = true;
+
+    if (activeStatFilter === "PRESENT") {
+      matchesStatus = student.status === "Present";
+    } else if (activeStatFilter === "ABSENT") {
+      matchesStatus = student.status === "Absent";
+    } else if (activeStatFilter === "LEAVE") {
+      matchesStatus = student.status === "Leave";
+    } else if (activeStatFilter === "RATE") {
+      matchesStatus =
+        student.status === "Present" ||
+        student.status === "Absent";
+    }
+
+    return matchesSearch && matchesStatus;
   });
 
-  /* SELECTED BATCH */
   const selectedBatch = batches.find(
     (batch) => batch._id === selectedBatchId
   );
 
-  /* ATTENDANCE STATUS MESSAGE */
+  // ATTENDANCE STATUS MESSAGE
   const getAttendanceMessage = () => {
     if (!attendanceMeta.isMarked) return null;
 
@@ -385,7 +378,12 @@ const TeacherAttendance = () => {
 
   const attendanceMessage = getAttendanceMessage();
 
-  /* LOADING */
+  const getStatCardClass = (filter) =>
+    `attendance-stat-card clickable-stat-card ${
+      activeStatFilter === filter ? "selected" : ""
+    }`;
+
+  // LOADING
   if (loading) {
     return (
       <div className="teacher-attendance-page">
@@ -396,19 +394,12 @@ const TeacherAttendance = () => {
 
   return (
     <div className="teacher-attendance-page">
-
       {/* HEADER */}
       <div className="teacher-attendance-header">
         <div>
-          <span className="teacher-page-label">
-            EDUCATOR PORTAL
-          </span>
-
+          <span className="teacher-page-label">EDUCATOR PORTAL</span>
           <h1>Attendance</h1>
-
-          <p>
-            Mark and manage student attendance for all batches.
-          </p>
+          <p>Mark and manage student attendance for all batches.</p>
         </div>
 
         <button
@@ -497,7 +488,10 @@ const TeacherAttendance = () => {
 
           <select
             value={selectedBatchId}
-            onChange={(e) => setSelectedBatchId(e.target.value)}
+            onChange={(e) => {
+              setSelectedBatchId(e.target.value);
+              setActiveStatFilter("TOTAL");
+            }}
           >
             {batches.length === 0 ? (
               <option value="">No batches available</option>
@@ -520,74 +514,94 @@ const TeacherAttendance = () => {
           <input
             type="date"
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+            onChange={(e) => {
+              setSelectedDate(e.target.value);
+              setActiveStatFilter("TOTAL");
+            }}
           />
         </div>
       </div>
 
-      {/* STATS */}
+      {/* CLICKABLE STATS */}
       <div className="attendance-stats-grid">
-
-        <div className="attendance-stat-card">
+        <button
+          type="button"
+          className={getStatCardClass("TOTAL")}
+          onClick={() => setActiveStatFilter("TOTAL")}
+          aria-pressed={activeStatFilter === "TOTAL"}
+        >
           <div className="attendance-stat-icon total">
             <Users size={21} />
           </div>
-
           <div>
             <span>Total Students</span>
             <strong>{students.length}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="attendance-stat-card">
+        <button
+          type="button"
+          className={getStatCardClass("PRESENT")}
+          onClick={() => setActiveStatFilter("PRESENT")}
+          aria-pressed={activeStatFilter === "PRESENT"}
+        >
           <div className="attendance-stat-icon present">
             <CheckCircle2 size={21} />
           </div>
-
           <div>
             <span>Present</span>
             <strong>{presentCount}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="attendance-stat-card">
+        <button
+          type="button"
+          className={getStatCardClass("ABSENT")}
+          onClick={() => setActiveStatFilter("ABSENT")}
+          aria-pressed={activeStatFilter === "ABSENT"}
+        >
           <div className="attendance-stat-icon absent">
             <XCircle size={21} />
           </div>
-
           <div>
             <span>Absent</span>
             <strong>{absentCount}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="attendance-stat-card">
+        <button
+          type="button"
+          className={getStatCardClass("LEAVE")}
+          onClick={() => setActiveStatFilter("LEAVE")}
+          aria-pressed={activeStatFilter === "LEAVE"}
+        >
           <div className="attendance-stat-icon leave">
             <Clock size={21} />
           </div>
-
           <div>
             <span>Leave</span>
             <strong>{leaveCount}</strong>
           </div>
-        </div>
+        </button>
 
-        <div className="attendance-stat-card">
+        <button
+          type="button"
+          className={getStatCardClass("RATE")}
+          onClick={() => setActiveStatFilter("RATE")}
+          aria-pressed={activeStatFilter === "RATE"}
+        >
           <div className="attendance-stat-icon percentage">
             <CalendarDays size={21} />
           </div>
-
           <div>
             <span>Attendance Rate</span>
             <strong>{attendanceRate}%</strong>
           </div>
-        </div>
-
+        </button>
       </div>
 
       {/* ATTENDANCE LIST */}
       <div className="attendance-list-card">
-
         <div className="attendance-list-header">
           <div>
             <h2>
@@ -598,17 +612,20 @@ const TeacherAttendance = () => {
             </h2>
 
             <p>
-              {attendanceMeta.isMarked
-                ? attendanceMeta.canEdit
-                  ? "You can update attendance within the allowed edit period."
-                  : "Attendance is available in view-only mode."
-                : "Students enrolled in the selected batch are shown."}
+              {activeStatFilter === "TOTAL"
+                ? "Showing all students."
+                : activeStatFilter === "PRESENT"
+                  ? "Showing present students."
+                  : activeStatFilter === "ABSENT"
+                    ? "Showing absent students."
+                    : activeStatFilter === "LEAVE"
+                      ? "Showing students on leave."
+                      : "Showing students included in attendance rate."}
             </p>
           </div>
 
           <div className="attendance-search">
             <Search size={16} />
-
             <input
               type="text"
               placeholder="Search student..."
@@ -620,22 +637,12 @@ const TeacherAttendance = () => {
 
         <div className="attendance-table-wrapper">
           {studentsLoading ? (
-            <div
-              style={{
-                padding: "30px",
-                textAlign: "center",
-              }}
-            >
+            <div style={{ padding: "30px", textAlign: "center" }}>
               Loading students...
             </div>
           ) : filteredStudents.length === 0 ? (
-            <div
-              style={{
-                padding: "30px",
-                textAlign: "center",
-              }}
-            >
-              No students found for this batch.
+            <div style={{ padding: "30px", textAlign: "center" }}>
+              No students found for the selected filter.
             </div>
           ) : (
             <table className="attendance-table">
@@ -658,7 +665,6 @@ const TeacherAttendance = () => {
 
                         <div>
                           <strong>{student.name}</strong>
-
                           <small>
                             {selectedBatch
                               ? getBatchLabel(selectedBatch)
@@ -671,14 +677,12 @@ const TeacherAttendance = () => {
                     <td>
                       <div className="attendance-contact">
                         <span>{student.email}</span>
-
                         <small>{student.phone || "—"}</small>
                       </div>
                     </td>
 
                     <td>
                       <div className="attendance-status-buttons">
-
                         <button
                           className={
                             student.status === "Present"
@@ -729,7 +733,6 @@ const TeacherAttendance = () => {
                           <Clock size={15} />
                           Leave
                         </button>
-
                       </div>
                     </td>
                   </tr>
@@ -743,16 +746,8 @@ const TeacherAttendance = () => {
         <div className="attendance-save-footer">
           <div>
             <strong>{presentCount} Present</strong>
-
-            <span>
-              {" · "}
-              {absentCount} Absent
-            </span>
-
-            <span>
-              {" · "}
-              {leaveCount} Leave
-            </span>
+            <span>{" · "}{absentCount} Absent</span>
+            <span>{" · "}{leaveCount} Leave</span>
           </div>
 
           <button
@@ -783,7 +778,6 @@ const TeacherAttendance = () => {
                     : "Save Attendance"}
           </button>
         </div>
-
       </div>
     </div>
   );

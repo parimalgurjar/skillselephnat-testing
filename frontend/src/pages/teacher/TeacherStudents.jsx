@@ -341,13 +341,12 @@ const TeacherStudents = () => {
      STUDENT ID
   ===================================================== */
 
-  const getStudentId = (student, index) => {
-    if (student.studentId) {
-      return student.studentId;
-    }
+ 
+const getStudentId = (student) => {
+  // ID database se aayegi, list index se nahi.
+  return student?.studentId || "Not assigned";
+};
 
-    return `SE-${String(index + 1).padStart(4, "0")}`;
-  };
 
   /* =====================================================
      LOADING
@@ -567,7 +566,7 @@ const TeacherStudents = () => {
 
               {filteredStudents.length > 0 ? (
 
-                filteredStudents.map((student, index) => {
+                filteredStudents.map((student) => {
 
                   const status = getStudentStatus(student);
 
@@ -601,7 +600,7 @@ const TeacherStudents = () => {
 
                       <td>
                         <span className="student-id">
-                          {getStudentId(student, index)}
+                          {getStudentId(student)}
                         </span>
                       </td>
 

@@ -66,6 +66,12 @@ location: {
       required: true,
     },
 
+studentId: {
+  type: String,
+  trim: true,
+  default: undefined,
+},
+
     /* =====================================================
        STUDENT INFORMATION
     ===================================================== */
@@ -195,6 +201,15 @@ location: {
   },
   {
     timestamps: true,
+  }
+);
+
+userSchema.index(
+  { studentId: 1 },
+  {
+    unique: true,
+    sparse: true,
+    name: "unique_student_id",
   }
 );
 

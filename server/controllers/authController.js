@@ -8,6 +8,7 @@ const { refreshStudentFeeAccess } = require("../utils/feeAccess");
 const Notification = require("../models/Notification");
 const cloudinary = require("../config/cloudinary");
 const uploadToCloudinary = require("../utils/uploadToCloudinary");
+const generateStudentId = require("../utils/generateStudentId");
 /* =====================================================
    GENERATE JWT TOKEN
 ===================================================== */
@@ -38,6 +39,7 @@ const buildAuthUser = (user) => {
     email: user.email,
     phone: user.phone,
     role: user.role,
+    studentId: user.studentId || null,
     avatar: user.avatar,
 designation: user.designation || "",
 location: user.location || "",
@@ -230,6 +232,9 @@ const registerUser = async (req, res) => {
 
       status: "PENDING",
       isActive: false,
+      ...(cleanedRole === "STUDENT"
+  ? { studentId: await generateStudentId() }
+  : {}),
     });
 
     /* ================= RESPONSE ================= */
