@@ -1,8 +1,11 @@
+
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const rateLimit = require("express-rate-limit");
 dotenv.config();
+
+
 const { verifyEmailConnection } = require("./services/emailService");
 const helmet = require("helmet");
 const connectDB = require("./config/db");
@@ -228,8 +231,8 @@ app.use((error, req, res, next) => {
       : 500;
 
   if (statusCode === 500) {
-    console.error("Unhandled Server Error:", error);
-  }
+  console.error("Unhandled Server Error:", error.message);
+}
 
   return res.status(statusCode).json({
     success: false,
@@ -243,12 +246,24 @@ app.use((error, req, res, next) => {
 
 const startServer = async () => {
   try {
+    console.log("Starting Skillselephant backend...");
+
     await connectDB();
-    await verifyEmailConnection();
+
+    console.log("MongoDB connected. Starting API server...");
 
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
+
+    verifyEmailConnection()
+      .then(() => {
+        console.log("Email service connected.");
+      })
+      .catch((error) => {
+        console.error("Email service unavailable:", error.message);
+      });
+
   } catch (error) {
     console.error("Server startup failed:", error.message);
     process.exit(1);
@@ -256,3 +271,4 @@ const startServer = async () => {
 };
 
 startServer();
+
