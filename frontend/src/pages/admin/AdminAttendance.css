@@ -608,3 +608,208 @@
     transition-duration: 0.01ms !important;
   }
 }
+/* ADMIN ATTENDANCE EDIT DROPDOWN */
+.admin-attendance-page .admin-attendance-edit-select {
+  min-width: 125px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+}
+
+.admin-attendance-page .admin-attendance-edit-select.present {
+  color: #15803d;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.admin-attendance-page .admin-attendance-edit-select.absent {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.admin-attendance-page .admin-attendance-edit-select.leave {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.admin-attendance-page .admin-attendance-edit-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-attendance-page .admin-attendance-saving {
+  display: block;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 11px;
+}
+/* CUSTOM ATTENDANCE DROPDOWN */
+
+.admin-attendance-page .attendance-custom-dropdown {
+  position: relative;
+  display: inline-block;
+  min-width: 135px;
+}
+
+.admin-attendance-page .attendance-dropdown-trigger {
+  width: 135px;
+  height: 40px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 650;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-attendance-page .attendance-dropdown-trigger.present {
+  color: #15803d;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.admin-attendance-page .attendance-dropdown-trigger.absent {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.admin-attendance-page .attendance-dropdown-trigger.leave {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.admin-attendance-page .attendance-dropdown-trigger:hover {
+  filter: brightness(0.97);
+}
+
+.admin-attendance-page .attendance-dropdown-trigger svg {
+  transition: transform 0.2s ease;
+}
+
+.admin-attendance-page .attendance-dropdown-trigger svg.rotated {
+  transform: rotate(180deg);
+}
+
+.admin-attendance-page .attendance-dropdown-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* MENU */
+
+.admin-attendance-page .attendance-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  width: 165px;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid #e8edf5;
+  border-radius: 11px;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.16);
+  z-index: 100;
+  animation: attendanceDropdownOpen 0.16s ease-out;
+}
+
+@keyframes attendanceDropdownOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* OPTIONS */
+
+.admin-attendance-page .attendance-dropdown-option {
+  width: 100%;
+  min-height: 39px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.admin-attendance-page .attendance-dropdown-option:hover {
+  background: #f8fafc;
+}
+
+.admin-attendance-page .attendance-option-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.admin-attendance-page .attendance-dropdown-option.present {
+  color: #15803d;
+}
+
+.admin-attendance-page .attendance-dropdown-option.present
+.attendance-option-indicator {
+  background: #22c55e;
+}
+
+.admin-attendance-page .attendance-dropdown-option.absent {
+  color: #dc2626;
+}
+
+.admin-attendance-page .attendance-dropdown-option.absent
+.attendance-option-indicator {
+  background: #ef4444;
+}
+
+.admin-attendance-page .attendance-dropdown-option.leave {
+  color: #b45309;
+}
+
+.admin-attendance-page .attendance-dropdown-option.leave
+.attendance-option-indicator {
+  background: #f59e0b;
+}
+
+.admin-attendance-page .attendance-dropdown-option.active {
+  background: #f1f5f9;
+}
+
+.admin-attendance-page .attendance-option-check {
+  margin-left: auto;
+}
+
+.admin-attendance-page .admin-attendance-saving {
+  display: block;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 11px;
+}

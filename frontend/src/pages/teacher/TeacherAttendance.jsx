@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   CalendarDays,
   Users,
@@ -18,6 +17,7 @@ import {
   formatSingleTime,
   formatBatchTimingString,
 } from "../../utils/batchUtils";
+
 const DEFAULT_ATTENDANCE_META = {
   isMarked: false,
   markedBy: null,
@@ -68,8 +68,21 @@ const TeacherAttendance = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [autoSaveStatus, setAutoSaveStatus] = useState("idle");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  const autoSaveTimerRef = useRef(null);
+  const savingRef = useRef(false);
 
+  const selectionRef = useRef({
+    batchId: selectedBatchId,
+    date: selectedDate,
+  });
+
+  selectionRef.current = {
+    batchId: selectedBatchId,
+    date: selectedDate,
+  };
 
   const formatDateTime = (date) => {
     if (!date) return "";
@@ -83,39 +96,28 @@ const TeacherAttendance = () => {
     });
   };
 
+  const getBatchLabel = (batch) => {
+    if (!batch) return "Unnamed Batch";
 
+    if (batch.name) return batch.name;
+    if (batch.code) return batch.code;
 
-const getBatchLabel = (batch) => {
-  if (!batch) return "Unnamed Batch";
+    if (batch.displayTiming) {
+      return formatBatchTimingString(batch.displayTiming);
+    }
 
-  // Batch name already contains timing and date.
-  // Do not append timing a second time.
-  if (batch.name) {
-    return batch.name;
-  }
+    if (batch.batchTiming) {
+      return formatBatchTimingString(batch.batchTiming);
+    }
 
-  if (batch.code) {
-    return batch.code;
-  }
+    if (batch.startTime && batch.endTime) {
+      return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
+        batch.endTime
+      )}`;
+    }
 
-  if (batch.displayTiming) {
-    return formatBatchTimingString(batch.displayTiming);
-  }
-
-  if (batch.batchTiming) {
-    return formatBatchTimingString(batch.batchTiming);
-  }
-
-  if (batch.startTime && batch.endTime) {
-    return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
-      batch.endTime
-    )}`;
-  }
-
-  return "Unnamed Batch";
-};
-
-
+    return "Unnamed Batch";
+  };
 
   // LOAD BATCHES
   useEffect(() => {
@@ -140,6 +142,7 @@ const getBatchLabel = (batch) => {
         if (!active) return;
 
         console.error("Load Batches Error:", error);
+
         setError(
           error.response?.data?.message || "Unable to load batches"
         );
@@ -159,6 +162,8 @@ const getBatchLabel = (batch) => {
   useEffect(() => {
     if (!selectedBatchId || !selectedDate) {
       setStudents([]);
+      setHasUnsavedChanges(false);
+      setAutoSaveStatus("idle");
       return;
     }
 
@@ -167,8 +172,15 @@ const getBatchLabel = (batch) => {
     const loadStudents = async () => {
       try {
         setStudentsLoading(true);
+        setHasUnsavedChanges(false);
+        setAutoSaveStatus("idle");
         setError("");
         setSuccessMessage("");
+
+        if (autoSaveTimerRef.current) {
+          clearTimeout(autoSaveTimerRef.current);
+          autoSaveTimerRef.current = null;
+        }
 
         const response = await api.get("/attendance/my-students", {
           params: {
@@ -184,14 +196,17 @@ const getBatchLabel = (batch) => {
         );
 
         const fetchedStudents = response.data?.students || [];
+
         setStudents(fetchedStudents.map(formatStudent));
       } catch (error) {
         if (!active) return;
 
         console.error("Load Students Error:", error);
+
         setError(
           error.response?.data?.message || "Unable to load students"
         );
+
         setStudents([]);
       } finally {
         if (active) setStudentsLoading(false);
@@ -207,18 +222,35 @@ const getBatchLabel = (batch) => {
 
   // UPDATE ATTENDANCE
   const updateAttendance = (id, status) => {
-    if (!attendanceMeta.canEdit) return;
+    if (!attendanceMeta.canEdit || savingRef.current) return;
+
+    const currentStudent = students.find(
+      (student) => student.id === id
+    );
+
+    if (!currentStudent || currentStudent.status === status) return;
 
     setStudents((previousStudents) =>
       previousStudents.map((student) =>
         student.id === id ? { ...student, status } : student
       )
     );
+
+    setHasUnsavedChanges(true);
+    setAutoSaveStatus("pending");
+    setError("");
+    setSuccessMessage("");
   };
 
   // MARK ALL PRESENT
   const markAllPresent = () => {
-    if (!attendanceMeta.canEdit) return;
+    if (!attendanceMeta.canEdit || savingRef.current) return;
+
+    const hasChanges = students.some(
+      (student) => student.status !== "Present"
+    );
+
+    if (!hasChanges) return;
 
     setStudents((previousStudents) =>
       previousStudents.map((student) => ({
@@ -226,73 +258,158 @@ const getBatchLabel = (batch) => {
         status: "Present",
       }))
     );
+
+    setHasUnsavedChanges(true);
+    setAutoSaveStatus("pending");
+    setError("");
+    setSuccessMessage("");
   };
 
   // SAVE ATTENDANCE
-  const saveAttendance = async () => {
-    try {
-      if (!attendanceMeta.canEdit) {
+  const saveAttendance = async ({ silent = false } = {}) => {
+    if (savingRef.current) return;
+
+    if (!attendanceMeta.canEdit) {
+      if (!silent) {
         setError(
           "You do not have permission to edit this attendance."
         );
-        return;
       }
+      return;
+    }
 
-      if (!selectedBatchId) {
-        setError("Please select a batch");
-        return;
+    if (!selectedBatchId || !selectedDate || students.length === 0) {
+      if (!silent) {
+        setError("Please select a batch with students.");
       }
+      return;
+    }
 
-      if (students.length === 0) {
-        setError("No students available");
-        return;
-      }
+    const batchIdToSave = selectedBatchId;
+    const dateToSave = selectedDate;
+    const studentsToSave = students;
 
-      setSaving(true);
-      setError("");
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = null;
+    }
+
+    savingRef.current = true;
+    setSaving(true);
+    setAutoSaveStatus("saving");
+    setError("");
+
+    if (!silent) {
       setSuccessMessage("");
+    }
 
-      const attendanceData = students.map((student) => ({
+    try {
+      const attendanceData = studentsToSave.map((student) => ({
         studentId: student._id,
         status: student.status.toUpperCase(),
       }));
 
       const response = await api.post("/attendance/mark", {
-        batchId: selectedBatchId,
-        date: selectedDate,
+        batchId: batchIdToSave,
+        date: dateToSave,
         attendance: attendanceData,
       });
 
-      setSuccessMessage(
-        response.data?.message || "Attendance saved successfully"
-      );
+      const selectionIsSame =
+        selectionRef.current.batchId === batchIdToSave &&
+        selectionRef.current.date === dateToSave;
 
-      const refreshResponse = await api.get(
-        "/attendance/my-students",
-        {
-          params: {
-            batchId: selectedBatchId,
-            date: selectedDate,
-          },
+      if (selectionIsSame) {
+        const refreshResponse = await api.get(
+          "/attendance/my-students",
+          {
+            params: {
+              batchId: batchIdToSave,
+              date: dateToSave,
+            },
+          }
+        );
+
+        if (
+          selectionRef.current.batchId === batchIdToSave &&
+          selectionRef.current.date === dateToSave
+        ) {
+          setStudents(
+            (refreshResponse.data?.students || []).map(formatStudent)
+          );
+
+          setAttendanceMeta(
+            refreshResponse.data?.attendanceMeta || attendanceMeta
+          );
+
+          setHasUnsavedChanges(false);
+          setAutoSaveStatus("saved");
+
+          if (!silent) {
+            setSuccessMessage(
+              response.data?.message ||
+                "Attendance saved successfully"
+            );
+          }
         }
-      );
-
-      setStudents(
-        (refreshResponse.data?.students || []).map(formatStudent)
-      );
-
-      setAttendanceMeta(
-        refreshResponse.data?.attendanceMeta || attendanceMeta
-      );
+      }
     } catch (error) {
       console.error("Save Attendance Error:", error);
-      setError(
-        error.response?.data?.message || "Unable to save attendance"
-      );
+
+      const selectionIsSame =
+        selectionRef.current.batchId === batchIdToSave &&
+        selectionRef.current.date === dateToSave;
+
+      if (selectionIsSame) {
+        setAutoSaveStatus("error");
+        setHasUnsavedChanges(true);
+
+        setError(
+          error.response?.data?.message ||
+            "Unable to save attendance. Please try again."
+        );
+      }
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   };
+
+  // AUTO-SAVE ATTENDANCE
+  useEffect(() => {
+    if (
+      !hasUnsavedChanges ||
+      autoSaveStatus === "error" ||
+      !attendanceMeta.canEdit ||
+      studentsLoading ||
+      students.length === 0 ||
+      saving
+    ) {
+      return undefined;
+    }
+
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      saveAttendance({ silent: true });
+    }, 700);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
+      }
+    };
+  }, [
+    hasUnsavedChanges,
+    autoSaveStatus,
+    students,
+    attendanceMeta.canEdit,
+    studentsLoading,
+    saving,
+  ]);
 
   // COUNTS
   const presentCount = students.filter(
@@ -307,7 +424,7 @@ const getBatchLabel = (batch) => {
     (student) => student.status === "Leave"
   ).length;
 
-  // Leave students are excluded from attendance percentage.
+  // ATTENDANCE PERCENTAGE
   const attendanceEligibleCount = presentCount + absentCount;
 
   const attendanceRate =
@@ -355,7 +472,9 @@ const getBatchLabel = (batch) => {
       return {
         type: "locked",
         icon: <Lock size={17} />,
-        message: `Attendance is permanently locked. It was marked by ${attendanceMeta.markedBy?.name || "another teacher"}.`,
+        message: `Attendance is permanently locked. It was marked by ${
+          attendanceMeta.markedBy?.name || "another teacher"
+        }.`,
       };
     }
 
@@ -363,14 +482,18 @@ const getBatchLabel = (batch) => {
       return {
         type: "view",
         icon: <Eye size={17} />,
-        message: `Attendance was marked by ${attendanceMeta.markedBy?.name || "another teacher"}. You have view-only access.`,
+        message: `Attendance was marked by ${
+          attendanceMeta.markedBy?.name || "another teacher"
+        }. You have view-only access.`,
       };
     }
 
     return {
       type: "editable",
       icon: <Clock size={17} />,
-      message: `You can edit this attendance until ${formatDateTime(attendanceMeta.editableUntil)}.`,
+      message: `You can edit this attendance until ${formatDateTime(
+        attendanceMeta.editableUntil
+      )}.`,
     };
   };
 
@@ -487,9 +610,14 @@ const getBatchLabel = (batch) => {
           <select
             value={selectedBatchId}
             onChange={(e) => {
+              if (hasUnsavedChanges) {
+                saveAttendance({ silent: true });
+              }
+
               setSelectedBatchId(e.target.value);
               setActiveStatFilter("TOTAL");
             }}
+            disabled={saving}
           >
             {batches.length === 0 ? (
               <option value="">No batches available</option>
@@ -513,9 +641,14 @@ const getBatchLabel = (batch) => {
             type="date"
             value={selectedDate}
             onChange={(e) => {
+              if (hasUnsavedChanges) {
+                saveAttendance({ silent: true });
+              }
+
               setSelectedDate(e.target.value);
               setActiveStatFilter("TOTAL");
             }}
+            disabled={saving}
           />
         </div>
       </div>
@@ -658,10 +791,10 @@ const getBatchLabel = (batch) => {
                     <td>
                       <div className="attendance-student-info">
                         <ProfileAvatar
-  user={student}
-  size={40}
-  className="attendance-student-avatar"
-/>
+                          user={student}
+                          size={40}
+                          className="attendance-student-avatar"
+                        />
 
                         <div>
                           <strong>{student.name}</strong>
@@ -748,11 +881,39 @@ const getBatchLabel = (batch) => {
             <strong>{presentCount} Present</strong>
             <span>{" · "}{absentCount} Absent</span>
             <span>{" · "}{leaveCount} Leave</span>
+
+            <div
+              role="status"
+              aria-live="polite"
+              style={{
+                marginTop: "6px",
+                fontSize: "13px",
+                fontWeight: 500,
+                color:
+                  autoSaveStatus === "error"
+                    ? "#dc2626"
+                    : autoSaveStatus === "saved"
+                      ? "#15803d"
+                      : autoSaveStatus === "saving"
+                        ? "#2563eb"
+                        : "#64748b",
+              }}
+            >
+              {autoSaveStatus === "pending"
+                ? "Changes pending — auto-save shortly"
+                : autoSaveStatus === "saving"
+                  ? "Saving attendance..."
+                  : autoSaveStatus === "saved"
+                    ? "Attendance saved ✓"
+                    : autoSaveStatus === "error"
+                      ? "Auto-save failed — use Save Attendance to retry"
+                      : "Changes are saved automatically"}
+            </div>
           </div>
 
           <button
             className="save-attendance-btn"
-            onClick={saveAttendance}
+            onClick={() => saveAttendance()}
             disabled={
               students.length === 0 ||
               saving ||

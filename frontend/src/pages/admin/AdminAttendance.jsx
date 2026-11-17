@@ -1,8 +1,4 @@
-
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import {
   CalendarDays,
@@ -11,18 +7,21 @@ import {
   UserX,
   Search,
   Download,
-  CheckCircle2,
-  XCircle,
   Clock,
+   ChevronDown,
+  Check,
 } from "lucide-react";
+
 import {
   formatSingleTime,
   formatBatchTimingString,
 } from "../../utils/batchUtils";
+
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
-import "./AdminAttendance.css";
 import ProfileAvatar from "../../components/common/ProfileAvatar";
+import "./AdminAttendance.css";
+
 const AdminAttendance = () => {
   /* GET TODAY DATE */
   const getTodayDate = () => {
@@ -35,28 +34,26 @@ const AdminAttendance = () => {
     return `${year}-${month}-${day}`;
   };
 
- 
+  /* FORMAT BATCH TIMING */
+  const formatBatchTiming = (batch) => {
+    if (!batch) return "";
 
-/* FORMAT BATCH TIMING */
-const formatBatchTiming = (batch) => {
-  if (!batch) return "";
+    if (batch.displayTiming) {
+      return formatBatchTimingString(batch.displayTiming);
+    }
 
-  if (batch.displayTiming) {
-    return formatBatchTimingString(batch.displayTiming);
-  }
+    if (batch.batchTiming) {
+      return formatBatchTimingString(batch.batchTiming);
+    }
 
-  if (batch.batchTiming) {
-    return formatBatchTimingString(batch.batchTiming);
-  }
+    if (batch.startTime && batch.endTime) {
+      return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
+        batch.endTime
+      )}`;
+    }
 
-  if (batch.startTime && batch.endTime) {
-    return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
-      batch.endTime
-    )}`;
-  }
-
-  return "";
-};
+    return "";
+  };
 
   /* GET BATCH LABEL */
   const getBatchLabel = (batch) => {
@@ -76,7 +73,7 @@ const formatBatchTiming = (batch) => {
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-
+const [openStatusMenuId, setOpenStatusMenuId] = useState(null);
   const [alert, setAlert] = useState({
     isOpen: false,
     type: "info",
@@ -97,6 +94,9 @@ const formatBatchTiming = (batch) => {
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [savingRecordId, setSavingRecordId] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   /* FETCH BATCHES */
   useEffect(() => {
@@ -178,7 +178,7 @@ const formatBatchTiming = (batch) => {
 
         setError(
           error.response?.data?.message ||
-          "Unable to fetch attendance"
+            "Unable to fetch attendance"
         );
 
         setAttendanceRecords([]);
@@ -194,7 +194,7 @@ const formatBatchTiming = (batch) => {
     return () => {
       active = false;
     };
-  }, [selectedBatchId, selectedDate, search]);
+  }, [selectedBatchId, selectedDate, search, refreshKey]);
 
   /* FETCH ATTENDANCE STATS */
   useEffect(() => {
@@ -241,7 +241,96 @@ const formatBatchTiming = (batch) => {
     return () => {
       active = false;
     };
-  }, [selectedDate, selectedBatchId]);
+  }, [selectedDate, selectedBatchId, refreshKey]);
+
+  /* ADMIN UPDATE ATTENDANCE */
+  const updateStudentAttendance = async (record, newStatus) => {
+    if (!record?.batchId || !record?.student?._id) {
+      setAlert({
+        isOpen: true,
+        type: "error",
+        title: "Update Failed",
+        message: "Batch or student information is missing.",
+      });
+      return;
+    }
+
+    if (!["PRESENT", "ABSENT", "LEAVE"].includes(newStatus)) {
+      return;
+    }
+
+    const recordDate = record.date;
+
+    const date =
+      typeof recordDate === "string" &&
+      /^\d{4}-\d{2}-\d{2}/.test(recordDate)
+        ? recordDate.slice(0, 10)
+        : new Date(recordDate).toISOString().slice(0, 10);
+
+    const batchId =
+      typeof record.batchId === "object"
+        ? record.batchId._id
+        : record.batchId;
+
+    try {
+      setSavingRecordId(record._id);
+
+      // Backend requires complete attendance list for the batch/date.
+      const response = await api.get("/attendance/my-students", {
+        params: {
+          batchId,
+          date,
+        },
+      });
+
+      const students = response.data?.students || [];
+
+      if (!students.length) {
+        throw new Error("No students found in this batch.");
+      }
+
+      const attendance = students.map((student) => ({
+        studentId: student._id,
+        status:
+          String(student._id) === String(record.student._id)
+            ? newStatus
+            : String(
+                student.attendanceStatus || "PRESENT"
+              ).toUpperCase(),
+      }));
+
+      await api.post("/attendance/mark", {
+        batchId,
+        date,
+        attendance,
+      });
+
+      setAlert({
+        isOpen: true,
+        type: "success",
+        title: "Attendance Updated",
+        message: `${
+          record.student.name || "Student"
+        }'s attendance updated successfully.`,
+      });
+
+      setRefreshKey((previous) => previous + 1);
+    } catch (error) {
+      console.error("Admin Attendance Update Error:", error);
+
+      setAlert({
+        isOpen: true,
+        type: "error",
+        title: "Update Failed",
+        message:
+          error.response?.data?.message ||
+          error.message ||
+          "Unable to update attendance.",
+      });
+    } finally {
+      setSavingRecordId(null);
+    }
+  };
 
   /* FORMAT DATE */
   const formatDate = (dateValue) => {
@@ -260,10 +349,7 @@ const formatBatchTiming = (batch) => {
 
   /* GET RECORD BATCH OBJECT */
   const getRecordBatch = (record) => {
-    if (
-      record.batch &&
-      typeof record.batch === "object"
-    ) {
+    if (record.batch && typeof record.batch === "object") {
       return record.batch;
     }
 
@@ -311,16 +397,13 @@ const formatBatchTiming = (batch) => {
         return status === "LEAVE";
       }
 
-      // Average calculation includes Present + Absent.
-      // Leave records are excluded.
-     // Average calculation includes Present + Absent + Leave.
-if (statusFilter === "AVERAGE") {
-  return (
-    status === "PRESENT" ||
-    status === "ABSENT" ||
-    status === "LEAVE"
-  );
-}
+      if (statusFilter === "AVERAGE") {
+        return (
+          status === "PRESENT" ||
+          status === "ABSENT" ||
+          status === "LEAVE"
+        );
+      }
 
       return true;
     }
@@ -367,21 +450,13 @@ if (statusFilter === "AVERAGE") {
       return `"${text.replace(/"/g, '""')}"`;
     };
 
-    const csvContent = [
-      headers,
-      ...rows,
-    ]
-      .map((row) =>
-        row.map(escapeCSVValue).join(",")
-      )
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map(escapeCSVValue).join(","))
       .join("\r\n");
 
-    const blob = new Blob(
-      ["\uFEFF" + csvContent],
-      {
-        type: "text/csv;charset=utf-8;",
-      }
-    );
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -441,7 +516,7 @@ if (statusFilter === "AVERAGE") {
             type="button"
             onClick={() => {
               setError("");
-              setSelectedDate((previous) => previous);
+              setRefreshKey((previous) => previous + 1);
             }}
           >
             Try Again
@@ -454,7 +529,6 @@ if (statusFilter === "AVERAGE") {
   /* RENDER */
   return (
     <div className="admin-attendance-page">
-
       {/* HEADER */}
       <div className="admin-attendance-header">
         <div>
@@ -480,7 +554,6 @@ if (statusFilter === "AVERAGE") {
 
       {/* STATS */}
       <div className="attendance-stats-grid">
-
         {/* TOTAL STUDENTS */}
         <button
           type="button"
@@ -580,12 +653,10 @@ if (statusFilter === "AVERAGE") {
             <small>Present + absent records + leave</small>
           </div>
         </button>
-
       </div>
 
       {/* MAIN CARD */}
       <div className="attendance-management-card">
-
         {/* CARD HEADER */}
         <div className="attendance-card-header">
           <div>
@@ -600,7 +671,6 @@ if (statusFilter === "AVERAGE") {
 
           {/* FILTERS */}
           <div className="attendance-filters">
-
             {/* BATCH FILTER */}
             <select
               value={selectedBatchId}
@@ -608,15 +678,10 @@ if (statusFilter === "AVERAGE") {
                 setSelectedBatchId(e.target.value)
               }
             >
-              <option value="All">
-                All Batches
-              </option>
+              <option value="All">All Batches</option>
 
               {batches.map((batch) => (
-                <option
-                  key={batch._id}
-                  value={batch._id}
-                >
+                <option key={batch._id} value={batch._id}>
                   {getBatchLabel(batch)}
                 </option>
               ))}
@@ -654,7 +719,6 @@ if (statusFilter === "AVERAGE") {
         {/* TABLE */}
         <div className="attendance-table-wrapper">
           <table className="admin-attendance-table">
-
             <thead>
               <tr>
                 <th>Student</th>
@@ -677,19 +741,19 @@ if (statusFilter === "AVERAGE") {
 
                   return (
                     <tr key={record._id}>
-
                       {/* STUDENT */}
                       <td>
                         <div className="attendance-student-profile">
                           <ProfileAvatar
-  user={record.student}
-  size={39}
-  className="attendance-avatar"
-/>
+                            user={record.student}
+                            size={39}
+                            className="attendance-avatar"
+                          />
 
                           <div>
                             <strong>
-                              {record.student?.name || "Unknown Student"}
+                              {record.student?.name ||
+                                "Unknown Student"}
                             </strong>
 
                             <span>
@@ -707,41 +771,89 @@ if (statusFilter === "AVERAGE") {
                       </td>
 
                       {/* DATE */}
-                      <td>
-                        {formatDate(record.date)}
-                      </td>
+                      <td>{formatDate(record.date)}</td>
 
-                      {/* STATUS */}
-                      <td>
-                        <span
-                          className={`attendance-status ${
-                            isPresent
-                              ? "present"
-                              : isAbsent
-                                ? "absent"
-                                : isLeave
-                                  ? "leave"
-                                  : ""
-                          }`}
-                        >
-                          {isPresent ? (
-                            <CheckCircle2 size={13} />
-                          ) : isAbsent ? (
-                            <XCircle size={13} />
-                          ) : isLeave ? (
-                            <Clock size={13} />
-                          ) : null}
+                      {/* EDITABLE STATUS */}
+                      {/* CUSTOM STATUS DROPDOWN */}
+<td>
+  <div
+    className="attendance-custom-dropdown"
+    onBlur={(e) => {
+      if (!e.currentTarget.contains(e.relatedTarget)) {
+        setOpenStatusMenuId(null);
+      }
+    }}
+  >
+    <button
+      type="button"
+      className={`attendance-dropdown-trigger ${
+        isPresent
+          ? "present"
+          : isAbsent
+            ? "absent"
+            : isLeave
+              ? "leave"
+              : ""
+      }`}
+      disabled={savingRecordId !== null}
+      aria-haspopup="listbox"
+      aria-expanded={openStatusMenuId === record._id}
+      onClick={() =>
+        setOpenStatusMenuId((previous) =>
+          previous === record._id ? null : record._id
+        )
+      }
+    >
+      <span>{isPresent ? "Present" : isAbsent ? "Absent" : "Leave"}</span>
+      <ChevronDown
+        size={16}
+        className={
+          openStatusMenuId === record._id ? "rotated" : ""
+        }
+      />
+    </button>
 
-                          {isPresent
-                            ? "Present"
-                            : isAbsent
-                              ? "Absent"
-                              : isLeave
-                                ? "Leave"
-                                : record.status || "Unknown"}
-                        </span>
-                      </td>
+    {openStatusMenuId === record._id && (
+      <div className="attendance-dropdown-menu" role="listbox">
+        {[
+          { value: "PRESENT", label: "Present", className: "present" },
+          { value: "ABSENT", label: "Absent", className: "absent" },
+          { value: "LEAVE", label: "Leave", className: "leave" },
+        ].map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            role="option"
+            aria-selected={status === option.value}
+            className={`attendance-dropdown-option ${option.className} ${
+              status === option.value ? "active" : ""
+            }`}
+            onClick={() => {
+              setOpenStatusMenuId(null);
 
+              if (status !== option.value) {
+                updateStudentAttendance(record, option.value);
+              }
+            }}
+          >
+            <span className="attendance-option-indicator" />
+            <span>{option.label}</span>
+
+            {status === option.value && (
+              <Check size={16} className="attendance-option-check" />
+            )}
+          </button>
+        ))}
+      </div>
+    )}
+
+    {savingRecordId === record._id && (
+      <small className="admin-attendance-saving">
+        Saving...
+      </small>
+    )}
+  </div>
+</td>
                     </tr>
                   );
                 })
@@ -759,10 +871,8 @@ if (statusFilter === "AVERAGE") {
                 </tr>
               )}
             </tbody>
-
           </table>
         </div>
-
       </div>
 
       {/* ALERT MODAL */}
@@ -778,7 +888,6 @@ if (statusFilter === "AVERAGE") {
         title={alert.title}
         message={alert.message}
       />
-
     </div>
   );
 };
