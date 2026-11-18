@@ -127,7 +127,8 @@ const AdminLeaves = () => {
   const [batchFilter, setBatchFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("");
   const [search, setSearch] = useState("");
-
+const [batches, setBatches] = useState([]);
+const [batchDropdownOpen, setBatchDropdownOpen] = useState(false);
   // Loading and messages
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -178,22 +179,27 @@ const [confirmDeleteLeave, setConfirmDeleteLeave] = useState(null);
   useEffect(() => {
     fetchLeaves();
   }, [fetchLeaves]);
+  // Fetch all batches independently of leave requests
+useEffect(() => {
+  const fetchBatches = async () => {
+    try {
+      const response = await api.get("/batches");
 
-  // Get unique batches from available requests.
-  const availableBatches = useMemo(() => {
-    const batchMap = new Map();
+      setBatches(
+        Array.isArray(response.data?.batches)
+          ? response.data.batches
+          : []
+      );
+    } catch (error) {
+      console.error("Fetch Batches Error:", error);
+      setBatches([]);
+    }
+  };
 
-    leaves.forEach((leave) => {
-      const batch = leave.batchId;
-      const id = getBatchId(batch);
+  fetchBatches();
+}, []);
 
-      if (id && typeof batch === "object") {
-        batchMap.set(id, batch);
-      }
-    });
-
-    return Array.from(batchMap.values());
-  }, [leaves]);
+ 
 
   // Combined filtering: status + batch + date + search.
   const filteredLeaves = useMemo(() => {
@@ -536,32 +542,110 @@ const handleDeleteLeave = async () => {
         {/* ADVANCED FILTERS */}
         <div className="admin-leaves-filters">
           {/* BATCH FILTER */}
-          <div className="admin-leaves-filter-field">
-            <select
-              value={batchFilter}
-              onChange={(event) =>
-                setBatchFilter(event.target.value)
-              }
-              className="admin-leaves-filter-select"
-              aria-label="Filter by batch"
+         <div className="admin-leaves-batch-select">
+  <button
+    type="button"
+    className={`admin-leaves-batch-trigger ${
+      batchDropdownOpen ? "active" : ""
+    }`}
+    onClick={() => setBatchDropdownOpen((prev) => !prev)}
+  >
+    <span>
+      <strong>
+        {batchFilter === "ALL"
+          ? "All Batches"
+          : getBatchName(
+              batches.find(
+                (batch) => String(batch._id) === batchFilter
+              )
+            )}
+      </strong>
+
+      <small>
+        {batchFilter === "ALL"
+          ? `${batches.length} batches available`
+          : "Selected batch"}
+      </small>
+    </span>
+
+    <ChevronDown
+      size={18}
+      className={batchDropdownOpen ? "rotated" : ""}
+    />
+  </button>
+
+  {batchDropdownOpen && (
+    <>
+      <div
+        className="admin-leaves-batch-backdrop"
+        onClick={() => setBatchDropdownOpen(false)}
+      />
+
+      <div className="admin-leaves-batch-menu">
+        <button
+          type="button"
+          className={`admin-leaves-batch-option ${
+            batchFilter === "ALL" ? "selected" : ""
+          }`}
+          onClick={() => {
+            setBatchFilter("ALL");
+            setBatchDropdownOpen(false);
+          }}
+        >
+          <span className="admin-leaves-batch-option-icon">
+            A
+          </span>
+
+          <span className="admin-leaves-batch-option-text">
+            <strong>All Batches</strong>
+            <small>Show all leave requests</small>
+          </span>
+
+          {batchFilter === "ALL" && <CheckCircle2 size={17} />}
+        </button>
+
+        {batches.map((batch) => {
+          const selected =
+            batchFilter === String(batch._id);
+
+          return (
+            <button
+              key={batch._id}
+              type="button"
+              className={`admin-leaves-batch-option ${
+                selected ? "selected" : ""
+              }`}
+              onClick={() => {
+                setBatchFilter(String(batch._id));
+                setBatchDropdownOpen(false);
+              }}
             >
-              <option value="ALL">All Batches</option>
+              <span className="admin-leaves-batch-option-icon">
+                <CalendarDays size={17} />
+              </span>
 
-              {availableBatches.map((batch) => (
-                <option
-                  key={batch._id}
-                  value={String(batch._id)}
-                >
-                  {getBatchName(batch)}
-                </option>
-              ))}
-            </select>
+              <span className="admin-leaves-batch-option-text">
+                <strong>{batch.name || "Unnamed Batch"}</strong>
+                <small>
+                  {batch.batchTiming ||
+                    `${batch.startTime || ""} - ${batch.endTime || ""}`}
+                </small>
+              </span>
 
-            <ChevronDown
-              size={15}
-              className="admin-leaves-filter-chevron"
-            />
-          </div>
+              {selected && <CheckCircle2 size={17} />}
+            </button>
+          );
+        })}
+
+        {batches.length === 0 && (
+          <p className="admin-leaves-no-batches">
+            No batches available
+          </p>
+        )}
+      </div>
+    </>
+  )}
+</div>
 
           {/* DATE FILTER */}
           <div className="admin-leaves-filter-field admin-leaves-date-field">
@@ -585,7 +669,7 @@ const handleDeleteLeave = async () => {
 
             <input
               type="search"
-              placeholder="Search student, email or reason..."
+              placeholder="Search name, email or reason..."
               value={search}
               onChange={(event) =>
                 setSearch(event.target.value)

@@ -1198,3 +1198,217 @@
     width: 100%;
   }
 }
+
+/* =========================================
+   MODERN LEAVE BATCH SELECTOR
+========================================= */
+
+.admin-leaves-batch-select {
+  position: relative;
+  width: 205px;
+  flex-shrink: 0;
+  z-index: 30;
+}
+
+.admin-leaves-batch-trigger {
+  width: 100%;
+  min-height: 44px;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid #e1e7f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #011451;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: 0.2s ease;
+}
+
+.admin-leaves-batch-trigger:hover,
+.admin-leaves-batch-trigger.active {
+  border-color: #011451;
+  box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.06);
+}
+
+.admin-leaves-batch-trigger > span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.admin-leaves-batch-trigger strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.admin-leaves-batch-trigger small {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.admin-leaves-batch-trigger > svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.admin-leaves-batch-trigger > svg.rotated {
+  transform: rotate(180deg);
+}
+
+/* DROPDOWN */
+
+.admin-leaves-batch-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 31;
+  background: transparent;
+}
+
+.admin-leaves-batch-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: auto;
+  z-index: 42;
+
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  max-height: 360px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px;
+
+  box-sizing: border-box;
+  border: 1px solid #e5eaf2;
+  border-radius: 13px;
+  background: #ffffff;
+  box-shadow: 0 16px 38px rgba(1, 20, 81, 0.16);
+  animation: adminLeavesBatchOpen 0.16s ease;
+}
+
+.admin-leaves-batch-option {
+  width: 100%;
+  min-height: 54px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #011451;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.admin-leaves-batch-option:hover {
+  background: #f5f7fc;
+}
+
+.admin-leaves-batch-option.selected {
+  background: #fff8e8;
+}
+
+.admin-leaves-batch-option-icon {
+  width: 33px;
+  height: 33px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: #edf0f8;
+  color: #011451;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-leaves-batch-option.selected
+.admin-leaves-batch-option-icon {
+  background: #fce8b5;
+}
+
+.admin-leaves-batch-option-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.admin-leaves-batch-option-text strong {
+  display: block;
+  color: #011451;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.4;
+
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  overflow-wrap: anywhere;
+}
+
+.admin-leaves-batch-option-text small {
+  display: block;
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.4;
+
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  overflow-wrap: anywhere;
+}
+
+.admin-leaves-batch-option > svg {
+  flex-shrink: 0;
+  color: #d99a0b;
+}
+
+.admin-leaves-no-batches {
+  padding: 12px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 11px;
+}
+
+/* SEARCH FIELD */
+
+.admin-leaves-search {
+  min-width: 250px;
+}
+
+.admin-leaves-search input {
+  width: 100%;
+}
+
+/* FILTER RESPONSIVENESS */
+
+@media (max-width: 1000px) {
+  .admin-leaves-filters {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
+@media (max-width: 650px) {
+  .admin-leaves-batch-select {
+    width: 100%;
+  }
+
+  .admin-leaves-search {
+    width: 100%;
+    min-width: 0;
+  }
+}
