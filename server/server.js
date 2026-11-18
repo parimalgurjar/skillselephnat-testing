@@ -5,7 +5,8 @@ const dotenv = require("dotenv");
 const rateLimit = require("express-rate-limit");
 dotenv.config();
 
-
+const videoTutorialRoutes = require("./routes/videoTutorialRoutes");
+const leaveRoutes = require("./routes/leaveRoutes");
 const { verifyEmailConnection } = require("./services/emailService");
 const helmet = require("helmet");
 const connectDB = require("./config/db");
@@ -96,7 +97,7 @@ const taskReportRoutes = require("./routes/taskReportRoutes");
 const courseModuleRoutes = require("./routes/courseModuleRoutes");
 const specializationRoutes = require("./routes/specializationRoutes");
 const PORT = process.env.PORT || 5001;
-const videoTutorialRoutes = require("./routes/videoTutorialRoutes");
+
 
 /* ================= CORS ================= */
 
@@ -152,7 +153,8 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/doubts", doubtRoutes);
 app.use("/api/fees", feeRoutes);
-
+/* LEAVE MANAGEMENT */
+app.use("/api/leaves", leaveRoutes);
 /* NORMAL TEACHER ASSIGNMENT SYSTEM */
 app.use("/api/tasks", taskRoutes);
 

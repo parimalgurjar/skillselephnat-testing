@@ -60,6 +60,11 @@ const StudentLayout = () => {
       icon: CalendarDays,
     },
     {
+  name: "Leave Application",
+  path: "/student/leaves",
+  icon: CalendarDays,
+},
+    {
       name: "Tasks",
       path: "/student/work",
       icon: CheckSquare,

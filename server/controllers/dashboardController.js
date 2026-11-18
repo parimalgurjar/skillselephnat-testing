@@ -34,6 +34,7 @@ const getStudentDashboard = async (req, res) => {
 
     /* ===============================================
        ATTENDANCE
+       LEAVE COUNTED AS ABSENT
     =============================================== */
 
     const attendanceRecords = await Attendance.find({
@@ -56,9 +57,8 @@ const getStudentDashboard = async (req, res) => {
       (record) => record.status === "LEAVE"
     ).length;
 
-    // Leave excluded from attendance percentage
     const eligibleClasses =
-      presentClasses + absentClasses;
+      presentClasses + absentClasses + leaveClasses;
 
     const attendancePercentage =
       eligibleClasses > 0
@@ -301,6 +301,7 @@ const getStudentProfile = async (req, res) => {
 
     /* ===============================================
        ATTENDANCE STATS
+       LEAVE COUNTED AS ABSENT
     =============================================== */
 
     const attendanceRecords = await Attendance.find({
@@ -323,9 +324,8 @@ const getStudentProfile = async (req, res) => {
       (record) => record.status === "LEAVE"
     ).length;
 
-    // Leave excluded from attendance percentage
     const eligibleClasses =
-      presentClasses + absentClasses;
+      presentClasses + absentClasses + leaveClasses;
 
     const attendancePercentage =
       eligibleClasses > 0
@@ -495,7 +495,7 @@ const getAdminReports = async (req, res) => {
 
     /* ===============================================
        OVERALL ATTENDANCE
-       LEAVE EXCLUDED
+       LEAVE COUNTED AS ABSENT
     =============================================== */
 
     const presentRecords =
@@ -508,8 +508,13 @@ const getAdminReports = async (req, res) => {
         (record) => record.status === "ABSENT"
       ).length;
 
+    const leaveRecords =
+      attendanceRecords.filter(
+        (record) => record.status === "LEAVE"
+      ).length;
+
     const totalEligibleRecords =
-      presentRecords + absentRecords;
+      presentRecords + absentRecords + leaveRecords;
 
     const averageAttendance =
       totalEligibleRecords > 0
@@ -600,8 +605,13 @@ const getAdminReports = async (req, res) => {
             (record) => record.status === "ABSENT"
           ).length;
 
+        const batchLeave =
+          batchAttendance.filter(
+            (record) => record.status === "LEAVE"
+          ).length;
+
         const batchEligible =
-          batchPresent + batchAbsent;
+          batchPresent + batchAbsent + batchLeave;
 
         const attendancePercentage =
           batchEligible > 0
@@ -718,8 +728,13 @@ const getAdminReports = async (req, res) => {
           (record) => record.status === "ABSENT"
         ).length;
 
+      const monthLeave =
+        monthAttendance.filter(
+          (record) => record.status === "LEAVE"
+        ).length;
+
       const monthEligible =
-        monthPresent + monthAbsent;
+        monthPresent + monthAbsent + monthLeave;
 
       const monthlyAttendance =
         monthEligible > 0

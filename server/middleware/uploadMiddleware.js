@@ -85,9 +85,49 @@ const uploadProfilePhoto = multer({
   },
 }).single("profilePhoto");
 
+/* =====================================================
+   LEAVE PROOF UPLOAD
+   Optional PDF / Image / Document
+   Maximum 10 MB
+===================================================== */
+
+const uploadLeaveProof = multer({
+  storage,
+
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+    files: 1,
+  },
+
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      const error = new Error(
+        "Only JPG, PNG, WebP, PDF and Word documents are allowed."
+      );
+
+      error.statusCode = 400;
+      return cb(error);
+    }
+
+    cb(null, true);
+  },
+});
+
+
 module.exports = {
   uploadAttachment,
   uploadProfilePhoto,
+  uploadLeaveProof,
   ALLOWED_MIME_TYPES,
   MAX_FILE_SIZE,
 };
+

@@ -1,0 +1,864 @@
+
+/* =====================================================
+   ADMIN LEAVE MANAGEMENT
+===================================================== */
+
+.admin-leaves-page {
+  width: 100%;
+  padding-bottom: 35px;
+  color: #172033;
+}
+
+/* HEADER */
+
+.admin-leaves-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+.admin-leaves-eyebrow {
+  margin-bottom: 8px;
+  color: #f0a900;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.admin-leaves-header h1 {
+  margin: 0 0 8px;
+  color: #011451;
+  font-size: 29px;
+  font-weight: 800;
+}
+
+.admin-leaves-header p {
+  color: #788399;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.admin-leaves-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 43px;
+  padding: 0 17px;
+  border: 1px solid #dfe5f0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #011451;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+
+.admin-leaves-refresh:hover {
+  border-color: #011451;
+  background: #f4f6fc;
+}
+
+.admin-leaves-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ALERTS */
+
+.admin-leaves-alert {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 20px;
+  padding: 13px 15px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.admin-leaves-alert span {
+  flex: 1;
+}
+
+.admin-leaves-alert button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+}
+
+.admin-leaves-alert.success {
+  border-color: #bbebd0;
+  background: #effbf4;
+  color: #16733e;
+}
+
+.admin-leaves-alert.error {
+  border-color: #fecaca;
+  background: #fff1f2;
+  color: #be123c;
+}
+
+/* STATS */
+
+.admin-leaves-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 17px;
+  margin-bottom: 25px;
+}
+
+.admin-leaves-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 105px;
+  padding: 19px;
+  border: 1px solid #e9edf4;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(1, 20, 81, 0.035);
+}
+
+.admin-leaves-stat-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 13px;
+}
+
+.admin-leaves-stat-icon.total {
+  background: #edf2ff;
+  color: #3159bd;
+}
+
+.admin-leaves-stat-icon.pending {
+  background: #fff6df;
+  color: #b77908;
+}
+
+.admin-leaves-stat-icon.approved {
+  background: #e9f9ef;
+  color: #16834a;
+}
+
+.admin-leaves-stat-icon.rejected {
+  background: #fff0f0;
+  color: #d13e4b;
+}
+
+.admin-leaves-stat-card span {
+  display: block;
+  margin-bottom: 6px;
+  color: #7b8498;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-leaves-stat-card strong {
+  display: block;
+  color: #011451;
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* TOOLBAR */
+
+.admin-leaves-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.admin-leaves-tabs {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.admin-leaves-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 39px;
+  padding: 0 13px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #778197;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-leaves-tabs button:hover {
+  background: #f0f3fa;
+  color: #011451;
+}
+
+.admin-leaves-tabs button.active {
+  border-color: #dce3f3;
+  background: #ffffff;
+  color: #011451;
+  box-shadow: 0 2px 7px rgba(1, 20, 81, 0.05);
+}
+
+.admin-leaves-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 20px;
+  background: #fff0cf;
+  color: #946000;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.admin-leaves-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 270px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #e3e8f1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #8b95a8;
+}
+
+.admin-leaves-search:focus-within {
+  border-color: #7186c5;
+  box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.06);
+}
+
+.admin-leaves-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #172033;
+  font-size: 12px;
+}
+
+.admin-leaves-search input::placeholder {
+  color: #a0a8b7;
+}
+
+/* REQUEST LIST */
+
+.admin-leaves-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.admin-leave-card {
+  padding: 21px;
+  border: 1px solid #e8ecf3;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 4px 15px rgba(1, 20, 81, 0.035);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-leave-card:hover {
+  border-color: #d6deef;
+  box-shadow: 0 7px 22px rgba(1, 20, 81, 0.06);
+}
+
+.admin-leave-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.admin-leave-student {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.admin-leave-avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #e2e9fb;
+  border-radius: 13px;
+  background: #f0f4ff;
+  color: #27468f;
+}
+
+.admin-leave-student h3 {
+  overflow: hidden;
+  margin: 0 0 5px;
+  color: #14234a;
+  font-size: 14px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+}
+
+.admin-leave-student p {
+  overflow: hidden;
+  color: #8a94a7;
+  font-size: 12px;
+  text-overflow: ellipsis;
+}
+
+.admin-leave-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-height: 27px;
+  padding: 0 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.admin-leave-status.pending {
+  background: #fff5dc;
+  color: #a56b00;
+}
+
+.admin-leave-status.approved {
+  background: #e8f8ee;
+  color: #16834a;
+}
+
+.admin-leave-status.rejected {
+  background: #fff0f0;
+  color: #c43b48;
+}
+
+/* DETAILS */
+
+.admin-leave-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  padding: 16px;
+  border: 1px solid #eef1f6;
+  border-radius: 11px;
+  background: #fafbfe;
+}
+
+.admin-leave-details span,
+.admin-leave-reason > span {
+  display: block;
+  margin-bottom: 7px;
+  color: #9099aa;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.admin-leave-details strong {
+  display: block;
+  color: #263653;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* REASON */
+
+.admin-leave-reason {
+  margin-top: 17px;
+}
+
+.admin-leave-reason p {
+  color: #49566e;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ATTACHMENT */
+
+.admin-leave-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 100%;
+  margin-top: 15px;
+  padding: 10px 12px;
+  border: 1px solid #e1e8f7;
+  border-radius: 9px;
+  background: #f6f8ff;
+  color: #25468f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-leave-attachment span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-leave-attachment:hover {
+  border-color: #9caddb;
+  background: #edf2ff;
+}
+
+/* ADMIN REMARKS */
+
+.admin-leave-remarks {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 12px;
+  border-left: 3px solid #e8a719;
+  border-radius: 7px;
+  background: #fffbef;
+  color: #946500;
+}
+
+.admin-leave-remarks svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.admin-leave-remarks strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 11px;
+}
+
+.admin-leave-remarks p {
+  color: #755b24;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* ACTIONS */
+
+.admin-leave-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 19px;
+  padding-top: 16px;
+  border-top: 1px solid #eef1f6;
+}
+
+.admin-leave-approve-btn,
+.admin-leave-reject-btn,
+.admin-leave-cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  transition: 0.2s ease;
+}
+
+.admin-leave-approve-btn {
+  border-color: #0b7540;
+  background: #0b7540;
+  color: #ffffff;
+}
+
+.admin-leave-approve-btn:hover {
+  border-color: #075d32;
+  background: #075d32;
+}
+
+.admin-leave-reject-btn {
+  border-color: #f2c9ce;
+  background: #fff5f5;
+  color: #c43b48;
+}
+
+.admin-leave-reject-btn:hover {
+  border-color: #d84b58;
+  background: #ffeded;
+}
+
+.admin-leave-cancel-btn {
+  border-color: #e1e6ef;
+  background: #ffffff;
+  color: #59657a;
+}
+
+.admin-leave-cancel-btn:hover {
+  background: #f5f7fb;
+}
+
+.admin-leave-reviewed {
+  margin-top: 16px;
+  padding-top: 13px;
+  border-top: 1px solid #eef1f6;
+  color: #8b95a7;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* LOADING AND EMPTY */
+
+.admin-leaves-loading,
+.admin-leaves-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+  padding: 35px 20px;
+  border: 1px dashed #dfe5ef;
+  border-radius: 15px;
+  background: #ffffff;
+  color: #8b95a7;
+  text-align: center;
+}
+
+.admin-leaves-loading svg {
+  color: #29478d;
+}
+
+.admin-leaves-loading p,
+.admin-leaves-empty p {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.admin-leaves-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 18px;
+  background: #f0f4ff;
+  color: #29478d;
+}
+
+.admin-leaves-empty h3 {
+  margin-top: 16px;
+  color: #243451;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* REVIEW MODAL */
+
+.admin-leave-modal-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(9, 20, 48, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.admin-leave-review-modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 23px;
+  border: 1px solid #e8ecf3;
+  border-radius: 17px;
+  background: #ffffff;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.2);
+}
+
+.admin-leave-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.admin-leave-modal-header span {
+  color: #b17b0c;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.admin-leave-modal-header h2 {
+  margin-top: 6px;
+  color: #011451;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.admin-leave-modal-header > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e7ebf2;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #647089;
+}
+
+.admin-leave-modal-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+  padding: 13px;
+  border: 1px solid #e8edf6;
+  border-radius: 10px;
+  background: #f8faff;
+}
+
+.admin-leave-modal-summary strong {
+  color: #17294e;
+  font-size: 13px;
+}
+
+.admin-leave-modal-summary span {
+  color: #77839a;
+  font-size: 12px;
+}
+
+.admin-leave-review-modal label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #273754;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-leave-review-modal label span {
+  color: #9aa3b2;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.admin-leave-review-modal textarea {
+  display: block;
+  width: 100%;
+  min-height: 105px;
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid #dfe5ef;
+  border-radius: 9px;
+  outline: none;
+  background: #ffffff;
+  color: #273754;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.admin-leave-review-modal textarea:focus {
+  border-color: #7287c4;
+  box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.06);
+}
+
+.admin-leave-review-modal textarea::placeholder {
+  color: #a1a9b7;
+}
+
+.admin-leave-character-count {
+  margin-top: 5px;
+  color: #9aa3b2;
+  font-size: 10px;
+  text-align: right;
+}
+
+.admin-leave-approval-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 15px;
+  padding: 11px;
+  border: 1px solid #ccebd7;
+  border-radius: 9px;
+  background: #f0fbf4;
+  color: #187544;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.admin-leave-approval-note svg {
+  flex-shrink: 0;
+}
+
+.admin-leave-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 22px;
+}
+
+/* ANIMATION */
+
+.is-spinning {
+  animation: adminLeaveSpin 1s linear infinite;
+}
+
+@keyframes adminLeaveSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* TABLET */
+
+@media (max-width: 1000px) {
+  .admin-leaves-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-leaves-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-leaves-search {
+    width: 100%;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .admin-leaves-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-leaves-header h1 {
+    font-size: 24px;
+  }
+
+  .admin-leaves-refresh {
+    width: 100%;
+  }
+
+  .admin-leaves-stats {
+    gap: 10px;
+  }
+
+  .admin-leaves-stat-card {
+    min-height: 88px;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .admin-leaves-stat-icon {
+    width: 37px;
+    height: 37px;
+    border-radius: 10px;
+  }
+
+  .admin-leaves-stat-card span {
+    font-size: 10px;
+  }
+
+  .admin-leaves-stat-card strong {
+    font-size: 21px;
+  }
+
+  .admin-leaves-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-leaves-tabs button {
+    justify-content: center;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .admin-leave-card {
+    padding: 15px;
+  }
+
+  .admin-leave-card-top {
+    align-items: flex-start;
+  }
+
+  .admin-leave-student h3 {
+    font-size: 12px;
+  }
+
+  .admin-leave-student p {
+    max-width: 170px;
+    font-size: 10px;
+  }
+
+  .admin-leave-details {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 13px;
+  }
+
+  .admin-leave-actions {
+    flex-direction: column-reverse;
+  }
+
+  .admin-leave-actions button {
+    width: 100%;
+  }
+
+  .admin-leave-review-modal {
+    padding: 18px;
+  }
+
+  .admin-leave-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .admin-leave-modal-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .admin-leaves-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-leave-status {
+    font-size: 9px;
+  }
+}

@@ -41,6 +41,7 @@ import AdminSpecializations from "../pages/admin/AdminSpecializations";
 import AdminCourseModules from "../pages/admin/AdminCourseModules";
 import AdminFees from "../pages/admin/AdminFees";
 import AdminVideoTutorials from "../pages/admin/AdminVideoTutorials";
+import AdminLeaves from "../pages/admin/AdminLeaves";
 /* =====================================================
    TEACHER PAGES
 ===================================================== */
@@ -68,6 +69,7 @@ import Announcements from "../pages/student/Announcements";
 import Profile from "../pages/student/Profile";
 import MyDoubts from "../pages/student/MyDoubts";
 import DoubtConversation from "../pages/student/DoubtConversation";
+import StudentLeaves from "../pages/student/StudentLeaves";
 
 /* =====================================================
    ROOT REDIRECT
@@ -148,6 +150,7 @@ const AppRoutes = () => {
           <Route path="educators" element={<AdminEducators />} />
           <Route path="batches" element={<AdminBatches />} />
           <Route path="attendance" element={<AdminAttendance />} />
+          <Route path="leaves" element={<AdminLeaves />} />
           <Route path="tasks" element={<AdminTasks />} />
           <Route path="task-report" element={<AdminTaskReport />} />
           <Route path="doubts" element={<AdminDoubts />} />
@@ -206,6 +209,7 @@ const AppRoutes = () => {
           <Route index element={<StudentDashboard />} />
           <Route path="course" element={<MyCourse />} />
           <Route path="attendance" element={<Attendance />} />
+          <Route path="leaves" element={<StudentLeaves />} />
           <Route path="work" element={<MyWork />} />
           <Route path="task-report" element={<StudentTaskReport />} />
           <Route path="doubts" element={<MyDoubts />} />

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 import {
@@ -8,8 +9,9 @@ import {
   Search,
   Download,
   Clock,
-   ChevronDown,
+  ChevronDown,
   Check,
+  CheckCircle2, XCircle, Save
 } from "lucide-react";
 
 import {
@@ -56,24 +58,38 @@ const AdminAttendance = () => {
   };
 
   /* GET BATCH LABEL */
-  const getBatchLabel = (batch) => {
-    if (!batch) return "Unnamed Batch";
+ 
+/* GET BATCH LABEL */
+const getBatchLabel = (batch) => {
+  if (!batch) return "Unnamed Batch";
 
-    const timing = formatBatchTiming(batch);
+  const name = String(batch.name || batch.code || "").trim();
+  const timing = formatBatchTiming(batch).trim();
 
-    if (batch.name && timing) {
-      return `${batch.name} (${timing})`;
-    }
+  if (!name) return timing || "Unnamed Batch";
 
-    return batch.name || batch.code || timing || "Unnamed Batch";
-  };
+  // Check whether batch name already contains a time range
+  const timeMatches = name.match(
+    /\b\d{1,2}:\d{2}\s*(?:AM|PM)\b/gi
+  );
+
+  // If timing already exists in batch name, don't append again
+  if (timeMatches && timeMatches.length >= 2) {
+    return name;
+  }
+
+  return timing ? `${name} (${timing})` : name;
+};
+
 
   /* STATES */
   const [selectedBatchId, setSelectedBatchId] = useState("All");
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-const [openStatusMenuId, setOpenStatusMenuId] = useState(null);
+  const [openStatusMenuId, setOpenStatusMenuId] = useState(null);
+  const [batchDropdownOpen, setBatchDropdownOpen] = useState(false);
+
   const [alert, setAlert] = useState({
     isOpen: false,
     type: "info",
@@ -97,7 +113,132 @@ const [openStatusMenuId, setOpenStatusMenuId] = useState(null);
 
   const [savingRecordId, setSavingRecordId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+// ADMIN BULK ATTENDANCE FORM
+const [attendanceFormOpen, setAttendanceFormOpen] = useState(false);
+const [attendanceStudents, setAttendanceStudents] = useState([]);
+const [attendanceLoading, setAttendanceLoading] = useState(false);
+const [attendanceSaving, setAttendanceSaving] = useState(false);
+const [attendanceFormError, setAttendanceFormError] = useState("");
 
+const loadAttendanceStudents = async () => {
+  if (!selectedBatchId || selectedBatchId === "All") {
+    setAlert({
+      isOpen: true,
+      type: "warning",
+      title: "Select a Batch",
+      message: "Please select a specific batch before marking attendance.",
+    });
+    return;
+  }
+
+  try {
+    setAttendanceLoading(true);
+    setAttendanceFormError("");
+    setAttendanceFormOpen(true);
+
+    const response = await api.get("/attendance/my-students", {
+      params: {
+        batchId: selectedBatchId,
+        date: selectedDate,
+      },
+    });
+
+    const students = response.data?.students || [];
+
+    setAttendanceStudents(
+      students.map((student) => {
+        const approvedLeave = Boolean(
+          student.isApprovedLeave ||
+          student.attendanceStatus === "LEAVE"
+        );
+
+        return {
+          ...student,
+          attendanceStatus: approvedLeave
+            ? "LEAVE"
+            : String(student.attendanceStatus || "PRESENT").toUpperCase(),
+          isApprovedLeave: approvedLeave,
+        };
+      })
+    );
+  } catch (error) {
+    setAttendanceFormError(
+      error.response?.data?.message ||
+      "Unable to load students for attendance."
+    );
+    setAttendanceStudents([]);
+  } finally {
+    setAttendanceLoading(false);
+  }
+};
+
+const updateBulkAttendanceStatus = (studentId, status) => {
+  setAttendanceStudents((previous) =>
+    previous.map((student) =>
+      String(student._id) === String(studentId)
+        ? { ...student, attendanceStatus: status }
+        : student
+    )
+  );
+};
+
+const markAllStudentsPresent = () => {
+  setAttendanceStudents((previous) =>
+    previous.map((student) => ({
+      ...student,
+      attendanceStatus: student.isApprovedLeave
+        ? "LEAVE"
+        : "PRESENT",
+    }))
+  );
+};
+
+const saveBulkAttendance = async () => {
+  if (
+    !selectedBatchId ||
+    selectedBatchId === "All" ||
+    attendanceStudents.length === 0
+  ) {
+    setAttendanceFormError("Select a batch with active students first.");
+    return;
+  }
+
+  try {
+    setAttendanceSaving(true);
+    setAttendanceFormError("");
+
+    const attendance = attendanceStudents.map((student) => ({
+      studentId: student._id,
+      status: student.isApprovedLeave
+        ? "LEAVE"
+        : String(student.attendanceStatus || "PRESENT").toUpperCase(),
+    }));
+
+    const response = await api.post("/attendance/mark", {
+      batchId: selectedBatchId,
+      date: selectedDate,
+      attendance,
+    });
+
+    setAttendanceFormOpen(false);
+    setAttendanceStudents([]);
+    setRefreshKey((previous) => previous + 1);
+
+    setAlert({
+      isOpen: true,
+      type: "success",
+      title: "Attendance Saved",
+      message: response.data?.message || "Attendance saved successfully.",
+    });
+  } catch (error) {
+    setAttendanceFormError(
+      error.response?.data?.message ||
+      "Unable to save attendance. Please try again."
+    );
+  } finally {
+    setAttendanceSaving(false);
+  }
+};
   /* FETCH BATCHES */
   useEffect(() => {
     let active = true;
@@ -542,7 +683,15 @@ const [openStatusMenuId, setOpenStatusMenuId] = useState(null);
             Monitor student attendance across all batches.
           </p>
         </div>
-
+<button
+  type="button"
+  className="attendance-export-btn"
+  onClick={loadAttendanceStudents}
+  style={{ background: "#011451", color: "#fff" }}
+>
+  <CalendarDays size={17} />
+  Mark Attendance
+</button>
         <button
           className="attendance-export-btn"
           onClick={handleExport}
@@ -650,10 +799,201 @@ const [openStatusMenuId, setOpenStatusMenuId] = useState(null);
           <div>
             <span>Average Attendance</span>
             <strong>{stats.averageAttendance}%</strong>
-            <small>Present + absent records + leave</small>
+            <small>Present ÷ (Present + Absent + Leave)</small>
           </div>
         </button>
       </div>
+
+{attendanceFormOpen && (
+  <div className="attendance-modal-overlay">
+    <div className="attendance-modal">
+
+      {/* HEADER */}
+      <div className="attendance-modal-header">
+        <div>
+          <span className="attendance-modal-eyebrow">
+            ADMINISTRATION PORTAL
+          </span>
+          <h2>Mark Batch Attendance</h2>
+          <p>
+            Manage and update attendance for your students.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="attendance-modal-close"
+          onClick={() => setAttendanceFormOpen(false)}
+          disabled={attendanceSaving}
+          aria-label="Close attendance"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* BATCH INFORMATION */}
+      <div className="attendance-modal-info">
+        <div>
+          <span>SELECTED BATCH</span>
+          <strong>
+            {getBatchLabel(
+              batches.find(
+                (batch) =>
+                  String(batch._id) === String(selectedBatchId)
+              )
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>DATE</span>
+          <strong>{selectedDate}</strong>
+        </div>
+
+        <div>
+          <span>TOTAL STUDENTS</span>
+          <strong>{attendanceStudents.length}</strong>
+        </div>
+      </div>
+
+      {/* ERROR */}
+      {attendanceFormError && (
+        <div className="attendance-modal-error">
+          {attendanceFormError}
+        </div>
+      )}
+
+      {/* TOOLBAR */}
+      {!attendanceLoading && (
+        <div className="attendance-modal-toolbar">
+          <div>
+            <h3>Student Attendance</h3>
+            <p>Select a status for each student.</p>
+          </div>
+
+          <button
+            type="button"
+            className="attendance-mark-all-btn"
+            onClick={markAllStudentsPresent}
+            disabled={attendanceSaving}
+          >
+            <CheckCircle2 size={17} />
+            Mark All Present
+          </button>
+        </div>
+      )}
+
+      {/* STUDENT LIST */}
+      <div className="attendance-modal-body">
+
+        {attendanceLoading ? (
+          <div className="attendance-modal-loading">
+            Loading students...
+          </div>
+        ) : attendanceStudents.length === 0 ? (
+          <div className="attendance-modal-empty">
+            No students found in this batch.
+          </div>
+        ) : (
+          attendanceStudents.map((student, index) => (
+            <div
+              className="attendance-modal-student"
+              key={student._id}
+            >
+              <div className="attendance-student-details">
+                <div className="attendance-student-avatar">
+                  {student.name?.charAt(0)?.toUpperCase() || "S"}
+                </div>
+
+                <div className="attendance-student-text">
+                  <strong>
+                    {index + 1}. {student.name}
+                  </strong>
+                  <span>{student.email}</span>
+                </div>
+              </div>
+
+              <div className="attendance-status-actions">
+                {["PRESENT", "ABSENT", "LEAVE"].map((status) => {
+                  const active =
+                    student.attendanceStatus === status;
+
+                  const disabled =
+                    attendanceSaving ||
+                    (student.isApprovedLeave && status !== "LEAVE");
+
+                  return (
+                    <button
+                      key={status}
+                      type="button"
+                      disabled={disabled}
+                      className={`attendance-status-btn ${status.toLowerCase()} ${
+                        active ? "active" : ""
+                      }`}
+                      onClick={() =>
+                        updateBulkAttendanceStatus(
+                          student._id,
+                          status
+                        )
+                      }
+                    >
+                      {status === "PRESENT" && (
+                        <CheckCircle2 size={15} />
+                      )}
+                      {status === "ABSENT" && (
+                        <XCircle size={15} />
+                      )}
+                      {status === "LEAVE" && (
+                        <Clock size={15} />
+                      )}
+                      {status.charAt(0) +
+                        status.slice(1).toLowerCase()}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* FOOTER */}
+      <div className="attendance-modal-footer">
+        <span>
+          {attendanceStudents.length} students in this batch
+        </span>
+
+        <div>
+          <button
+            type="button"
+            className="attendance-cancel-btn"
+            onClick={() => setAttendanceFormOpen(false)}
+            disabled={attendanceSaving}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            className="attendance-save-btn"
+            onClick={saveBulkAttendance}
+            disabled={
+              attendanceSaving ||
+              attendanceLoading ||
+              attendanceStudents.length === 0
+            }
+          >
+            <Save size={17} />
+            {attendanceSaving
+              ? "Saving..."
+              : "Save Attendance"}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+)}
 
       {/* MAIN CARD */}
       <div className="attendance-management-card">
@@ -664,28 +1004,115 @@ const [openStatusMenuId, setOpenStatusMenuId] = useState(null);
 
             <p>
               {statusFilter === "AVERAGE"
-                ? "Showing present and absent records included in average attendance. Leave is excluded."
-                : "View attendance records for selected date and batch."}
+  ? "Showing Present, Absent and Leave records included in attendance calculation."
+  : "View attendance records for selected date and batch."}
             </p>
           </div>
 
           {/* FILTERS */}
           <div className="attendance-filters">
             {/* BATCH FILTER */}
-            <select
-              value={selectedBatchId}
-              onChange={(e) =>
-                setSelectedBatchId(e.target.value)
-              }
-            >
-              <option value="All">All Batches</option>
+         {/* CUSTOM BATCH FILTER */}
+<div className="attendance-batch-select">
+  <button
+    type="button"
+    className={`attendance-batch-trigger ${
+      batchDropdownOpen ? "active" : ""
+    }`}
+    onClick={() => setBatchDropdownOpen((prev) => !prev)}
+  >
+    <span className="attendance-batch-trigger-content">
+      <span className="attendance-batch-trigger-label">
+        {selectedBatchId === "All"
+          ? "All Batches"
+          : getBatchLabel(
+              batches.find(
+                (batch) =>
+                  String(batch._id) === String(selectedBatchId)
+              )
+            )}
+      </span>
 
-              {batches.map((batch) => (
-                <option key={batch._id} value={batch._id}>
-                  {getBatchLabel(batch)}
-                </option>
-              ))}
-            </select>
+      <span className="attendance-batch-trigger-subtitle">
+        {selectedBatchId === "All"
+          ? `${batches.length} batches available`
+          : "Selected batch"}
+      </span>
+    </span>
+
+    <ChevronDown
+      size={18}
+      className={batchDropdownOpen ? "rotated" : ""}
+    />
+  </button>
+
+  {batchDropdownOpen && (
+    <>
+      <div
+        className="attendance-dropdown-backdrop"
+        onClick={() => setBatchDropdownOpen(false)}
+      />
+
+      <div className="attendance-batch-options">
+        <button
+          type="button"
+          className={`attendance-batch-option ${
+            selectedBatchId === "All" ? "selected" : ""
+          }`}
+          onClick={() => {
+            setSelectedBatchId("All");
+            setBatchDropdownOpen(false);
+          }}
+        >
+          <span className="attendance-option-icon">A</span>
+
+          <span className="attendance-option-text">
+            <strong>All Batches</strong>
+            <small>View attendance across all batches</small>
+          </span>
+
+          {selectedBatchId === "All" && (
+            <Check size={17} className="attendance-option-check" />
+          )}
+        </button>
+
+        {batches.map((batch) => {
+          const isSelected =
+            String(selectedBatchId) === String(batch._id);
+
+          return (
+            <button
+              type="button"
+              key={batch._id}
+              className={`attendance-batch-option ${
+                isSelected ? "selected" : ""
+              }`}
+              onClick={() => {
+                setSelectedBatchId(batch._id);
+                setBatchDropdownOpen(false);
+              }}
+            >
+              <span className="attendance-option-icon">
+                <Users size={17} />
+              </span>
+
+              <span className="attendance-option-text">
+                <strong>{batch.name || batch.code || "Unnamed Batch"}</strong>
+                <small>
+                  {formatBatchTiming(batch) || batch.batchTiming || "Timing not set"}
+                </small>
+              </span>
+
+              {isSelected && (
+                <Check size={17} className="attendance-option-check" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </>
+  )}
+</div>
 
             {/* DATE FILTER */}
             <input
@@ -775,85 +1202,119 @@ const [openStatusMenuId, setOpenStatusMenuId] = useState(null);
 
                       {/* EDITABLE STATUS */}
                       {/* CUSTOM STATUS DROPDOWN */}
-<td>
-  <div
-    className="attendance-custom-dropdown"
-    onBlur={(e) => {
-      if (!e.currentTarget.contains(e.relatedTarget)) {
-        setOpenStatusMenuId(null);
-      }
-    }}
-  >
-    <button
-      type="button"
-      className={`attendance-dropdown-trigger ${
-        isPresent
-          ? "present"
-          : isAbsent
-            ? "absent"
-            : isLeave
-              ? "leave"
-              : ""
-      }`}
-      disabled={savingRecordId !== null}
-      aria-haspopup="listbox"
-      aria-expanded={openStatusMenuId === record._id}
-      onClick={() =>
-        setOpenStatusMenuId((previous) =>
-          previous === record._id ? null : record._id
-        )
-      }
-    >
-      <span>{isPresent ? "Present" : isAbsent ? "Absent" : "Leave"}</span>
-      <ChevronDown
-        size={16}
-        className={
-          openStatusMenuId === record._id ? "rotated" : ""
-        }
-      />
-    </button>
+                      <td>
+                        <div
+                          className="attendance-custom-dropdown"
+                          onBlur={(e) => {
+                            if (!e.currentTarget.contains(e.relatedTarget)) {
+                              setOpenStatusMenuId(null);
+                            }
+                          }}
+                        >
+                          <button
+                            type="button"
+                            className={`attendance-dropdown-trigger ${
+                              isPresent
+                                ? "present"
+                                : isAbsent
+                                  ? "absent"
+                                 : isLeave
+  ? "leave"
+  : "not-marked"
+                            }`}
+                            disabled={savingRecordId !== null}
+                            aria-haspopup="listbox"
+                            aria-expanded={openStatusMenuId === record._id}
+                            onClick={() =>
+                              setOpenStatusMenuId((previous) =>
+                                previous === record._id ? null : record._id
+                              )
+                            }
+                          >
+                            <span>
+                             {isPresent
+  ? "Present"
+  : isAbsent
+    ? "Absent"
+    : isLeave
+      ? "Leave"
+      : "Not Marked"}
+                            </span>
 
-    {openStatusMenuId === record._id && (
-      <div className="attendance-dropdown-menu" role="listbox">
-        {[
-          { value: "PRESENT", label: "Present", className: "present" },
-          { value: "ABSENT", label: "Absent", className: "absent" },
-          { value: "LEAVE", label: "Leave", className: "leave" },
-        ].map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            role="option"
-            aria-selected={status === option.value}
-            className={`attendance-dropdown-option ${option.className} ${
-              status === option.value ? "active" : ""
-            }`}
-            onClick={() => {
-              setOpenStatusMenuId(null);
+                            <ChevronDown
+                              size={16}
+                              className={
+                                openStatusMenuId === record._id
+                                  ? "rotated"
+                                  : ""
+                              }
+                            />
+                          </button>
 
-              if (status !== option.value) {
-                updateStudentAttendance(record, option.value);
-              }
-            }}
-          >
-            <span className="attendance-option-indicator" />
-            <span>{option.label}</span>
+                          {openStatusMenuId === record._id && (
+                            <div
+                              className="attendance-dropdown-menu"
+                              role="listbox"
+                            >
+                              {[
+                                {
+                                  value: "PRESENT",
+                                  label: "Present",
+                                  className: "present",
+                                },
+                                {
+                                  value: "ABSENT",
+                                  label: "Absent",
+                                  className: "absent",
+                                },
+                                {
+                                  value: "LEAVE",
+                                  label: "Leave",
+                                  className: "leave",
+                                },
+                              ].map((option) => (
+                                <button
+                                  key={option.value}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={status === option.value}
+                                  className={`attendance-dropdown-option ${
+                                    option.className
+                                  } ${
+                                    status === option.value ? "active" : ""
+                                  }`}
+                                  onClick={() => {
+                                    setOpenStatusMenuId(null);
 
-            {status === option.value && (
-              <Check size={16} className="attendance-option-check" />
-            )}
-          </button>
-        ))}
-      </div>
-    )}
+                                    if (status !== option.value) {
+                                      updateStudentAttendance(
+                                        record,
+                                        option.value
+                                      );
+                                    }
+                                  }}
+                                >
+                                  <span className="attendance-option-indicator" />
+                                  <span>{option.label}</span>
 
-    {savingRecordId === record._id && (
-      <small className="admin-attendance-saving">
-        Saving...
-      </small>
-    )}
-  </div>
-</td>
+                                  {status === option.value && (
+                                    <Check
+                                      size={16}
+                                      className="attendance-option-check"
+                                    />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+
+                          {savingRecordId === record._id && (
+                            <small className="admin-attendance-saving">
+                              Saving...
+                            </small>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   );
                 })

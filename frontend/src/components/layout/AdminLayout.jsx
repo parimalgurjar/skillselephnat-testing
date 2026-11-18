@@ -80,6 +80,11 @@ const AdminLayout = () => {
       path: "/admin/attendance",
       icon: CalendarCheck,
     },
+    {
+  name: "Leave Requests",
+  path: "/admin/leaves",
+  icon: CalendarCheck,
+},
       {
   name: "Video Tutorials",
   path: "/admin/video-tutorials",

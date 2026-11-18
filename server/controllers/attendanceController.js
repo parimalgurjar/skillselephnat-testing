@@ -2,7 +2,7 @@ const Attendance = require("../models/Attendance");
 const User = require("../models/User");
 const Batch = require("../models/Batch");
 const mongoose = require("mongoose");
-
+const LeaveRequest = require("../models/LeaveRequest");
 /* =====================================================
    CONSTANTS
 ===================================================== */
@@ -315,22 +315,21 @@ const getAttendanceEditMeta = (
       ? new Date() >= editableUntil
       : false;
 
-  let canEdit = false;
+
 
   /* ADMIN CAN ALWAYS EDIT */
 
-  if (isAdmin) {
-    canEdit = true;
-  }
+ let canEdit = false;
 
-  /* ORIGINAL TEACHER WITHIN TIME LIMIT */
+/* ADMIN CAN ALWAYS EDIT */
+if (isAdmin) {
+  canEdit = true;
+}
 
-  else if (
-    isOwner &&
-    !isLocked
-  ) {
-    canEdit = true;
-  }
+/* ANY ASSIGNED TEACHER CAN EDIT WITHIN 96 HOURS */
+else if (!isLocked) {
+  canEdit = true;
+}
 
   return {
     isMarked: true,
@@ -365,34 +364,22 @@ const getAttendanceEditMeta = (
    ADMIN - GET ATTENDANCE DATA
 ===================================================== */
 
-const getAttendance = async (
-  req,
-  res
-) => {
+
+const getAttendance = async (req, res) => {
   try {
-    const {
-      batchId,
-      batchTiming,
-      date,
-      search,
-    } = req.query;
+    const { batchId, batchTiming, date, search } = req.query;
+
+    if (search !== undefined && typeof search !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Search must be a string",
+      });
+    }
 
     const filter = {};
-    if (
-  search !== undefined &&
-  typeof search !== "string"
-) {
-  return res.status(400).json({
-    success: false,
-    message: "Search must be a string",
-  });
-}
-
-    /* DATE FILTER */
 
     if (date) {
-      const dateRange =
-        getDateRange(date);
+      const dateRange = getDateRange(date);
 
       if (!dateRange) {
         return res.status(400).json({
@@ -407,316 +394,421 @@ const getAttendance = async (
       };
     }
 
-    /* BATCH FILTER */
-
     if (batchId || batchTiming) {
-      const batchValidation =
-        await getValidBatch(
-          batchId,
-          batchTiming,
-            false
-        );
+      const validation = await getValidBatch(
+        batchId,
+        batchTiming,
+        false
+      );
 
-      if (!batchValidation.success) {
+      if (!validation.success) {
         return res.status(400).json({
           success: false,
-          message:
-            batchValidation.message,
+          message: validation.message,
         });
       }
 
-      filter.batchId =
-        batchValidation.batch._id;
+      filter.batchId = validation.batch._id;
     }
 
-    const attendanceRecords =
-      await Attendance.find(filter)
-       .populate({
-  path: "studentId",
-  select:
-    "name email phone avatar batchId batchTiming",
-          populate: {
-            path: "batchId",
-            select:
-              "name code batchTiming startTime endTime",
-          },
-        })
-        .populate({
+    // Only currently active students with an assigned batch.
+    const studentFilter = {
+      role: "STUDENT",
+      isActive: true,
+      batchId: { $exists: true, $ne: null },
+    };
+
+    if (filter.batchId) {
+      studentFilter.batchId = filter.batchId;
+    }
+
+    const activeStudents = await User.find(studentFilter)
+  .select("_id name email phone avatar batchId batchTiming")
+  .lean();
+
+    if (!activeStudents.length) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        records: [],
+      });
+    }
+
+    const currentBatchMap = new Map(
+      activeStudents.map((student) => [
+        student._id.toString(),
+        student.batchId.toString(),
+      ])
+    );
+
+    const attendanceRecords = await Attendance.find({
+      ...filter,
+      studentId: {
+        $in: activeStudents.map((student) => student._id),
+      },
+    })
+      .populate({
+        path: "studentId",
+        select: "name email phone avatar batchId batchTiming",
+        populate: {
           path: "batchId",
-          select:
-            "name code batchTiming startTime endTime",
-        })
-        .populate(
-          "markedBy",
-          "name role"
-        )
-        .sort({
-          date: -1,
-          createdAt: -1,
-        })
-        .lean();
+          select: "name code batchTiming startTime endTime",
+        },
+      })
+      .populate({
+        path: "batchId",
+        select: "name code batchTiming startTime endTime",
+      })
+      .populate("markedBy", "name role")
+      .sort({
+        date: -1,
+        markedAt: -1,
+        createdAt: -1,
+      })
+      .lean();
 
-    let filteredRecords =
-      attendanceRecords;
+    // Ignore attendance belonging to an old batch.
+    // Keep only the current batch record of each active student.
+    const uniqueRecords = new Map();
 
-    /* SEARCH */
+    for (const record of attendanceRecords) {
+      if (!record.studentId || !record.batchId) continue;
+
+      const studentId = record.studentId._id.toString();
+      const attendanceBatchId = record.batchId._id.toString();
+      const currentBatchId = currentBatchMap.get(studentId);
+
+      if (!currentBatchId || currentBatchId !== attendanceBatchId) {
+        continue;
+      }
+
+      if (uniqueRecords.has(studentId)) {
+        continue;
+      }
+
+      uniqueRecords.set(studentId, record);
+    }
+
+    let filteredRecords = Array.from(uniqueRecords.values());
 
     if (search?.trim()) {
-      const searchValue =
-        search.toLowerCase().trim();
+      const searchValue = search.trim().toLowerCase();
 
-      filteredRecords =
-        attendanceRecords.filter(
-          (record) => {
-            const studentName =
-              record.studentId?.name || "";
+      filteredRecords = filteredRecords.filter((record) => {
+        const name = record.studentId?.name || "";
+        const email = record.studentId?.email || "";
 
-            const studentEmail =
-              record.studentId?.email || "";
-
-            return (
-              studentName
-                .toLowerCase()
-                .includes(searchValue) ||
-              studentEmail
-                .toLowerCase()
-                .includes(searchValue)
-            );
-          }
+        return (
+          name.toLowerCase().includes(searchValue) ||
+          email.toLowerCase().includes(searchValue)
         );
+      });
     }
 
-    const records =
-      filteredRecords.map(
-        (record) => {
-          const batch =
-            record.batchId ||
-            record.studentId?.batchId ||
-            null;
+    const recordsByStudent = new Map();
 
-          return {
-            _id: record._id,
+const formattedRecords = filteredRecords.map((record) => {
+  const batch = record.batchId || record.studentId?.batchId || null;
 
-          student:
-  record.studentId
-    ? {
-        _id:
-          record.studentId._id,
+  const formatted = {
+    _id: record._id,
 
-        name:
-          record.studentId.name,
-
-        email:
-          record.studentId.email,
-
-        phone:
-          record.studentId.phone,
-
-        avatar:
-          record.studentId.avatar || "",
-      }
-    : null,
-
-            batch: batch
-              ? {
-                  _id: batch._id,
-
-                  name:
-                    batch.name || "",
-
-                  code:
-                    batch.code || "",
-
-                  batchTiming:
-                    batch.batchTiming || "",
-
-                  displayTiming:
-                    formatBatchTiming(batch),
-                }
-              : null,
-
-            batchId:
-              batch?._id || null,
-
-            batchTiming:
-              batch?.batchTiming ||
-              record.batchTiming ||
-              "",
-
-            date:
-              record.date,
-
-            status:
-              record.status,
-
-            markedAt:
-              record.markedAt ||
-              record.createdAt ||
-              null,
-
-            markedBy:
-              record.markedBy
-                ? {
-                    _id:
-                      record.markedBy._id,
-
-                    name:
-                      record.markedBy.name,
-
-                    role:
-                      record.markedBy.role,
-                  }
-                : null,
-          };
+    student: record.studentId
+      ? {
+          _id: record.studentId._id,
+          name: record.studentId.name,
+          email: record.studentId.email,
+          phone: record.studentId.phone,
+          avatar: record.studentId.avatar || "",
         }
-      );
+      : null,
+
+    batch: batch
+      ? {
+          _id: batch._id,
+          name: batch.name || "",
+          code: batch.code || "",
+          batchTiming: batch.batchTiming || "",
+          displayTiming: formatBatchTiming(batch),
+        }
+      : null,
+
+    batchId: batch?._id || null,
+    batchTiming: batch?.batchTiming || record.batchTiming || "",
+    date: record.date,
+    status: record.status,
+    markedAt: record.markedAt || record.createdAt || null,
+
+    markedBy: record.markedBy
+      ? {
+          _id: record.markedBy._id,
+          name: record.markedBy.name,
+          role: record.markedBy.role,
+        }
+      : null,
+  };
+
+  if (formatted.student?._id) {
+    recordsByStudent.set(
+      formatted.student._id.toString(),
+      formatted
+    );
+  }
+
+  return formatted;
+});
+
+// Include complete active student roster
+const batchIds = [
+  ...new Set(
+    activeStudents
+      .map((student) => student.batchId?.toString())
+      .filter(Boolean)
+  ),
+];
+
+const batches = await Batch.find({
+  _id: { $in: batchIds },
+})
+  .select("name code batchTiming startTime endTime")
+  .lean();
+
+const batchMap = new Map(
+  batches.map((batch) => [
+    batch._id.toString(),
+    batch,
+  ])
+);
+
+let records = activeStudents.map((student) => {
+  const studentId = student._id.toString();
+
+  const existing = recordsByStudent.get(studentId);
+
+  if (existing) return existing;
+
+  const batchId = student.batchId?.toString();
+  const batch = batchMap.get(batchId) || null;
+
+  return {
+    _id: `unmarked-${studentId}`,
+
+    student: {
+      _id: student._id,
+      name: student.name || "",
+      email: student.email || "",
+      phone: student.phone || "",
+      avatar: student.avatar || "",
+    },
+
+    batch: batch
+      ? {
+          _id: batch._id,
+          name: batch.name || "",
+          code: batch.code || "",
+          batchTiming: batch.batchTiming || student.batchTiming || "",
+          displayTiming: formatBatchTiming(batch),
+        }
+      : {
+          _id: student.batchId,
+          name: "",
+          code: "",
+          batchTiming: student.batchTiming || "",
+          displayTiming: student.batchTiming || "",
+        },
+
+    batchId: student.batchId,
+    batchTiming: student.batchTiming || batch?.batchTiming || "",
+    date: date ? getDateRange(date).start : new Date(),
+    status: "NOT_MARKED",
+    markedAt: null,
+    markedBy: null,
+  };
+});
+
+if (search?.trim()) {
+  const searchValue = search.trim().toLowerCase();
+
+  records = records.filter((record) => {
+    const name = record.student?.name || "";
+    const email = record.student?.email || "";
+
+    return (
+      name.toLowerCase().includes(searchValue) ||
+      email.toLowerCase().includes(searchValue)
+    );
+  });
+}
 
     return res.status(200).json({
       success: true,
       count: records.length,
       records,
     });
-
   } catch (error) {
-    console.error(
-      "Get Attendance Error:",
-      error
-    );
+    console.error("Get Attendance Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Server error while fetching attendance",
+      message: "Server error while fetching attendance",
     });
   }
 };
+
 
 /* =====================================================
    ADMIN - GET ATTENDANCE STATS
 ===================================================== */
 
-const getAttendanceStats = async (
-  req,
-  res
-) => {
+
+const getAttendanceStats = async (req, res) => {
   try {
-    
     const { date, batchId } = req.query;
 
-   if (batchId && !isValidObjectId(batchId)) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid batch ID",
-  });
-}
+    if (batchId && !isValidObjectId(batchId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid batch ID",
+      });
+    }
 
-const studentFilter = {
-  role: "STUDENT",
-  isActive: true,
-};
-
-if (batchId) {
-  studentFilter.batchId = batchId;
-}
-
-const totalStudents =
-  await User.countDocuments(studentFilter);
-
-    const selectedDate =
-      date || new Date();
-
-    const dateRange =
-      getDateRange(selectedDate);
+    const dateRange = getDateRange(date || new Date());
 
     if (!dateRange) {
       return res.status(400).json({
         success: false,
-        message:
-          "Invalid date format",
+        message: "Invalid date format",
       });
     }
 
+    // Count only active students with an assigned current batch.
+    const studentFilter = {
+      role: "STUDENT",
+      isActive: true,
+      batchId: { $exists: true, $ne: null },
+    };
+
+    if (batchId) {
+      studentFilter.batchId = batchId;
+    }
+
+    const activeStudents = await User.find(studentFilter)
+      .select("_id batchId")
+      .lean();
+
+    const totalStudents = activeStudents.length;
+
+    if (!totalStudents) {
+      return res.status(200).json({
+        success: true,
+        stats: {
+          totalStudents: 0,
+          presentToday: 0,
+          absentToday: 0,
+          leaveToday: 0,
+          unmarkedStudents: 0,
+          averageAttendance: 0,
+        },
+      });
+    }
+
+    const currentBatchMap = new Map(
+      activeStudents.map((student) => [
+        student._id.toString(),
+        student.batchId.toString(),
+      ])
+    );
+
     const dateFilter = {
-  date: {
-    $gte: dateRange.start,
-    $lt: dateRange.end,
-  },
-};
+      date: {
+        $gte: dateRange.start,
+        $lt: dateRange.end,
+      },
+      studentId: {
+        $in: activeStudents.map((student) => student._id),
+      },
+    };
 
-if (batchId) {
-  dateFilter.batchId = batchId;
-}
+    if (batchId) {
+      dateFilter.batchId = batchId;
+    }
 
-    // PRESENT COUNT
-const presentToday =
-  await Attendance.countDocuments({
-    ...dateFilter,
-    status: "PRESENT",
-  });
+    const attendanceRecords = await Attendance.find(dateFilter)
+      .select("studentId batchId status markedAt createdAt")
+      .sort({
+        markedAt: -1,
+        createdAt: -1,
+      })
+      .lean();
 
-// ABSENT COUNT
-const absentToday =
-  await Attendance.countDocuments({
-    ...dateFilter,
-    status: "ABSENT",
-  });
+    // One attendance record per active student, for their current batch.
+    const uniqueAttendance = new Map();
 
-// LEAVE COUNT
-const leaveToday =
-  await Attendance.countDocuments({
-    ...dateFilter,
-    status: "LEAVE",
-  });
+    for (const record of attendanceRecords) {
+      if (!record.studentId || !record.batchId) continue;
 
-// ALL MARKED RECORDS
-const totalRecords =
-  await Attendance.countDocuments(dateFilter);
+      const studentId = record.studentId.toString();
+      const attendanceBatchId = record.batchId.toString();
+      const currentBatchId = currentBatchMap.get(studentId);
 
-// Leave excluded from attendance percentage
-// Present + Absent + Leave included in attendance percentage
-const eligibleRecords =
-  presentToday + absentToday + leaveToday;
+      if (!currentBatchId || currentBatchId !== attendanceBatchId) {
+        continue;
+      }
 
-// ATTENDANCE PERCENTAGE
-const averageAttendance =
-  eligibleRecords > 0
-    ? Math.round(
-        (presentToday / eligibleRecords) * 100
-      )
-    : 0;
+      if (!uniqueAttendance.has(studentId)) {
+        uniqueAttendance.set(studentId, record);
+      }
+    }
+
+    let presentToday = 0;
+    let absentToday = 0;
+    let leaveToday = 0;
+
+    for (const record of uniqueAttendance.values()) {
+      if (record.status === "PRESENT") {
+        presentToday++;
+      } else if (record.status === "ABSENT") {
+        absentToday++;
+      } else if (record.status === "LEAVE") {
+        leaveToday++;
+      }
+    }
+
+    const totalRecords = uniqueAttendance.size;
+
+    // Leave counts as absent for attendance percentage.
+    const eligibleRecords =
+      presentToday + absentToday + leaveToday;
+
+    const averageAttendance =
+      eligibleRecords > 0
+        ? Math.round((presentToday / eligibleRecords) * 100)
+        : 0;
 
     return res.status(200).json({
       success: true,
-
-     stats: {
-  totalStudents,
-  presentToday,
-  absentToday,
-  leaveToday,
-
-  unmarkedStudents:
-    Math.max(
-      totalStudents - totalRecords,
-      0
-    ),
-
-  averageAttendance,
-},
+      stats: {
+        totalStudents,
+        presentToday,
+        absentToday,
+        leaveToday,
+        unmarkedStudents: Math.max(
+          totalStudents - totalRecords,
+          0
+        ),
+        averageAttendance,
+      },
     });
-
   } catch (error) {
-    console.error(
-      "Attendance Stats Error:",
-      error
-    );
+    console.error("Attendance Stats Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Server error while fetching attendance stats",
+      message: "Server error while fetching attendance stats",
     });
   }
 };
+
 
 /* =====================================================
    TEACHER - GET MY ASSIGNED BATCHES
@@ -980,24 +1072,42 @@ const getStudentsForAttendance =
           attendanceRecords,
           req
         );
+// APPROVED LEAVE DATE CHECK
+const approvedLeaves = await LeaveRequest.find({
+  batchId: selectedBatch._id,
+  status: "APPROVED",
+  attendanceMarkedDates: {
+    $gte: dateRange.start,
+    $lt: dateRange.end,
+  },
+  studentId: {
+    $in: students.map((student) => student._id),
+  },
+})
+  .select("studentId")
+  .lean();
 
+const approvedLeaveStudentIds = new Set(
+  approvedLeaves.map((leave) =>
+    leave.studentId.toString()
+  )
+);
       /* FORMAT STUDENTS */
+const formattedStudents = students.map((student) => {
+  const studentId = student._id.toString();
 
-      const formattedStudents =
-        students.map(
-          (student) => ({
-            ...student,
+  return {
+    ...student,
 
-            batchTiming:
-              selectedBatch.batchTiming ||
-              "",
+    batchTiming: selectedBatch.batchTiming || "",
 
-            attendanceStatus:
-              attendanceMap.get(
-                student._id.toString()
-              ) || null,
-          })
-        );
+    attendanceStatus:
+      attendanceMap.get(studentId) || null,
+
+    isApprovedLeave:
+      approvedLeaveStudentIds.has(studentId),
+  };
+});
 
       return res.status(200).json({
         success: true,
@@ -1250,6 +1360,68 @@ const markAttendance =
         });
 
       }
+      // PREVENT TEACHERS FROM CHANGING APPROVED LEAVES
+if (req.user.role === "TEACHER") {
+  const approvedLeaves = await LeaveRequest.find({
+    batchId: selectedBatch._id,
+    status: "APPROVED",
+    attendanceMarkedDates: {
+      $gte: dateRange.start,
+      $lt: dateRange.end,
+    },
+    studentId: {
+      $in: studentIds,
+    },
+  })
+    .select("studentId")
+    .lean();
+
+  const protectedStudentIds = new Set(
+    approvedLeaves.map((leave) =>
+      leave.studentId.toString()
+    )
+  );
+
+  const invalidChange = normalizedAttendance.some(
+    (item) =>
+      protectedStudentIds.has(item.studentId.toString()) &&
+      item.status !== "LEAVE"
+  );
+
+  if (invalidChange) {
+    return res.status(403).json({
+      success: false,
+      message:
+        "Approved leave cannot be changed by teachers. Only admin can edit it.",
+    });
+  }
+
+  const manualLeave = normalizedAttendance.some(
+    (item) => item.status === "LEAVE"
+  );
+
+  if (manualLeave) {
+    const approvedIds = new Set(
+      approvedLeaves.map((leave) =>
+        leave.studentId.toString()
+      )
+    );
+
+    const unauthorizedLeave = normalizedAttendance.some(
+      (item) =>
+        item.status === "LEAVE" &&
+        !approvedIds.has(item.studentId.toString())
+    );
+
+    if (unauthorizedLeave) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Teachers cannot manually mark leave. Leave must be approved by admin.",
+      });
+    }
+  }
+}
       const totalActiveStudents =
   await User.countDocuments({
     role: "STUDENT",
@@ -1272,19 +1444,17 @@ if (
          CHECK EXISTING ATTENDANCE
       =============================================== */
 
-      const existingAttendance =
-        await Attendance.find({
-          batchId:
-            selectedBatch._id,
-
-          date: {
-            $gte:
-              dateRange.start,
-
-            $lt:
-              dateRange.end,
-          },
-        })
+    const existingAttendance =
+  await Attendance.find({
+    batchId: selectedBatch._id,
+    status: {
+      $in: ["PRESENT", "ABSENT", "LEAVE"],
+    },
+    date: {
+      $gte: dateRange.start,
+      $lt: dateRange.end,
+    },
+  })
           .select(
             "markedBy markedAt createdAt"
           )
@@ -1294,76 +1464,36 @@ if (
           })
           .lean();
 
-      const isAdmin =
-        req.user.role === "ADMIN";
+      
 
       /* ===============================================
          CHECK OWNERSHIP + LOCK
       =============================================== */
 
-      if (
-        existingAttendance.length > 0 &&
-        !isAdmin
-      ) {
-        const originalRecord =
-          existingAttendance[0];
+      /* ===============================================
+   CHECK ATTENDANCE EDIT WINDOW
+   Admin can edit anytime.
+   Assigned teachers can edit within 96 hours.
+=============================================== */
 
-        const originalTeacherId =
-          originalRecord.markedBy?.toString();
+const isAdmin = req.user.role === "ADMIN";
 
-        const currentUserId =
-          req.user._id.toString();
+if (existingAttendance.length > 0 && !isAdmin) {
+  const originalRecord = existingAttendance[0];
 
-        /* DIFFERENT TEACHER */
+  const originalMarkedAt =
+    originalRecord.markedAt || originalRecord.createdAt;
 
-        if (
-          originalTeacherId !==
-          currentUserId
-        ) {
-          return res.status(403).json({
-            success: false,
-            message:
-              "Attendance was already marked by another teacher. Only the teacher who marked it can edit it.",
-          });
-        }
+  const editableUntil = getEditableUntil(originalMarkedAt);
 
-        /* 12 HOUR LOCK */
-
-        const originalMarkedAt =
-          originalRecord.markedAt ||
-          originalRecord.createdAt;
-
-        const editableUntil =
-          getEditableUntil(
-            originalMarkedAt
-          );
-
-        if (
-          editableUntil &&
-          new Date() >= editableUntil
-        ) {
-          return res.status(403).json({
-            success: false,
-            message:
-              "Attendance editing time has expired. Teachers can edit only within 4 days.",
-          });
-        }
-      }
-
-      /* STUDENT MAP */
-
-      const studentMap =
-        new Map();
-
-      students.forEach(
-        (student) => {
-          studentMap.set(
-            student._id.toString(),
-            student
-          );
-        }
-      );
-
+  if (editableUntil && new Date() >= editableUntil) {
+    return res.status(403).json({
+      success: false,
+      message:
+        "Attendance editing time has expired. Teachers can edit attendance within 4 days.",
+    });
+  }
+}
       /* ===============================================
          BULK UPSERT
       =============================================== */
@@ -1371,65 +1501,34 @@ if (
       const markTime =
         new Date();
 
-      const operations =
-        normalizedAttendance.map(
-          (item) => {
-            const student =
-              studentMap.get(
-                item.studentId.toString()
-              );
+    const operations = normalizedAttendance.map((item) => {
+  return {
+    updateOne: {
+      filter: {
+        studentId: item.studentId,
+        batchId: selectedBatch._id,
+        date: dateRange.start,
+      },
 
-            return {
-              updateOne: {
-                filter: {
-                  studentId:
-                    student._id,
+      update: {
+        $set: {
+          studentId: item.studentId,
+          batchId: selectedBatch._id,
+          batchTiming: selectedBatch.batchTiming || "",
+          date: dateRange.start,
+          status: item.status,
+        },
 
-                  batchId:
-                    selectedBatch._id,
+        $setOnInsert: {
+          markedBy: req.user._id,
+          markedAt: markTime,
+        },
+      },
 
-                  date:
-                    dateRange.start,
-                },
-
-                update: {
-                  $set: {
-                    studentId:
-                      student._id,
-
-                    batchId:
-                      selectedBatch._id,
-
-                    batchTiming:
-                      selectedBatch.batchTiming ||
-                      "",
-
-                    date:
-                      dateRange.start,
-
-                    status:
-                      item.status,
-                  },
-
-                  /*
-                    OWNER + MARK TIME
-                    SET ONLY ON FIRST INSERT
-                  */
-
-                  $setOnInsert: {
-                    markedBy:
-                      req.user._id,
-
-                    markedAt:
-                      markTime,
-                  },
-                },
-
-                upsert: true,
-              },
-            };
-          }
-        );
+      upsert: true,
+    },
+  };
+});
 
       const result =
         await Attendance.bulkWrite(
@@ -1562,13 +1661,16 @@ const leaveClasses = attendanceRecords.filter(
   (record) => record.status === "LEAVE"
 ).length;
 
-// Leave is excluded from attendance percentage.
-const totalClasses = presentClasses + absentClasses;
+
+// Leave is counted as a missed class for attendance percentage.
+const totalClasses =
+  presentClasses + absentClasses + leaveClasses;
 
 const attendancePercentage =
   totalClasses > 0
     ? Math.round((presentClasses / totalClasses) * 100)
     : 0;
+
     /* =================================================
        FORMAT STUDENT BATCH
     ================================================= */
@@ -1915,24 +2017,24 @@ const dateKey =
       const studentReports =
         students.map(
           (student) => {
-            const stats =
-              attendanceMap.get(
-                student._id.toString()
-              ) || {
-                present: 0,
-                absent: 0,
-                total: 0,
-              };
+           const stats =
+  attendanceMap.get(
+    student._id.toString()
+  ) || {
+    present: 0,
+    absent: 0,
+    leave: 0,
+    total: 0,
+  };
 
-           const eligibleClasses =
-  stats.present + stats.absent;
+     const eligibleClasses =
+  stats.present + stats.absent + (stats.leave || 0);
 
 const percentage =
   eligibleClasses > 0
     ? Number(
         (
-          (stats.present /
-            eligibleClasses) *
+          (stats.present / eligibleClasses) *
           100
         ).toFixed(2)
       )
@@ -2023,13 +2125,14 @@ const totalPresent =
   );
 
 // Total Eligible Classes (Present + Absent)
-// Leave is excluded
+// Total Eligible Classes (Present + Absent + Leave)
 const totalEligibleAttendance =
   studentReports.reduce(
     (sum, student) =>
       sum +
       student.present +
-      student.absent,
+      student.absent +
+      (student.leave || 0),
     0
   );
 

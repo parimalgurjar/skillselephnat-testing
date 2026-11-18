@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -139,22 +140,20 @@ const Attendance = () => {
   };
 
   /* NORMALIZED VALUES */
-  const attendancePercentage = Math.min(
-    Math.max(
-      Number(stats.attendancePercentage) || 0,
-      0
-    ),
-    100
-  );
-
-  // totalClasses should exclude LEAVE records.
-  const totalClasses = Number(stats.totalClasses) || 0;
-
   const presentClasses = Number(stats.presentClasses) || 0;
 
   const absentClasses = Number(stats.absentClasses) || 0;
 
   const leaveClasses = Number(stats.leaveClasses) || 0;
+
+  // Leave counts as a missed class for attendance percentage.
+  const totalClasses =
+    presentClasses + absentClasses + leaveClasses;
+
+  const attendancePercentage =
+    totalClasses > 0
+      ? Math.round((presentClasses / totalClasses) * 100)
+      : 0;
 
   const requiredAttendance =
     Number(stats.requiredAttendance) || 90;
@@ -168,15 +167,15 @@ const Attendance = () => {
 
   const batchCode = batch?.code || student?.batch?.code || "";
 
- const rawBatchTiming =
-  batch?.displayTiming ||
-  batch?.batchTiming ||
-  student?.batchTiming ||
-  "";
+  const rawBatchTiming =
+    batch?.displayTiming ||
+    batch?.batchTiming ||
+    student?.batchTiming ||
+    "";
 
-const batchTiming = rawBatchTiming
-  ? formatBatchTimingString(rawBatchTiming)
-  : "";
+  const batchTiming = rawBatchTiming
+    ? formatBatchTimingString(rawBatchTiming)
+    : "";
 
   /* ATTENDANCE STATS */
   const attendanceStats = [
@@ -392,8 +391,8 @@ const batchTiming = rawBatchTiming
             <h3>Attendance Progress</h3>
 
             <p>
-              Your attendance is calculated based on
-              total conducted classes, excluding leave days.
+              Your attendance is calculated using all conducted classes,
+              including absent and approved leave days.
             </p>
           </div>
 

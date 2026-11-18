@@ -363,14 +363,14 @@ const getTeacherStudentOverview = async (teacherId) => {
     return {
       ...student,
 
-          attendance:
-        attendance &&
-        (attendance.present + attendance.absent) > 0
-          ? Math.round(
-              (attendance.present /
-                (attendance.present + attendance.absent)) * 100
-            )
-          : null,
+       attendance:
+  attendance &&
+  (attendance.present + attendance.absent + attendance.leave) > 0
+    ? Math.round(
+        (attendance.present /
+          (attendance.present + attendance.absent + attendance.leave)) * 100
+      )
+    : null,
 
       performance:
         performance?.count > 0

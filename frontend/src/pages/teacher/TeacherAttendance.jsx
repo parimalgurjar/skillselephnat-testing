@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from "react";
 import {
   CalendarDays,
@@ -9,6 +10,8 @@ import {
   Lock,
   Clock,
   Eye,
+  ChevronDown,
+  Check
 } from "lucide-react";
 import ProfileAvatar from "../../components/common/ProfileAvatar";
 import api from "../../services/api";
@@ -28,32 +31,51 @@ const DEFAULT_ATTENDANCE_META = {
   canEdit: true,
 };
 
-const formatStudent = (student) => ({
-  ...student,
-  id: student._id,
-  initials: student.name
-    ? student.name
-        .split(" ")
-        .map((word) => word.charAt(0))
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
-    : "ST",
-  status:
-    student.attendanceStatus === "ABSENT"
-      ? "Absent"
-      : student.attendanceStatus === "LEAVE"
-        ? "Leave"
-        : "Present",
-  alreadyMarked: Boolean(student.attendanceStatus),
-});
+// FORMAT STUDENT
+const formatStudent = (student) => {
+  const attendanceStatus = student.attendanceStatus;
+
+  const isApprovedLeave = Boolean(
+    student.isApprovedLeave ||
+    attendanceStatus === "LEAVE"
+  );
+
+  return {
+    ...student,
+    id: student._id,
+    initials: student.name
+      ? student.name
+          .split(" ")
+          .map((word) => word.charAt(0))
+          .join("")
+          .slice(0, 2)
+          .toUpperCase()
+      : "ST",
+
+    status:
+      attendanceStatus === "ABSENT"
+        ? "Absent"
+        : attendanceStatus === "LEAVE"
+          ? "Leave"
+          : "Present",
+
+    alreadyMarked: Boolean(attendanceStatus),
+    isApprovedLeave,
+  };
+};
 
 const TeacherAttendance = () => {
   const [batches, setBatches] = useState([]);
   const [selectedBatchId, setSelectedBatchId] = useState("");
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [batchDropdownOpen, setBatchDropdownOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(() => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+});
 
   const [students, setStudents] = useState([]);
   const [attendanceMeta, setAttendanceMeta] = useState(
@@ -228,7 +250,15 @@ const TeacherAttendance = () => {
       (student) => student.id === id
     );
 
-    if (!currentStudent || currentStudent.status === status) return;
+    // Teachers cannot manually add Leave or change approved Leave.
+    if (
+      !currentStudent ||
+      currentStudent.status === status ||
+      currentStudent.isApprovedLeave ||
+      status === "Leave"
+    ) {
+      return;
+    }
 
     setStudents((previousStudents) =>
       previousStudents.map((student) =>
@@ -243,11 +273,14 @@ const TeacherAttendance = () => {
   };
 
   // MARK ALL PRESENT
+  // Approved Leave students remain on Leave.
   const markAllPresent = () => {
     if (!attendanceMeta.canEdit || savingRef.current) return;
 
     const hasChanges = students.some(
-      (student) => student.status !== "Present"
+      (student) =>
+        !student.isApprovedLeave &&
+        student.status !== "Present"
     );
 
     if (!hasChanges) return;
@@ -255,7 +288,9 @@ const TeacherAttendance = () => {
     setStudents((previousStudents) =>
       previousStudents.map((student) => ({
         ...student,
-        status: "Present",
+        status: student.isApprovedLeave
+          ? "Leave"
+          : "Present",
       }))
     );
 
@@ -425,14 +460,17 @@ const TeacherAttendance = () => {
   ).length;
 
   // ATTENDANCE PERCENTAGE
-  const attendanceEligibleCount = presentCount + absentCount;
 
-  const attendanceRate =
-    attendanceEligibleCount > 0
-      ? Math.round(
-          (presentCount / attendanceEligibleCount) * 100
-        )
-      : 0;
+// Leave is counted as absent for percentage calculation.
+const attendanceEligibleCount =
+  presentCount + absentCount + leaveCount;
+
+const attendanceRate =
+  attendanceEligibleCount > 0
+    ? Math.round(
+        (presentCount / attendanceEligibleCount) * 100
+      )
+    : 0;
 
   // SEARCH + STAT FILTER
   const filteredStudents = students.filter((student) => {
@@ -452,10 +490,11 @@ const TeacherAttendance = () => {
     } else if (activeStatFilter === "LEAVE") {
       matchesStatus = student.status === "Leave";
     } else if (activeStatFilter === "RATE") {
-      matchesStatus =
-        student.status === "Present" ||
-        student.status === "Absent";
-    }
+  matchesStatus =
+    student.status === "Present" ||
+    student.status === "Absent" ||
+    student.status === "Leave";
+}
 
     return matchesSearch && matchesStatus;
   });
@@ -478,15 +517,7 @@ const TeacherAttendance = () => {
       };
     }
 
-    if (!attendanceMeta.isOwner) {
-      return {
-        type: "view",
-        icon: <Eye size={17} />,
-        message: `Attendance was marked by ${
-          attendanceMeta.markedBy?.name || "another teacher"
-        }. You have view-only access.`,
-      };
-    }
+   
 
     return {
       type: "editable",
@@ -607,28 +638,88 @@ const TeacherAttendance = () => {
             Select Batch
           </label>
 
-          <select
-            value={selectedBatchId}
-            onChange={(e) => {
-              if (hasUnsavedChanges) {
-                saveAttendance({ silent: true });
-              }
+          <div className="attendance-custom-batch">
+  <button
+    type="button"
+    className={`attendance-custom-batch-trigger ${
+      batchDropdownOpen ? "active" : ""
+    }`}
+    onClick={() => setBatchDropdownOpen((prev) => !prev)}
+    disabled={saving || batches.length === 0}
+  >
+    <span className="attendance-custom-batch-info">
+      <strong>
+        {getBatchLabel(selectedBatch)}
+      </strong>
+      <small>
+        {selectedBatch
+          ? "Currently selected batch"
+          : "Select a batch"}
+      </small>
+    </span>
 
-              setSelectedBatchId(e.target.value);
-              setActiveStatFilter("TOTAL");
-            }}
-            disabled={saving}
-          >
-            {batches.length === 0 ? (
-              <option value="">No batches available</option>
-            ) : (
-              batches.map((batch) => (
-                <option key={batch._id} value={batch._id}>
-                  {getBatchLabel(batch)}
-                </option>
-              ))
-            )}
-          </select>
+    <ChevronDown
+      size={18}
+      className={batchDropdownOpen ? "rotated" : ""}
+    />
+  </button>
+
+  {batchDropdownOpen && (
+    <>
+      <div
+        className="attendance-custom-batch-backdrop"
+        onClick={() => setBatchDropdownOpen(false)}
+      />
+
+      <div className="attendance-custom-batch-menu">
+        {batches.map((batch) => {
+          const isSelected =
+            String(batch._id) === String(selectedBatchId);
+
+          return (
+            <button
+              type="button"
+              key={batch._id}
+              className={`attendance-custom-batch-option ${
+                isSelected ? "selected" : ""
+              }`}
+              onClick={() => {
+                if (hasUnsavedChanges) {
+                  saveAttendance({ silent: true });
+                }
+
+                setSelectedBatchId(batch._id);
+                setActiveStatFilter("TOTAL");
+                setBatchDropdownOpen(false);
+              }}
+              disabled={saving}
+            >
+              <span className="attendance-custom-batch-icon">
+                <Users size={17} />
+              </span>
+
+              <span className="attendance-custom-batch-text">
+                <strong>{getBatchLabel(batch)}</strong>
+                <small>
+                  {batch.displayTiming ||
+                    batch.batchTiming ||
+                    "Batch timing"}
+                </small>
+              </span>
+
+              {isSelected && (
+                <Check
+                  size={18}
+                  className="attendance-custom-batch-check"
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </>
+  )}
+</div>
         </div>
 
         <div className="attendance-control-group">
@@ -816,6 +907,7 @@ const TeacherAttendance = () => {
 
                     <td>
                       <div className="attendance-status-buttons">
+                        {/* PRESENT */}
                         <button
                           className={
                             student.status === "Present"
@@ -826,13 +918,21 @@ const TeacherAttendance = () => {
                             updateAttendance(student.id, "Present")
                           }
                           disabled={
-                            saving || !attendanceMeta.canEdit
+                            saving ||
+                            !attendanceMeta.canEdit ||
+                            student.isApprovedLeave
+                          }
+                          title={
+                            student.isApprovedLeave
+                              ? "Approved leave cannot be changed by teacher"
+                              : "Mark Present"
                           }
                         >
                           <CheckCircle2 size={15} />
                           Present
                         </button>
 
+                        {/* ABSENT */}
                         <button
                           className={
                             student.status === "Absent"
@@ -843,25 +943,29 @@ const TeacherAttendance = () => {
                             updateAttendance(student.id, "Absent")
                           }
                           disabled={
-                            saving || !attendanceMeta.canEdit
+                            saving ||
+                            !attendanceMeta.canEdit ||
+                            student.isApprovedLeave
+                          }
+                          title={
+                            student.isApprovedLeave
+                              ? "Approved leave cannot be changed by teacher"
+                              : "Mark Absent"
                           }
                         >
                           <XCircle size={15} />
                           Absent
                         </button>
 
+                        {/* LEAVE - ADMIN APPROVAL ONLY */}
                         <button
                           className={
                             student.status === "Leave"
                               ? "leave active"
                               : "leave"
                           }
-                          onClick={() =>
-                            updateAttendance(student.id, "Leave")
-                          }
-                          disabled={
-                            saving || !attendanceMeta.canEdit
-                          }
+                          disabled={true}
+                          title="Leave can only be added after admin approval"
                         >
                           <Clock size={15} />
                           Leave
