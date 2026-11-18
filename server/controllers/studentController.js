@@ -11,6 +11,7 @@ const DoubtMessage = require("../models/DoubtMessage");
 const Notification = require("../models/Notification");
 const Task = require("../models/Task");
 const generateStudentId = require("../utils/generateStudentId");
+const LeaveRequest = require("../models/LeaveRequest");
 const isValidObjectId = (id) =>
   mongoose.Types.ObjectId.isValid(id);
 
@@ -712,7 +713,35 @@ const deleteStudent = async (req, res) => {
       const doubtIds = doubts.map(
         (doubt) => doubt._id
       );
+// Delete all leave requests created by this student
+const studentLeaveRequests = await LeaveRequest.find({
+  studentId,
+})
+  .select("_id")
+  .session(session);
 
+const leaveRequestIds = studentLeaveRequests.map(
+  (leave) => leave._id
+);
+
+await LeaveRequest.deleteMany(
+  { studentId },
+  { session }
+);
+
+// Delete admin notifications related to these leave requests
+if (leaveRequestIds.length > 0) {
+  await Notification.deleteMany(
+    {
+      eventKey: {
+        $in: leaveRequestIds.map(
+          (id) => `LEAVE_REQUEST:${id}`
+        ),
+      },
+    },
+    { session }
+  );
+}
       // Delete attendance
       await Attendance.deleteMany(
         { studentId },
