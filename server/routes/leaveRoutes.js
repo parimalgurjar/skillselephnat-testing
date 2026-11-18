@@ -8,7 +8,8 @@ const {
   getMyLeaveRequests,
   getAllLeaveRequests,
   reviewLeaveRequest,
-  cancelMyLeaveRequest
+  cancelMyLeaveRequest,
+  deleteLeaveRequest
 } = require("../controllers/leaveController");
 
 const {
@@ -83,6 +84,12 @@ router.patch(
   protect,
   authorize("ADMIN"),
   reviewLeaveRequest
+);
+router.delete(
+  "/admin/:id",
+  protect,
+  authorize("ADMIN"),
+  deleteLeaveRequest
 );
 
 module.exports = router;

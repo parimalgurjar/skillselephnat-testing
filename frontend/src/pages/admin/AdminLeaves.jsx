@@ -10,8 +10,10 @@ import {
   FileText,
   ExternalLink,
   X,
+  Trash2,
   UserRound,
   MessageSquare,
+  ChevronDown,
 } from "lucide-react";
 
 import api from "../../services/api";
@@ -38,14 +40,48 @@ const formatDate = (value) => {
   });
 };
 
+// Convert dates into YYYY-MM-DD without UTC date shifting.
+const getDateKey = (value) => {
+  if (!value) return "";
+
+  if (
+    typeof value === "string" &&
+    /^\d{4}-\d{2}-\d{2}/.test(value)
+  ) {
+    return value.slice(0, 10);
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
 const getStudentName = (student) => {
   if (!student) return "Unknown Student";
 
-  return student.name || student.fullName || "Unknown Student";
+  if (typeof student === "string") {
+    return "Unknown Student";
+  }
+
+  return (
+    student.name ||
+    student.fullName ||
+    "Unknown Student"
+  );
 };
 
 const getBatchName = (batch) => {
   if (!batch) return "Batch not available";
+
+  if (typeof batch === "string") {
+    return "Batch not available";
+  }
 
   const timing =
     batch.batchTiming ||
@@ -53,7 +89,21 @@ const getBatchName = (batch) => {
       ? `${batch.startTime} - ${batch.endTime}`
       : "");
 
-  return [batch.name, timing].filter(Boolean).join(" • ") || "Batch";
+  return (
+    [batch.name, timing].filter(Boolean).join(" • ") ||
+    batch.code ||
+    "Batch"
+  );
+};
+
+const getBatchId = (batch) => {
+  if (!batch) return "";
+
+  if (typeof batch === "string") {
+    return batch;
+  }
+
+  return String(batch._id || "");
 };
 
 const getStatusClass = (status) => {
@@ -71,19 +121,30 @@ const getStatusClass = (status) => {
 
 const AdminLeaves = () => {
   const [leaves, setLeaves] = useState([]);
+
+  // Filters
   const [activeFilter, setActiveFilter] = useState("ALL");
+  const [batchFilter, setBatchFilter] = useState("ALL");
+  const [dateFilter, setDateFilter] = useState("");
   const [search, setSearch] = useState("");
 
+  // Loading and messages
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
+const [confirmDeleteLeave, setConfirmDeleteLeave] = useState(null);
+  // Review modal
   const [selectedLeave, setSelectedLeave] = useState(null);
   const [reviewStatus, setReviewStatus] = useState("");
   const [adminRemarks, setAdminRemarks] = useState("");
-  const [saving, setSaving] = useState(false);
 
+  // Action loading
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  // Fetch all requests.
+  // Filters are applied locally so multiple filters work together.
   const fetchLeaves = useCallback(async (isRefresh = false) => {
     try {
       if (isRefresh) {
@@ -94,12 +155,7 @@ const AdminLeaves = () => {
 
       setError("");
 
-      const params =
-        activeFilter === "ALL"
-          ? {}
-          : { status: activeFilter };
-
-      const response = await api.get("/leaves", { params });
+      const response = await api.get("/leaves");
 
       setLeaves(
         Array.isArray(response.data?.leaves)
@@ -117,52 +173,125 @@ const AdminLeaves = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [activeFilter]);
+  }, []);
 
   useEffect(() => {
     fetchLeaves();
   }, [fetchLeaves]);
 
+  // Get unique batches from available requests.
+  const availableBatches = useMemo(() => {
+    const batchMap = new Map();
+
+    leaves.forEach((leave) => {
+      const batch = leave.batchId;
+      const id = getBatchId(batch);
+
+      if (id && typeof batch === "object") {
+        batchMap.set(id, batch);
+      }
+    });
+
+    return Array.from(batchMap.values());
+  }, [leaves]);
+
+  // Combined filtering: status + batch + date + search.
   const filteredLeaves = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    if (!query) return leaves;
-
     return leaves.filter((leave) => {
-      const student = getStudentName(leave.studentId);
-      const email = leave.studentId?.email || "";
-      const batch = getBatchName(leave.batchId);
-      const reason = leave.reason || "";
+      // Status filter
+      if (
+        activeFilter !== "ALL" &&
+        leave.status !== activeFilter
+      ) {
+        return false;
+      }
 
-      return (
-        student.toLowerCase().includes(query) ||
-        email.toLowerCase().includes(query) ||
-        batch.toLowerCase().includes(query) ||
-        reason.toLowerCase().includes(query)
-      );
+      // Batch filter
+      if (batchFilter !== "ALL") {
+        const currentBatchId = getBatchId(leave.batchId);
+
+        if (currentBatchId !== batchFilter) {
+          return false;
+        }
+      }
+
+      // Search student name, email, batch and reason
+      if (query) {
+        const student = getStudentName(leave.studentId);
+        const email = leave.studentId?.email || "";
+        const batch = getBatchName(leave.batchId);
+        const reason = leave.reason || "";
+
+        const matchesSearch = [
+          student,
+          email,
+          batch,
+          reason,
+        ].some((value) =>
+          String(value).toLowerCase().includes(query)
+        );
+
+        if (!matchesSearch) {
+          return false;
+        }
+      }
+
+      // Date filter:
+      // Show requests whose leave period contains selected date.
+      if (dateFilter) {
+        const startDate = getDateKey(leave.startDate);
+        const endDate = getDateKey(leave.endDate);
+
+        if (
+          !startDate ||
+          !endDate ||
+          dateFilter < startDate ||
+          dateFilter > endDate
+        ) {
+          return false;
+        }
+      }
+
+      return true;
     });
-  }, [leaves, search]);
+  }, [
+    leaves,
+    activeFilter,
+    batchFilter,
+    dateFilter,
+    search,
+  ]);
 
+  // Summary counts
   const counts = useMemo(() => {
     return {
       total: leaves.length,
+
       pending: leaves.filter(
         (leave) => leave.status === "PENDING"
       ).length,
+
       approved: leaves.filter(
         (leave) => leave.status === "APPROVED"
       ).length,
+
       rejected: leaves.filter(
         (leave) => leave.status === "REJECTED"
       ).length,
     };
   }, [leaves]);
 
+  const pendingCount = counts.pending;
+
+  // Review modal
   const openReview = (leave, status) => {
     setSelectedLeave(leave);
     setReviewStatus(status);
     setAdminRemarks(leave.adminRemarks || "");
     setSuccessMessage("");
+    setError("");
   };
 
   const closeReview = () => {
@@ -173,6 +302,7 @@ const AdminLeaves = () => {
     setAdminRemarks("");
   };
 
+  // Approve / Reject request
   const submitReview = async (event) => {
     event.preventDefault();
 
@@ -186,6 +316,7 @@ const AdminLeaves = () => {
     try {
       setSaving(true);
       setError("");
+      setSuccessMessage("");
 
       await api.patch(
         `/leaves/${selectedLeave._id}/review`,
@@ -218,12 +349,56 @@ const AdminLeaves = () => {
     }
   };
 
-  const pendingCount = leaves.filter(
-    (leave) => leave.status === "PENDING"
-  ).length;
+  // Delete individual leave request.
+const handleDeleteLeave = async () => {
+  if (!confirmDeleteLeave?._id || saving || deletingId) return;
+
+  const leave = confirmDeleteLeave;
+
+  try {
+    setDeletingId(leave._id);
+    setError("");
+    setSuccessMessage("");
+
+    await api.delete(`/leaves/admin/${leave._id}`);
+
+    setConfirmDeleteLeave(null);
+
+    setLeaves((previous) =>
+      previous.filter((item) => item._id !== leave._id)
+    );
+
+    setSuccessMessage("Leave request deleted successfully.");
+
+    await fetchLeaves(true);
+  } catch (err) {
+    console.error("Delete Leave Request Error:", err);
+
+    setError(
+      err.response?.data?.message ||
+        "Unable to delete this leave request."
+    );
+  } finally {
+    setDeletingId(null);
+  }
+};
+
+  const clearFilters = () => {
+    setActiveFilter("ALL");
+    setBatchFilter("ALL");
+    setDateFilter("");
+    setSearch("");
+  };
+
+  const hasActiveFilters =
+    activeFilter !== "ALL" ||
+    batchFilter !== "ALL" ||
+    Boolean(dateFilter) ||
+    Boolean(search);
 
   return (
     <div className="admin-leaves-page">
+      {/* HEADER */}
       <div className="admin-leaves-header">
         <div>
           <div className="admin-leaves-eyebrow">
@@ -252,10 +427,13 @@ const AdminLeaves = () => {
         </button>
       </div>
 
+      {/* SUCCESS MESSAGE */}
       {successMessage && (
         <div className="admin-leaves-alert success">
           <CheckCircle2 size={18} />
+
           <span>{successMessage}</span>
+
           <button
             type="button"
             onClick={() => setSuccessMessage("")}
@@ -266,10 +444,13 @@ const AdminLeaves = () => {
         </div>
       )}
 
+      {/* ERROR MESSAGE */}
       {error && (
         <div className="admin-leaves-alert error">
           <XCircle size={18} />
+
           <span>{error}</span>
+
           <button
             type="button"
             onClick={() => setError("")}
@@ -280,11 +461,13 @@ const AdminLeaves = () => {
         </div>
       )}
 
+      {/* STATISTICS */}
       <div className="admin-leaves-stats">
         <div className="admin-leaves-stat-card">
           <div className="admin-leaves-stat-icon total">
             <FileText size={20} />
           </div>
+
           <div>
             <span>Total Requests</span>
             <strong>{counts.total}</strong>
@@ -295,6 +478,7 @@ const AdminLeaves = () => {
           <div className="admin-leaves-stat-icon pending">
             <Clock3 size={20} />
           </div>
+
           <div>
             <span>Pending</span>
             <strong>{counts.pending}</strong>
@@ -305,6 +489,7 @@ const AdminLeaves = () => {
           <div className="admin-leaves-stat-icon approved">
             <CheckCircle2 size={20} />
           </div>
+
           <div>
             <span>Approved</span>
             <strong>{counts.approved}</strong>
@@ -315,6 +500,7 @@ const AdminLeaves = () => {
           <div className="admin-leaves-stat-icon rejected">
             <XCircle size={20} />
           </div>
+
           <div>
             <span>Rejected</span>
             <strong>{counts.rejected}</strong>
@@ -322,7 +508,9 @@ const AdminLeaves = () => {
         </div>
       </div>
 
+      {/* FILTER TOOLBAR */}
       <div className="admin-leaves-toolbar">
+        {/* STATUS TABS */}
         <div className="admin-leaves-tabs">
           {FILTERS.map((filter) => (
             <button
@@ -334,26 +522,99 @@ const AdminLeaves = () => {
               onClick={() => setActiveFilter(filter.value)}
             >
               {filter.label}
-              {filter.value === "PENDING" && pendingCount > 0 && (
-                <span className="admin-leaves-tab-count">
-                  {pendingCount}
-                </span>
-              )}
+
+              {filter.value === "PENDING" &&
+                pendingCount > 0 && (
+                  <span className="admin-leaves-tab-count">
+                    {pendingCount}
+                  </span>
+                )}
             </button>
           ))}
         </div>
 
-        <div className="admin-leaves-search">
-          <Search size={17} />
-          <input
-            type="search"
-            placeholder="Search student, batch or reason..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
+        {/* ADVANCED FILTERS */}
+        <div className="admin-leaves-filters">
+          {/* BATCH FILTER */}
+          <div className="admin-leaves-filter-field">
+            <select
+              value={batchFilter}
+              onChange={(event) =>
+                setBatchFilter(event.target.value)
+              }
+              className="admin-leaves-filter-select"
+              aria-label="Filter by batch"
+            >
+              <option value="ALL">All Batches</option>
+
+              {availableBatches.map((batch) => (
+                <option
+                  key={batch._id}
+                  value={String(batch._id)}
+                >
+                  {getBatchName(batch)}
+                </option>
+              ))}
+            </select>
+
+            <ChevronDown
+              size={15}
+              className="admin-leaves-filter-chevron"
+            />
+          </div>
+
+          {/* DATE FILTER */}
+          <div className="admin-leaves-filter-field admin-leaves-date-field">
+            <CalendarDays size={16} />
+
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(event) =>
+                setDateFilter(event.target.value)
+              }
+              className="admin-leaves-filter-date"
+              aria-label="Filter by leave date"
+              title="Show requests active on this leave date"
+            />
+          </div>
+
+          {/* SEARCH */}
+          <div className="admin-leaves-search">
+            <Search size={17} />
+
+            <input
+              type="search"
+              placeholder="Search student, email or reason..."
+              value={search}
+              onChange={(event) =>
+                setSearch(event.target.value)
+              }
+            />
+          </div>
+
+          {/* CLEAR FILTERS */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              className="admin-leaves-clear-filters"
+              onClick={clearFilters}
+            >
+              <X size={14} />
+              Clear
+            </button>
+          )}
         </div>
       </div>
 
+      {/* RESULTS COUNT */}
+      {!loading && (
+        <div className="admin-leaves-results-count">
+          Showing {filteredLeaves.length} of {leaves.length} requests
+        </div>
+      )}
+
+      {/* LEAVE REQUEST LIST */}
       <div className="admin-leaves-list">
         {loading ? (
           <div className="admin-leaves-loading">
@@ -369,21 +630,33 @@ const AdminLeaves = () => {
             <h3>No leave requests found</h3>
 
             <p>
-              {search
-                ? "Try changing your search."
+              {hasActiveFilters
+                ? "Try changing your filters or search."
                 : "Student leave applications will appear here."}
             </p>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="admin-leaves-clear-filters"
+                onClick={clearFilters}
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         ) : (
           filteredLeaves.map((leave) => {
             const student = leave.studentId || {};
             const attachment = leave.attachment || {};
+            const isDeleting = deletingId === leave._id;
 
             return (
               <article
                 className="admin-leave-card"
                 key={leave._id}
               >
+                {/* CARD HEADER */}
                 <div className="admin-leave-card-top">
                   <div className="admin-leave-student">
                     <div className="admin-leave-avatar">
@@ -392,7 +665,10 @@ const AdminLeaves = () => {
 
                     <div>
                       <h3>{getStudentName(student)}</h3>
-                      <p>{student.email || "Email unavailable"}</p>
+
+                      <p>
+                        {student.email || "Email unavailable"}
+                      </p>
                     </div>
                   </div>
 
@@ -405,14 +681,19 @@ const AdminLeaves = () => {
                   </span>
                 </div>
 
+                {/* DETAILS */}
                 <div className="admin-leave-details">
                   <div>
                     <span>Batch</span>
-                    <strong>{getBatchName(leave.batchId)}</strong>
+
+                    <strong>
+                      {getBatchName(leave.batchId)}
+                    </strong>
                   </div>
 
                   <div>
                     <span>Leave period</span>
+
                     <strong>
                       {formatDate(leave.startDate)}
                       {" — "}
@@ -422,15 +703,20 @@ const AdminLeaves = () => {
 
                   <div>
                     <span>Submitted</span>
-                    <strong>{formatDate(leave.createdAt)}</strong>
+
+                    <strong>
+                      {formatDate(leave.createdAt)}
+                    </strong>
                   </div>
                 </div>
 
+                {/* REASON */}
                 <div className="admin-leave-reason">
                   <span>Reason for leave</span>
                   <p>{leave.reason || "No reason provided."}</p>
                 </div>
 
+                {/* ATTACHMENT */}
                 {attachment.url && (
                   <a
                     className="admin-leave-attachment"
@@ -439,17 +725,21 @@ const AdminLeaves = () => {
                     rel="noopener noreferrer"
                   >
                     <FileText size={17} />
+
                     <span>
                       {attachment.originalName ||
                         "View supporting document"}
                     </span>
+
                     <ExternalLink size={15} />
                   </a>
                 )}
 
+                {/* ADMIN REMARKS */}
                 {leave.adminRemarks && (
                   <div className="admin-leave-remarks">
                     <MessageSquare size={16} />
+
                     <div>
                       <strong>Admin remarks</strong>
                       <p>{leave.adminRemarks}</p>
@@ -457,6 +747,7 @@ const AdminLeaves = () => {
                   </div>
                 )}
 
+                {/* REVIEW ACTIONS */}
                 {leave.status === "PENDING" ? (
                   <div className="admin-leave-actions">
                     <button
@@ -465,6 +756,7 @@ const AdminLeaves = () => {
                       onClick={() =>
                         openReview(leave, "REJECTED")
                       }
+                      disabled={saving || Boolean(deletingId)}
                     >
                       <XCircle size={17} />
                       Reject
@@ -476,6 +768,7 @@ const AdminLeaves = () => {
                       onClick={() =>
                         openReview(leave, "APPROVED")
                       }
+                      disabled={saving || Boolean(deletingId)}
                     >
                       <CheckCircle2 size={17} />
                       Approve Leave
@@ -486,17 +779,105 @@ const AdminLeaves = () => {
                     {leave.reviewedBy?.name
                       ? `Reviewed by ${leave.reviewedBy.name}`
                       : "Request reviewed"}
+
                     {leave.reviewedAt
                       ? ` • ${formatDate(leave.reviewedAt)}`
                       : ""}
                   </div>
                 )}
+
+                {/* DELETE REQUEST */}
+                <div className="admin-leave-delete-row">
+                  <button
+                    type="button"
+                    className="admin-leave-delete-btn"
+                    onClick={() => setConfirmDeleteLeave(leave)}
+                    disabled={
+                      saving ||
+                      Boolean(deletingId)
+                    }
+                  >
+                    {isDeleting ? (
+                      <RefreshCw
+                        size={16}
+                        className="is-spinning"
+                      />
+                    ) : (
+                      <Trash2 size={16} />
+                    )}
+
+                    {isDeleting
+                      ? "Deleting..."
+                      : "Delete Request"}
+                  </button>
+                </div>
               </article>
             );
           })
         )}
       </div>
+{confirmDeleteLeave && (
+  <div
+    className="admin-delete-modal-overlay"
+    onMouseDown={(event) => {
+      if (event.target === event.currentTarget && !deletingId) {
+        setConfirmDeleteLeave(null);
+      }
+    }}
+  >
+    <div className="admin-delete-modal">
+      <div className="admin-delete-modal-icon">
+        <Trash2 size={25} />
+      </div>
 
+      <h2>Delete Leave Request?</h2>
+
+      <p>
+        Are you sure you want to delete the leave request
+        of <strong>{getStudentName(confirmDeleteLeave.studentId)}</strong>?
+      </p>
+
+      <div className="admin-delete-modal-warning">
+        <XCircle size={17} />
+        <span>
+          This request and its related notifications will be deleted.
+          Existing attendance history will remain unchanged.
+        </span>
+      </div>
+
+      <div className="admin-delete-modal-actions">
+        <button
+          type="button"
+          className="admin-delete-cancel"
+          onClick={() => setConfirmDeleteLeave(null)}
+          disabled={Boolean(deletingId)}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          className="admin-delete-confirm"
+          onClick={handleDeleteLeave}
+          disabled={Boolean(deletingId)}
+        >
+          {deletingId ? (
+            <>
+              <RefreshCw size={16} className="is-spinning" />
+              Deleting...
+            </>
+          ) : (
+            <>
+              <Trash2 size={16} />
+              Delete Request
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+      {/* REVIEW MODAL */}
       {selectedLeave && (
         <div
           className="admin-leave-modal-backdrop"
@@ -513,6 +894,7 @@ const AdminLeaves = () => {
             <div className="admin-leave-modal-header">
               <div>
                 <span>LEAVE REQUEST REVIEW</span>
+
                 <h2>
                   {reviewStatus === "APPROVED"
                     ? "Approve Leave"
@@ -534,6 +916,7 @@ const AdminLeaves = () => {
               <strong>
                 {getStudentName(selectedLeave.studentId)}
               </strong>
+
               <span>
                 {formatDate(selectedLeave.startDate)}
                 {" — "}
@@ -564,6 +947,7 @@ const AdminLeaves = () => {
             {reviewStatus === "APPROVED" && (
               <div className="admin-leave-approval-note">
                 <CheckCircle2 size={17} />
+
                 Applicable class dates will automatically be
                 marked as LEAVE in attendance.
               </div>

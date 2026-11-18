@@ -816,3 +816,55 @@ exports.reviewLeaveRequest = async (req, res) => {
   }
 };
 
+/* =====================================================
+   ADMIN - DELETE LEAVE REQUEST
+
+   Deletes only the leave request and its notifications.
+   Existing attendance history is preserved.
+===================================================== */
+
+exports.deleteLeaveRequest = async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid leave request ID.",
+      });
+    }
+
+    const leave = await LeaveRequest.findById(req.params.id);
+
+    if (!leave) {
+      return res.status(404).json({
+        success: false,
+        message: "Leave request not found.",
+      });
+    }
+
+    // Remove notifications related to this request.
+    await Notification.deleteMany({
+      eventKey: {
+        $in: [
+          `LEAVE_REQUEST:${leave._id}`,
+          `LEAVE_DECISION:${leave._id}`,
+        ],
+      },
+    });
+
+    await LeaveRequest.deleteOne({
+      _id: leave._id,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Leave request deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete Leave Request Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to delete leave request.",
+    });
+  }
+};

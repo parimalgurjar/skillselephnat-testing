@@ -862,3 +862,339 @@
     font-size: 9px;
   }
 }
+
+/* =========================================
+   ADVANCED LEAVE REQUEST FILTERS
+========================================= */
+
+.admin-leaves-filters {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.admin-leaves-filter-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 155px;
+}
+
+.admin-leaves-filter-select,
+.admin-leaves-filter-date {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 32px 0 11px;
+  border: 1px solid #e3e8f1;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #273754;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.admin-leaves-filter-select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.admin-leaves-filter-date {
+  padding-left: 34px;
+}
+
+.admin-leaves-filter-field:focus-within {
+  color: #011451;
+}
+
+.admin-leaves-filter-select:focus,
+.admin-leaves-filter-date:focus {
+  border-color: #7186c5;
+  box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.06);
+}
+
+.admin-leaves-filter-chevron {
+  position: absolute;
+  right: 10px;
+  pointer-events: none;
+  color: #8490a8;
+}
+
+.admin-leaves-date-field > svg {
+  position: absolute;
+  left: 11px;
+  pointer-events: none;
+  color: #8490a8;
+}
+
+.admin-leaves-results-count {
+  margin: 12px 0;
+  color: #8995aa;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.admin-leaves-clear-filters {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #e3e8f1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #647089;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.admin-leaves-clear-filters:hover {
+  background: #f4f6fc;
+  color: #011451;
+  border-color: #cbd5e1;
+}
+
+/* =========================================
+   DELETE REQUEST BUTTON
+========================================= */
+
+.admin-leave-delete-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid #edf0f5;
+}
+
+.admin-leave-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+  background: #fff5f5;
+  color: #c43b48;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.admin-leave-delete-btn:hover:not(:disabled) {
+  border-color: #d84b58;
+  background: #ffeded;
+}
+
+.admin-leave-delete-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1000px) {
+  .admin-leaves-filters {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
+@media (max-width: 650px) {
+  .admin-leaves-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .admin-leaves-filter-field {
+    min-width: 0;
+  }
+
+  .admin-leaves-search {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .admin-leaves-clear-filters {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .admin-leaves-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-leaves-search,
+  .admin-leaves-clear-filters {
+    grid-column: auto;
+  }
+}
+
+/* =========================================
+   CUSTOM DELETE CONFIRMATION MODAL
+========================================= */
+
+.admin-delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(1, 12, 48, 0.58);
+  backdrop-filter: blur(4px);
+  animation: deleteOverlayIn 0.2s ease;
+}
+
+.admin-delete-modal {
+  width: 100%;
+  max-width: 420px;
+  padding: 28px;
+  border: 1px solid #edf0f5;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(1, 20, 81, 0.2);
+  animation: deleteModalIn 0.22s ease;
+}
+
+.admin-delete-modal-icon {
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  border-radius: 15px;
+  background: #fff0f0;
+  color: #d94350;
+}
+
+.admin-delete-modal h2 {
+  margin: 0 0 10px;
+  color: #011451;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.admin-delete-modal > p {
+  margin: 0;
+  color: #71809a;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.admin-delete-modal > p strong {
+  color: #011451;
+}
+
+.admin-delete-modal-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 13px;
+  border: 1px solid #fee2e2;
+  border-radius: 11px;
+  background: #fff7f7;
+  color: #b94b54;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.admin-delete-modal-warning svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.admin-delete-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.admin-delete-modal-actions button {
+  min-height: 42px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.admin-delete-cancel {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+}
+
+.admin-delete-cancel:hover {
+  background: #f5f7fb;
+}
+
+.admin-delete-confirm {
+  border: 1px solid #d94350;
+  background: #d94350;
+  color: #ffffff;
+}
+
+.admin-delete-confirm:hover:not(:disabled) {
+  background: #bd303d;
+}
+
+.admin-delete-modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes deleteOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes deleteModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-delete-modal {
+    padding: 22px;
+  }
+
+  .admin-delete-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .admin-delete-modal-actions button {
+    width: 100%;
+  }
+}
