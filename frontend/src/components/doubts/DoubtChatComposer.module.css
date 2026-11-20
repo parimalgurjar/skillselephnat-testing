@@ -1,8 +1,15 @@
+
 .composer {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  flex-shrink: 0;
+  width: 100%;
   margin: 0;
-  padding: 14px 18px;
-  background: #f4f6fb;
-  border-top: 1px solid #e5e9f2;
+  padding: 14px 20px 16px;
+  background: #ffffff;
+  border-top: 1px solid #e3e8f1;
+  box-shadow: 0 -5px 20px rgba(1, 20, 81, 0.06);
 }
 
 .composer,
@@ -13,19 +20,20 @@
 .composer .bar {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
+  gap: 10px;
+  width: 100%;
   min-height: 58px;
   padding: 7px 9px;
   background: #ffffff;
-  border: 1px solid #e1e6ef;
-  border-radius: 28px;
-  box-shadow: 0 2px 8px rgba(1, 20, 81, 0.035);
+  border: 1px solid #d6deec;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(1, 20, 81, 0.04);
   transition: border-color 150ms, box-shadow 150ms;
 }
 
 .composer .bar:focus-within {
-  border-color: #aebcdb;
-  box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.045);
+  border-color: #8095c1;
+  box-shadow: 0 0 0 3px rgba(1, 20, 81, 0.07);
 }
 
 .composer .textInput {
@@ -37,13 +45,13 @@
   min-height: 42px;
   max-height: 120px;
   margin: 0;
-  padding: 10px 4px;
+  padding: 10px 8px;
   border: 0;
   border-radius: 0;
   outline: none;
   resize: none;
   background: transparent;
-  color: #18233c;
+  color: #172440;
   font-family: inherit;
   font-size: 14px;
   font-weight: 400;
@@ -59,7 +67,8 @@
 }
 
 .composer .textInput::placeholder {
-  color: #8b95a8;
+  color: #77849b;
+  opacity: 1;
 }
 
 .composer .iconButton,
@@ -75,19 +84,22 @@
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 50%;
+  border-radius: 12px;
   cursor: pointer;
   box-shadow: none;
-  transition: background 150ms, transform 150ms;
+  transition:
+    background 150ms,
+    color 150ms,
+    transform 150ms;
 }
 
 .composer .iconButton {
-  background: transparent;
-  color: #778297;
+  background: #f3f6fb;
+  color: #66758f;
 }
 
 .composer .iconButton:hover {
-  background: #edf1f7;
+  background: #e9eef7;
   color: #011451;
 }
 
@@ -97,7 +109,7 @@
 }
 
 .composer .actionButton:hover {
-  background: #132b6d;
+  background: #142d70;
 }
 
 .composer .actionButton:active {
@@ -105,7 +117,7 @@
 }
 
 .composer button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -118,11 +130,11 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  max-width: 440px;
+  max-width: 460px;
   margin: 0 0 10px;
   padding: 10px 12px;
-  background: #ffffff;
-  border: 1px solid #e1e6ef;
+  background: #f8faff;
+  border: 1px solid #dfe6f1;
   border-radius: 14px;
 }
 
@@ -142,7 +154,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #edf2fc;
+  background: #eaf0fc;
   color: #011451;
 }
 
@@ -164,7 +176,7 @@
 .composer .fileDetails small {
   display: block;
   margin-top: 4px;
-  color: #8b95a8;
+  color: #7c899f;
   font-size: 11px;
 }
 
@@ -183,7 +195,7 @@
   gap: 10px;
   min-width: 0;
   min-height: 42px;
-  color: #647087;
+  color: #52627d;
   font-size: 13px;
 }
 
@@ -205,7 +217,13 @@
 }
 
 .composer .deleteButton {
+  background: #fff1f2;
   color: #dc2626;
+}
+
+.composer .deleteButton:hover {
+  background: #ffe4e6;
+  color: #b91c1c;
 }
 
 .composer .stopButton {
@@ -241,13 +259,24 @@
 
 @media (max-width: 600px) {
   .composer {
-    padding: 10px;
+    padding: 10px 12px;
   }
 
   .composer .bar {
-    gap: 4px;
+    gap: 5px;
     padding: 6px;
     min-height: 54px;
+    border-radius: 16px;
+  }
+
+  .composer .iconButton,
+  .composer .actionButton {
+    flex-basis: 38px;
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    min-height: 38px;
+    border-radius: 11px;
   }
 
   .composer .textInput {

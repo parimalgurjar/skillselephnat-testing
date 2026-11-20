@@ -157,3 +157,22 @@ export const sendDoubtMessage = async (
     );
   }
 };
+/* =====================================================
+   DELETE DOUBT MESSAGE
+===================================================== */
+
+export const deleteDoubtMessage = async (doubtId, messageId) => {
+  try {
+    const response = await api.delete(
+      `/doubts/${doubtId}/messages/${messageId}`
+    );
+
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message ||
+        error.message ||
+        "Unable to delete message"
+    );
+  }
+};

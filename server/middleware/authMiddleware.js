@@ -16,7 +16,7 @@ const protect = async (req, res, next) => {
         success: false,
         message: "Server authentication configuration error",
       });
-    }
+    }4
 
     let token;
 

@@ -241,8 +241,83 @@ if (file.mimetype.startsWith("image/")) {
     });
   }
 };
+/* ================= DELETE MESSAGE ================= */
 
+const deleteMessage = async (req, res) => {
+  try {
+    const { id, messageId } = req.params;
+
+    if (
+      !mongoose.isValidObjectId(id) ||
+      !mongoose.isValidObjectId(messageId)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid doubt or message ID",
+      });
+    }
+
+    const doubt = await Doubt.findById(id);
+
+    if (!doubt) {
+      return res.status(404).json({
+        success: false,
+        message: "Doubt not found",
+      });
+    }
+
+    // Verify the user can access this conversation
+    if (!checkDoubtAccess(doubt, req.user)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to access this conversation",
+      });
+    }
+
+    // Find message belonging to this specific doubt
+    const message = await DoubtMessage.findOne({
+      _id: messageId,
+      doubtId: doubt._id,
+    });
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found",
+      });
+    }
+
+    // Only the original sender can delete their message
+    if (message.senderId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete your own messages",
+      });
+    }
+
+    await DoubtMessage.deleteOne({
+      _id: message._id,
+      doubtId: doubt._id,
+      senderId: req.user._id,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Message deleted successfully",
+      messageId,
+    });
+  } catch (error) {
+    console.error("Delete Doubt Message Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to delete message",
+      
+    });
+  }
+};
 module.exports = {
   getConversationMessages,
   sendMessage,
+  deleteMessage,
 };

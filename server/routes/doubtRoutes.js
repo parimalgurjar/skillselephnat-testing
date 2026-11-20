@@ -13,6 +13,7 @@ const {
 const {
   getConversationMessages,
   sendMessage,
+  deleteMessage,
 } = require("../controllers/doubtMessageController");
 const {
   protect,
@@ -58,6 +59,14 @@ router.post(
   authorize("STUDENT", "TEACHER"),
   uploadAttachment.single("attachment"),
   sendMessage
+);
+/* ================= DELETE MESSAGE API ================= */
+
+router.delete(
+  "/:id/messages/:messageId",
+  protect,
+  authorize("STUDENT", "TEACHER"),
+  deleteMessage
 );
 /* =====================================================
    GET SINGLE DOUBT

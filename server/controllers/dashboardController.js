@@ -437,13 +437,11 @@ const getAdminReports = async (req, res) => {
        GET ACTIVE STUDENTS
     =============================================== */
 
-    const students = await User.find({
-      role: "STUDENT",
-      status: "ACTIVE",
-    })
-      .select("_id name batchTiming")
-      .lean();
-
+  const students = await User.find({
+  role: "STUDENT",
+})
+  .select("_id name batchTiming status isActive")
+  .lean();
     /* ===============================================
        GET ACTIVE BATCHES
     =============================================== */
