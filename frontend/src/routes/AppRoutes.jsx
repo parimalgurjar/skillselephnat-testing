@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter,
   Navigate,
@@ -9,15 +10,12 @@ import {
 import { useAuth } from "../context/AuthContext";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 import PublicRoute from "../components/common/PublicRoute";
+
 /* ================= AUTH PAGES ================= */
 import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";
 import AdminSetup from "../pages/auth/AdminSetup";
-// Teacher
-import TeacherVideoTutorials from "../pages/teacher/TeacherVideoTutorials";
 
-// Student
-import VideoTutorials from "../pages/student/VideoTutorials";
 /* ================= LAYOUTS ================= */
 import AdminLayout from "../components/layout/AdminLayout";
 import TeacherLayout from "../components/layout/TeacherLayout";
@@ -42,6 +40,8 @@ import AdminCourseModules from "../pages/admin/AdminCourseModules";
 import AdminFees from "../pages/admin/AdminFees";
 import AdminVideoTutorials from "../pages/admin/AdminVideoTutorials";
 import AdminLeaves from "../pages/admin/AdminLeaves";
+import AdminResources from "../pages/admin/AdminResources";
+
 /* =====================================================
    TEACHER PAGES
 ===================================================== */
@@ -56,6 +56,8 @@ import TeacherProfile from "../pages/teacher/TeacherProfile";
 import TeacherDoubts from "../pages/teacher/TeacherDoubts";
 import TeacherDoubtDetails from "../pages/teacher/TeacherDoubtDetails";
 import TeacherFees from "../pages/teacher/TeacherFees";
+import TeacherVideoTutorials from "../pages/teacher/TeacherVideoTutorials";
+import TeacherResources from "../pages/teacher/TeacherResources";
 
 /* =====================================================
    STUDENT PAGES
@@ -70,6 +72,8 @@ import Profile from "../pages/student/Profile";
 import MyDoubts from "../pages/student/MyDoubts";
 import DoubtConversation from "../pages/student/DoubtConversation";
 import StudentLeaves from "../pages/student/StudentLeaves";
+import VideoTutorials from "../pages/student/VideoTutorials";
+import StudentResources from "../pages/student/StudentResources";
 
 /* =====================================================
    ROOT REDIRECT
@@ -107,6 +111,7 @@ const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
+
         {/* =============================================
             AUTH & PUBLIC ROUTES
         ============================================= */}
@@ -128,7 +133,6 @@ const AppRoutes = () => {
           }
         />
 
-        {/* SETUP ROUTE (UNPROTECTED) */}
         <Route path="/admin-setup" element={<AdminSetup />} />
 
         {/* =============================================
@@ -156,9 +160,10 @@ const AppRoutes = () => {
           <Route path="doubts" element={<AdminDoubts />} />
           <Route path="announcements" element={<AdminAnnouncements />} />
           <Route
-  path="video-tutorials"
-  element={<AdminVideoTutorials />}
-/>
+            path="video-tutorials"
+            element={<AdminVideoTutorials />}
+          />
+          <Route path="resources" element={<AdminResources />} />
           <Route path="reports" element={<AdminReports />} />
           <Route path="profile" element={<AdminProfile />} />
         </Route>
@@ -186,12 +191,12 @@ const AppRoutes = () => {
           <Route path="task-report" element={<TeacherTaskReport />} />
           <Route path="doubts" element={<TeacherDoubts />} />
           <Route path="doubts/:id" element={<TeacherDoubtDetails />} />
-                <Route
-  path="video-tutorials"
-  element={<TeacherVideoTutorials />}
-/>
+          <Route
+            path="video-tutorials"
+            element={<TeacherVideoTutorials />}
+          />
           <Route path="announcements" element={<TeacherAnnouncements />} />
-    
+          <Route path="resources" element={<TeacherResources />} />
           <Route path="profile" element={<TeacherProfile />} />
         </Route>
 
@@ -215,11 +220,11 @@ const AppRoutes = () => {
           <Route path="doubts" element={<MyDoubts />} />
           <Route path="doubts/:id" element={<DoubtConversation />} />
           <Route
-  path="video-tutorials"
-  element={<VideoTutorials />}
-/>
+            path="video-tutorials"
+            element={<VideoTutorials />}
+          />
           <Route path="announcements" element={<Announcements />} />
-          
+          <Route path="resources" element={<StudentResources />} />
           <Route path="profile" element={<Profile />} />
         </Route>
 
@@ -228,6 +233,7 @@ const AppRoutes = () => {
         ============================================= */}
         <Route path="/" element={<DashboardRedirect />} />
         <Route path="*" element={<DashboardRedirect />} />
+
       </Routes>
     </BrowserRouter>
   );

@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 const Notification = require("../models/Notification");
 const User = require("../models/User");
+const Task = require("../models/Task");
 const {
   protect,
 } = require("../middleware/authMiddleware");
@@ -26,6 +27,44 @@ const isValidId = (value) =>
 router.get("/", async (req, res) => {
   try {
     const { before } = req.query;
+    // Cleanup notifications belonging to tasks that no longer exist
+const oldTaskNotifications = await Notification.find({
+  recipient: req.user._id,
+  eventKey: /^TASK_CREATED:[a-f\d]{24}:created$/i,
+})
+  .select("_id eventKey")
+  .lean();
+
+if (oldTaskNotifications.length > 0) {
+  const taskIds = oldTaskNotifications.map(
+    (notification) =>
+      notification.eventKey.split(":")[1]
+  );
+
+  const existingTasks = await Task.find({
+    _id: { $in: taskIds },
+  })
+    .select("_id")
+    .lean();
+
+  const existingTaskIds = new Set(
+    existingTasks.map((task) => String(task._id))
+  );
+
+  const staleNotificationIds = oldTaskNotifications
+    .filter((notification) => {
+      const taskId = notification.eventKey.split(":")[1];
+      return !existingTaskIds.has(taskId);
+    })
+    .map((notification) => notification._id);
+
+  if (staleNotificationIds.length > 0) {
+    await Notification.deleteMany({
+      _id: { $in: staleNotificationIds },
+      recipient: req.user._id,
+    });
+  }
+}
 
     if (
       before !== undefined &&

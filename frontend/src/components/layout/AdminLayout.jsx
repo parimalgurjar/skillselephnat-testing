@@ -1,15 +1,15 @@
+
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
+
 import {
   LayoutDashboard,
   Users,
   UserRoundCog,
-  Layers3,
   CalendarCheck,
   ClipboardList,
   Megaphone,
   BarChart3,
-  Layers,
   User,
   LogOut,
   CircleHelp,
@@ -20,16 +20,21 @@ import {
   Menu,
   X,
   Video,
-  Wallet
+  Wallet,
+  FolderOpen,
 } from "lucide-react";
+
 import { useAuth } from "../../context/AuthContext";
 import NotificationBell from "../common/NotificationBell";
 import NotificationBadge from "../common/NotificationBadge";
-import "./AdminLayout.css";
 import ProfileAvatar from "../common/ProfileAvatar";
+
+import "./AdminLayout.css";
+
 const AdminLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -37,37 +42,27 @@ const AdminLayout = () => {
     navigate("/login", { replace: true });
   };
 
+  // ================= SIDEBAR MENU =================
+
   const menuItems = [
+    // Dashboard
     {
       name: "Dashboard",
       path: "/admin",
       icon: LayoutDashboard,
       end: true,
     },
+
+    // People Management
     {
       name: "Students",
       path: "/admin/students",
       icon: Users,
     },
     {
-  name: "Fees",
-  path: "/admin/fees",
-  icon: Wallet,
-},
-    {
       name: "Educators",
       path: "/admin/educators",
       icon: UserRoundCog,
-    },
-    {
-      path: "/admin/specializations",
-      name: "Specializations",
-      icon: GraduationCap,
-    },
-    {
-      path: "/admin/course-modules",
-      name: "Course Modules",
-      icon: BookOpen,
     },
     {
       name: "Batches",
@@ -75,21 +70,36 @@ const AdminLayout = () => {
       icon: UsersRound,
     },
 
+    // Academic Management
+    {
+      name: "Course Modules",
+      path: "/admin/course-modules",
+      icon: BookOpen,
+    },
+    {
+      name: "Specializations",
+      path: "/admin/specializations",
+      icon: GraduationCap,
+    },
+
+    // Attendance & Fees
     {
       name: "Attendance",
       path: "/admin/attendance",
       icon: CalendarCheck,
     },
     {
-  name: "Leave Requests",
-  path: "/admin/leaves",
-  icon: CalendarCheck,
-},
-      {
-  name: "Video Tutorials",
-  path: "/admin/video-tutorials",
-  icon: Video,
-},
+      name: "Leave Requests",
+      path: "/admin/leaves",
+      icon: CalendarCheck,
+    },
+    {
+      name: "Fees",
+      path: "/admin/fees",
+      icon: Wallet,
+    },
+
+    // Tasks & Performance
     {
       name: "Tasks",
       path: "/admin/tasks",
@@ -100,17 +110,34 @@ const AdminLayout = () => {
       path: "/admin/task-report",
       icon: ClipboardCheck,
     },
+
+    // Student Support
     {
       name: "Student Doubts",
       path: "/admin/doubts",
       icon: CircleHelp,
     },
+
+    // Learning Resources
+    {
+      name: "Resources",
+      path: "/admin/resources",
+      icon: FolderOpen,
+    },
+    {
+      name: "Video Tutorials",
+      path: "/admin/video-tutorials",
+      icon: Video,
+    },
+
+    // Communication
     {
       name: "Announcements",
       path: "/admin/announcements",
       icon: Megaphone,
     },
-  
+
+    // Reports & Account
     {
       name: "Reports",
       path: "/admin/reports",
@@ -124,13 +151,17 @@ const AdminLayout = () => {
   ];
 
   const adminName = user?.name || "Administrator";
-  const initial = adminName.charAt(0).toUpperCase();
 
   return (
     <div className="admin-layout">
+
       {/* ================= SIDEBAR ================= */}
 
-      <aside className={`admin-sidebar ${mobileMenuOpen ? "mobile-open" : ""}`}>
+      <aside
+        className={`admin-sidebar ${
+          mobileMenuOpen ? "mobile-open" : ""
+        }`}
+      >
         <div className="admin-logo">
           <img
             src="/logo/skillselephant-logo-white.png"
@@ -138,11 +169,15 @@ const AdminLayout = () => {
             className="admin-logo-image"
           />
 
-          <div className="admin-logo-portal">Admin Portal</div>
+          <div className="admin-logo-portal">
+            Admin Portal
+          </div>
         </div>
 
         <nav className="admin-nav">
-          <span className="admin-nav-label">MANAGEMENT</span>
+          <span className="admin-nav-label">
+            MANAGEMENT
+          </span>
 
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -154,16 +189,22 @@ const AdminLayout = () => {
                 end={item.end}
                 onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  `admin-nav-item ${isActive ? "active" : ""}`
+                  `admin-nav-item ${
+                    isActive ? "active" : ""
+                  }`
                 }
               >
-                              <Icon size={19} />
+                <Icon size={19} />
+
                 <span>{item.name}</span>
+
                 <NotificationBadge path={item.path} />
               </NavLink>
             );
           })}
         </nav>
+
+        {/* Sidebar Bottom */}
 
         <div className="admin-sidebar-bottom">
           <div className="admin-role">
@@ -182,7 +223,8 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      {/* Sidebar Overlay */}
+      {/* ================= MOBILE OVERLAY ================= */}
+
       {mobileMenuOpen && (
         <button
           type="button"
@@ -195,30 +237,47 @@ const AdminLayout = () => {
       {/* ================= MAIN AREA ================= */}
 
       <main className="admin-main">
+
+        {/* Topbar */}
+
         <header className="admin-topbar">
+
           <div className="admin-topbar-left">
+
             <button
               type="button"
               className="admin-mobile-menu-btn"
               aria-label={
-                mobileMenuOpen ? "Close navigation" : "Open navigation"
+                mobileMenuOpen
+                  ? "Close navigation"
+                  : "Open navigation"
               }
               aria-expanded={mobileMenuOpen}
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              onClick={() =>
+                setMobileMenuOpen((prev) => !prev)
+              }
             >
-              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              {mobileMenuOpen ? (
+                <X size={22} />
+              ) : (
+                <Menu size={22} />
+              )}
             </button>
 
             <div>
               <span>ADMINISTRATION PORTAL</span>
+
               <h3>
-  Welcome Back, {adminName
-    ? adminName.charAt(0).toUpperCase() + adminName.slice(1)
-    : "Admin"}
-</h3>
+                Welcome Back,{" "}
+                {adminName.charAt(0).toUpperCase() +
+                  adminName.slice(1)}
+              </h3>
             </div>
+
           </div>
+
           <div className="admin-profile-top">
+
             <NotificationBell />
 
             <div className="admin-info">
@@ -226,26 +285,30 @@ const AdminLayout = () => {
               <span>ADMIN</span>
             </div>
 
-       <button
-  type="button"
-  className="profile-avatar-button"
-  onClick={() => navigate("/admin/profile")}
-  aria-label="Open admin profile"
-  title="My Profile"
->
-  <ProfileAvatar
-    user={user}
-    size={42}
-    className="admin-avatar"
-  />
-</button>
+            <button
+              type="button"
+              className="profile-avatar-button"
+              onClick={() => navigate("/admin/profile")}
+              aria-label="Open admin profile"
+              title="My Profile"
+            >
+              <ProfileAvatar
+                user={user}
+                size={42}
+                className="admin-avatar"
+              />
+            </button>
+
           </div>
+
         </header>
 
         {/* Dynamic Pages */}
+
         <div className="admin-content">
           <Outlet />
         </div>
+
       </main>
     </div>
   );

@@ -1,3 +1,4 @@
+
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -12,9 +13,10 @@ import {
   ClipboardCheck,
   LogOut,
   Menu,
-   Wallet,
+  Wallet,
   X,
-  Video
+  Video,
+  FolderOpen,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -22,6 +24,7 @@ import "./TeacherLayout.css";
 import NotificationBell from "../common/NotificationBell";
 import NotificationBadge from "../common/NotificationBadge";
 import ProfileAvatar from "../common/ProfileAvatar";
+
 const TeacherLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -32,6 +35,7 @@ const TeacherLayout = () => {
     navigate("/login", { replace: true });
   };
 
+  // Teacher Sidebar Menu
   const allMenuItems = [
     {
       name: "Dashboard",
@@ -45,20 +49,15 @@ const TeacherLayout = () => {
       icon: Users,
     },
     {
-  name: "Fee Management",
-  path: "/teacher/fees",
-  icon: Wallet,
-},
-    {
       name: "Attendance",
       path: "/teacher/attendance",
       icon: CalendarCheck,
     },
     {
-  name: "Video Tutorials",
-  path: "/teacher/video-tutorials",
-  icon: Video,
-},
+      name: "Fee Management",
+      path: "/teacher/fees",
+      icon: Wallet,
+    },
     {
       name: "Tasks",
       path: "/teacher/tasks",
@@ -75,6 +74,16 @@ const TeacherLayout = () => {
       icon: CircleHelp,
     },
     {
+      name: "Resources",
+      path: "/teacher/resources",
+      icon: FolderOpen,
+    },
+    {
+      name: "Video Tutorials",
+      path: "/teacher/video-tutorials",
+      icon: Video,
+    },
+    {
       name: "Announcements",
       path: "/teacher/announcements",
       icon: Megaphone,
@@ -85,18 +94,19 @@ const TeacherLayout = () => {
       icon: User,
     },
   ];
-const menuItems = allMenuItems.filter(
-  (item) =>
-    item.path !== "/teacher/fees" ||
-    user?.canManageFees === true
-);
+
+  // Fee Management only for authorized teachers
+  const menuItems = allMenuItems.filter(
+    (item) =>
+      item.path !== "/teacher/fees" ||
+      user?.canManageFees === true
+  );
+
   const teacherName = user?.name || "Educator";
-  const initial = teacherName.charAt(0).toUpperCase();
 
   return (
     <div className="teacher-layout">
-      {/* ================= SIDEBAR ================= */}
-
+      {/* Sidebar */}
       <aside
         className={`teacher-sidebar ${
           mobileMenuOpen ? "mobile-open" : ""
@@ -128,7 +138,7 @@ const menuItems = allMenuItems.filter(
                   `teacher-nav-item ${isActive ? "active" : ""}`
                 }
               >
-                                <Icon size={19} />
+                <Icon size={19} />
                 <span>{item.name}</span>
                 <NotificationBadge path={item.path} />
               </NavLink>
@@ -158,8 +168,7 @@ const menuItems = allMenuItems.filter(
         />
       )}
 
-      {/* ================= MAIN AREA ================= */}
-
+      {/* Main Area */}
       <main className="teacher-main">
         <header className="teacher-topbar">
           <div className="teacher-topbar-left">
@@ -180,6 +189,7 @@ const menuItems = allMenuItems.filter(
               <h3>Educator Dashboard</h3>
             </div>
           </div>
+
           <div className="teacher-profile-top">
             <NotificationBell />
 
@@ -188,25 +198,23 @@ const menuItems = allMenuItems.filter(
               <span>EDUCATOR</span>
             </div>
 
-      <button
-  type="button"
-  className="profile-avatar-button"
-  onClick={() => navigate("/teacher/profile")}
-  aria-label="Open teacher profile"
-  title="My Profile"
->
-  <ProfileAvatar
-    user={user}
-    size={42}
-    className="teacher-avatar"
-  />
-</button>
- 
+            <button
+              type="button"
+              className="profile-avatar-button"
+              onClick={() => navigate("/teacher/profile")}
+              aria-label="Open teacher profile"
+              title="My Profile"
+            >
+              <ProfileAvatar
+                user={user}
+                size={42}
+                className="teacher-avatar"
+              />
+            </button>
           </div>
         </header>
 
-        {/* ================= DYNAMIC PAGES ================= */}
-
+        {/* Dynamic Pages */}
         <div className="teacher-content">
           <Outlet />
         </div>

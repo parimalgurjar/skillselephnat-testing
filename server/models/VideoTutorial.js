@@ -27,6 +27,14 @@ const videoTutorialSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Modules assigned to this video tutorial
+    modules: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CourseModule",
+      },
+    ],
+
     isPublished: {
       type: Boolean,
       default: true,
@@ -42,6 +50,8 @@ const videoTutorialSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+videoTutorialSchema.index({ modules: 1, isPublished: 1 });
 
 module.exports = mongoose.model(
   "VideoTutorial",

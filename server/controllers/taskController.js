@@ -3,6 +3,7 @@ const Task = require("../models/Task");
 const User = require("../models/User");
 const Batch = require("../models/Batch");
 const { notify } = require("../services/notificationService");
+const Notification = require("../models/Notification");
 /* =====================================================
 HELPERS
 ===================================================== */
@@ -921,6 +922,11 @@ if (
 }
 
 await task.deleteOne();
+
+// Remove notifications generated for this deleted task
+await Notification.deleteMany({
+  eventKey: `TASK_CREATED:${task._id}:created`,
+});
 
 return res.status(200).json({
   success: true,

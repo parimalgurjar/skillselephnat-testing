@@ -1,3 +1,4 @@
+
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -14,13 +15,16 @@ import {
   CircleHelp,
   Menu,
   X,
-  Video
+  Video,
+  FolderOpen,
 } from "lucide-react";
+
 import NotificationBell from "../common/NotificationBell";
 import NotificationBadge from "../common/NotificationBadge";
 import { useAuth } from "../../context/AuthContext";
 import "./StudentLayout.css";
 import ProfileAvatar from "../common/ProfileAvatar";
+
 const StudentLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -31,6 +35,7 @@ const StudentLayout = () => {
     navigate("/login", { replace: true });
   };
 
+  // Student Sidebar Menu
   const menuItems = [
     {
       name: "Dashboard",
@@ -44,10 +49,10 @@ const StudentLayout = () => {
       icon: BookOpen,
     },
     {
-  name: "Video Tutorials",
-  path: "/student/video-tutorials",
-  icon: Video,
-},
+      name: "Video Tutorials",
+      path: "/student/video-tutorials",
+      icon: Video,
+    },
     {
       name: "Digital Notes",
       path: "https://skillselephant.com/legendary-notes/",
@@ -55,15 +60,20 @@ const StudentLayout = () => {
       external: true,
     },
     {
+      name: "Resources",
+      path: "/student/resources",
+      icon: FolderOpen,
+    },
+    {
       name: "Attendance",
       path: "/student/attendance",
       icon: CalendarDays,
     },
     {
-  name: "Leave Application",
-  path: "/student/leaves",
-  icon: CalendarDays,
-},
+      name: "Leave Application",
+      path: "/student/leaves",
+      icon: CalendarDays,
+    },
     {
       name: "Tasks",
       path: "/student/work",
@@ -92,7 +102,6 @@ const StudentLayout = () => {
   ];
 
   const studentName = user?.name || "Student Name";
-  const initial = studentName.charAt(0).toUpperCase();
 
   return (
     <div className="student-layout">
@@ -145,7 +154,7 @@ const StudentLayout = () => {
                   `student-menu-item ${isActive ? "active" : ""}`
                 }
               >
-                                <Icon size={19} />
+                <Icon size={19} />
                 <span>{item.name}</span>
                 <NotificationBadge path={item.path} />
               </NavLink>
@@ -208,28 +217,28 @@ const StudentLayout = () => {
           </div>
 
           <div className="student-topbar-right">
-                        <NotificationBell />
+            <NotificationBell />
 
             <div className="student-profile">
-  <button
-    type="button"
-    className="profile-avatar-button"
-    onClick={() => navigate("/student/profile")}
-    aria-label="Open student profile"
-    title="My Profile"
-  >
-    <ProfileAvatar
-      user={user}
-      size={42}
-      className="student-avatar"
-    />
-  </button>
+              <button
+                type="button"
+                className="profile-avatar-button"
+                onClick={() => navigate("/student/profile")}
+                aria-label="Open student profile"
+                title="My Profile"
+              >
+                <ProfileAvatar
+                  user={user}
+                  size={42}
+                  className="student-avatar"
+                />
+              </button>
 
-  <div>
-    <strong>{studentName}</strong>
-    <span>STUDENT</span>
-  </div>
-</div>
+              <div>
+                <strong>{studentName}</strong>
+                <span>STUDENT</span>
+              </div>
+            </div>
           </div>
         </header>
 

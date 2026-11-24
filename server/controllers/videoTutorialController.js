@@ -1,7 +1,9 @@
 
+const mongoose = require("mongoose");
 const VideoTutorial = require("../models/VideoTutorial");
+const CourseModule = require("../models/CourseModule");
 
-// Extract YouTube video ID from supported URL formats
+// Extract YouTube video ID
 const extractYouTubeId = (url) => {
   try {
     const parsedUrl = new URL(url);
@@ -37,11 +39,55 @@ const extractYouTubeId = (url) => {
   }
 };
 
+// Validate module IDs
+const validateModules = async (moduleIds) => {
+  if (!Array.isArray(moduleIds)) {
+    return {
+      valid: false,
+      message: "Modules must be provided as an array.",
+    };
+  }
+
+  const uniqueIds = [...new Set(moduleIds.map(String))];
+
+  if (uniqueIds.some((id) => !mongoose.Types.ObjectId.isValid(id))) {
+    return {
+      valid: false,
+      message: "Invalid module ID provided.",
+    };
+  }
+
+  if (uniqueIds.length === 0) {
+    return {
+      valid: true,
+      modules: [],
+    };
+  }
+
+  const foundModules = await CourseModule.find({
+    _id: { $in: uniqueIds },
+    isActive: true,
+  }).select("_id");
+
+  if (foundModules.length !== uniqueIds.length) {
+    return {
+      valid: false,
+      message: "One or more selected modules are invalid or inactive.",
+    };
+  }
+
+  return {
+    valid: true,
+    modules: foundModules.map((module) => module._id),
+  };
+};
+
 // ADMIN: Get all videos
 exports.getAllVideos = async (req, res) => {
   try {
     const videos = await VideoTutorial.find()
       .populate("createdBy", "name")
+      .populate("modules", "name moduleNumber courseId")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
@@ -61,7 +107,7 @@ exports.getAllVideos = async (req, res) => {
 // ADMIN: Add video
 exports.addVideo = async (req, res) => {
   try {
-    const { title, youtubeUrl } = req.body;
+    const { title, youtubeUrl, modules = [] } = req.body;
 
     if (!title?.trim() || !youtubeUrl?.trim()) {
       return res.status(400).json({
@@ -79,13 +125,25 @@ exports.addVideo = async (req, res) => {
       });
     }
 
+    const moduleValidation = await validateModules(modules);
+
+    if (!moduleValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: moduleValidation.message,
+      });
+    }
+
     const video = await VideoTutorial.create({
       title: title.trim(),
       youtubeUrl: youtubeUrl.trim(),
       videoId,
       thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+      modules: moduleValidation.modules,
       createdBy: req.user._id,
     });
+
+    await video.populate("modules", "name moduleNumber courseId");
 
     return res.status(201).json({
       success: true,
@@ -105,7 +163,7 @@ exports.addVideo = async (req, res) => {
 // ADMIN: Update video
 exports.updateVideo = async (req, res) => {
   try {
-    const { title, youtubeUrl, isPublished } = req.body;
+    const { title, youtubeUrl, isPublished, modules } = req.body;
 
     const video = await VideoTutorial.findById(req.params.id);
 
@@ -117,7 +175,7 @@ exports.updateVideo = async (req, res) => {
     }
 
     if (title !== undefined) {
-      if (!title.trim()) {
+      if (typeof title !== "string" || !title.trim()) {
         return res.status(400).json({
           success: false,
           message: "Video title cannot be empty.",
@@ -128,7 +186,7 @@ exports.updateVideo = async (req, res) => {
     }
 
     if (youtubeUrl !== undefined) {
-      if (!youtubeUrl.trim()) {
+      if (typeof youtubeUrl !== "string" || !youtubeUrl.trim()) {
         return res.status(400).json({
           success: false,
           message: "YouTube link cannot be empty.",
@@ -150,6 +208,19 @@ exports.updateVideo = async (req, res) => {
         `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
     }
 
+    if (modules !== undefined) {
+      const moduleValidation = await validateModules(modules);
+
+      if (!moduleValidation.valid) {
+        return res.status(400).json({
+          success: false,
+          message: moduleValidation.message,
+        });
+      }
+
+      video.modules = moduleValidation.modules;
+    }
+
     if (isPublished !== undefined) {
       if (typeof isPublished !== "boolean") {
         return res.status(400).json({
@@ -162,6 +233,8 @@ exports.updateVideo = async (req, res) => {
     }
 
     await video.save();
+
+    await video.populate("modules", "name moduleNumber courseId");
 
     return res.status(200).json({
       success: true,
@@ -181,9 +254,7 @@ exports.updateVideo = async (req, res) => {
 // ADMIN: Delete video
 exports.deleteVideo = async (req, res) => {
   try {
-    const video = await VideoTutorial.findByIdAndDelete(
-      req.params.id
-    );
+    const video = await VideoTutorial.findByIdAndDelete(req.params.id);
 
     if (!video) {
       return res.status(404).json({
@@ -212,7 +283,8 @@ exports.getPublishedVideos = async (req, res) => {
     const videos = await VideoTutorial.find({
       isPublished: true,
     })
-      .select("title youtubeUrl videoId thumbnail createdAt")
+      .select("title youtubeUrl videoId thumbnail createdAt modules")
+      .populate("modules", "name moduleNumber courseId")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({

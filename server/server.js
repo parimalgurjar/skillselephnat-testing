@@ -96,6 +96,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const taskReportRoutes = require("./routes/taskReportRoutes");
 const courseModuleRoutes = require("./routes/courseModuleRoutes");
 const specializationRoutes = require("./routes/specializationRoutes");
+const resourceRoutes = require("./routes/resourceRoutes");
 const PORT = process.env.PORT || 5001;
 
 
@@ -120,7 +121,6 @@ app.use(
     credentials: true,
   })
 );
-
 /* ================= MIDDLEWARE ================= */
 
 app.use(
@@ -168,6 +168,8 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/modules", courseModuleRoutes);
 app.use("/api/specializations", specializationRoutes);
 app.use("/api/video-tutorials", videoTutorialRoutes);
+app.use("/api/resources", resourceRoutes);
+
 /* ================= TEST ROUTE ================= */
 
 app.get("/", (req, res) => {
