@@ -8,6 +8,7 @@ const {
   markAttendance,
   getMyAttendance,
   getAttendanceReport,
+  exportAttendance,
 } = require("../controllers/attendanceController");
 
 const {
@@ -109,6 +110,12 @@ router.post(
   protect,
   authorize("ADMIN", "TEACHER"),
   markAttendance
+);
+router.get(
+  "/export",
+  protect,
+  authorize("ADMIN"),
+  exportAttendance
 );
 
 module.exports = router;

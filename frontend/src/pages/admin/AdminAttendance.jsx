@@ -11,7 +11,9 @@ import {
   Clock,
   ChevronDown,
   Check,
-  CheckCircle2, XCircle, Save
+  CheckCircle2, XCircle, Save,
+  
+  X,
 } from "lucide-react";
 
 import {
@@ -23,7 +25,7 @@ import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import ProfileAvatar from "../../components/common/ProfileAvatar";
 import "./AdminAttendance.css";
-
+import { exportAttendanceReport } from "../../services/attendanceApi";
 const AdminAttendance = () => {
   /* GET TODAY DATE */
   const getTodayDate = () => {
@@ -119,7 +121,14 @@ const [attendanceStudents, setAttendanceStudents] = useState([]);
 const [attendanceLoading, setAttendanceLoading] = useState(false);
 const [attendanceSaving, setAttendanceSaving] = useState(false);
 const [attendanceFormError, setAttendanceFormError] = useState("");
+// ATTENDANCE EXPORT STATES
+const [exportModalOpen, setExportModalOpen] = useState(false);
 
+const [exportStartDate, setExportStartDate] = useState(selectedDate);
+const [exportEndDate, setExportEndDate] = useState(selectedDate);
+const [exportBatchId, setExportBatchId] = useState(selectedBatchId);
+
+const [exportLoading, setExportLoading] = useState(false);
 const loadAttendanceStudents = async () => {
   if (!selectedBatchId || selectedBatchId === "All") {
     setAlert({
@@ -551,16 +560,46 @@ const saveBulkAttendance = async () => {
   );
 
   /* EXPORT CSV */
-  const handleExport = () => {
-    if (filteredAttendanceRecords.length === 0) {
+  
+const handleExport = async () => {
+  if (!exportStartDate || !exportEndDate) {
+    setAlert({
+      isOpen: true,
+      type: "warning",
+      title: "Select Date Range",
+      message: "Please select both start date and end date.",
+    });
+    return;
+  }
+
+  if (exportStartDate > exportEndDate) {
+    setAlert({
+      isOpen: true,
+      type: "warning",
+      title: "Invalid Date Range",
+      message: "Start date cannot be greater than end date.",
+    });
+    return;
+  }
+
+  try {
+    setExportLoading(true);
+
+    const response = await exportAttendanceReport({
+      batchId: exportBatchId,
+      startDate: exportStartDate,
+      endDate: exportEndDate,
+    });
+
+    const records = response.records || [];
+
+    if (records.length === 0) {
       setAlert({
         isOpen: true,
         type: "warning",
         title: "No Records Found",
-        message:
-          "There are no attendance records for the selected date, batch and filter.",
+        message: "No attendance records found for the selected date range and batch.",
       });
-
       return;
     }
 
@@ -568,28 +607,30 @@ const saveBulkAttendance = async () => {
       "Student Name",
       "Email",
       "Batch",
+      "Batch Timing",
       "Date",
       "Status",
     ];
 
-    const rows = filteredAttendanceRecords.map((record) => [
-      record.student?.name || "",
-      record.student?.email || "",
-      getRecordBatchLabel(record),
-      formatDate(record.date),
-      record.status || "",
-    ]);
-
     const escapeCSVValue = (value) => {
       let text = String(value ?? "");
 
-      // Prevent spreadsheet formula injection.
+      // Prevent spreadsheet formula injection
       if (/^[=+\-@\t\r]/.test(text)) {
-        text = `'${text}`;
+        text = "'" + text;
       }
 
       return `"${text.replace(/"/g, '""')}"`;
     };
+
+    const rows = records.map((record) => [
+      record.studentName,
+      record.email,
+      record.batchName,
+      record.batchTiming,
+      formatDate(record.date),
+      record.status,
+    ]);
 
     const csvContent = [headers, ...rows]
       .map((row) => row.map(escapeCSVValue).join(","))
@@ -602,27 +643,43 @@ const saveBulkAttendance = async () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
-    link.href = url;
+    const selectedBatch = batches.find(
+      (batch) =>
+        String(batch._id) === String(exportBatchId)
+    );
 
     const batchName =
-      selectedBatchId === "All"
+      exportBatchId === "All"
         ? "all-batches"
-        : getRecordBatchLabel(filteredAttendanceRecords[0])
+        : (selectedBatch?.name || selectedBatch?.code || "selected-batch")
             .replace(/[^a-z0-9]+/gi, "-")
             .replace(/^-|-$/g, "")
             .toLowerCase();
 
-    link.setAttribute(
-      "download",
-      `attendance-${batchName}-${selectedDate}.csv`
-    );
+    link.href = url;
+    link.download =
+      `attendance-${batchName}-${exportStartDate}-to-${exportEndDate}.csv`;
 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
     URL.revokeObjectURL(url);
-  };
+
+    setExportModalOpen(false);
+
+  } catch (error) {
+    setAlert({
+      isOpen: true,
+      type: "error",
+      title: "Export Failed",
+      message: error.message || "Unable to export attendance.",
+    });
+  } finally {
+    setExportLoading(false);
+  }
+};
+
 
   /* LOADING */
   if (loading) {
@@ -692,14 +749,131 @@ const saveBulkAttendance = async () => {
   <CalendarDays size={17} />
   Mark Attendance
 </button>
+        
+<button
+  type="button"
+  className="attendance-export-btn"
+  onClick={() => {
+    setExportStartDate(selectedDate);
+    setExportEndDate(selectedDate);
+    setExportBatchId(selectedBatchId);
+    setExportModalOpen(true);
+  }}
+>
+  <Download size={17} />
+  Export Report
+</button>
+
+      </div>
+
+{/* ATTENDANCE EXPORT MODAL */}
+{exportModalOpen && (
+  <div
+    className="attendance-export-overlay"
+    onClick={() => {
+      if (!exportLoading) setExportModalOpen(false);
+    }}
+  >
+    <div
+      className="attendance-export-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="attendance-export-modal-header">
+        <div>
+          <h2>Export Attendance Report</h2>
+          <p>Select date range and batch to download attendance.</p>
+        </div>
+
         <button
-          className="attendance-export-btn"
-          onClick={handleExport}
+          type="button"
+          className="attendance-export-close"
+          disabled={exportLoading}
+          onClick={() => setExportModalOpen(false)}
         >
-          <Download size={17} />
-          Export Report
+          <X size={20} />
         </button>
       </div>
+
+      <div className="attendance-export-fields">
+
+        <div className="attendance-export-field">
+          <label>From Date</label>
+          <input
+            type="date"
+            value={exportStartDate}
+            max={exportEndDate || undefined}
+            onChange={(e) =>
+              setExportStartDate(e.target.value)
+            }
+          />
+        </div>
+
+        <div className="attendance-export-field">
+          <label>To Date</label>
+          <input
+            type="date"
+            value={exportEndDate}
+            min={exportStartDate || undefined}
+            onChange={(e) =>
+              setExportEndDate(e.target.value)
+            }
+          />
+        </div>
+
+        <div className="attendance-export-field full">
+          <label>Select Batch</label>
+
+          <select
+            value={exportBatchId}
+            onChange={(e) =>
+              setExportBatchId(e.target.value)
+            }
+          >
+            <option value="All">All Batches</option>
+
+            {batches.map((batch) => (
+              <option
+                key={batch._id}
+                value={batch._id}
+              >
+                {getBatchLabel(batch)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+      </div>
+
+      <div className="attendance-export-info">
+        <Download size={17} />
+        <span>
+          CSV report will include Present, Absent and Leave records.
+        </span>
+      </div>
+
+      <div className="attendance-export-modal-actions">
+        <button
+          type="button"
+          className="attendance-export-cancel"
+          disabled={exportLoading}
+          onClick={() => setExportModalOpen(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          className="attendance-export-download"
+          onClick={handleExport}
+          disabled={exportLoading}
+        >
+          <Download size={16} />
+          {exportLoading ? "Exporting..." : "Download CSV"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* STATS */}
       <div className="attendance-stats-grid">

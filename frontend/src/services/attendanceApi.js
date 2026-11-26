@@ -210,3 +210,31 @@ export const getAttendanceReport =
       );
     }
   };
+
+/* =====================================================
+   ADMIN - EXPORT ATTENDANCE BY DATE RANGE
+===================================================== */
+
+export const exportAttendanceReport = async ({
+  batchId,
+  startDate,
+  endDate,
+}) => {
+  try {
+    const response = await api.get("/attendance/export", {
+      params: {
+        ...(batchId && batchId !== "All" ? { batchId } : {}),
+        startDate,
+        endDate,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message ||
+        error.message ||
+        "Unable to export attendance"
+    );
+  }
+};

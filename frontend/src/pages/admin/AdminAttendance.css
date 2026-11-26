@@ -1570,3 +1570,179 @@
     max-height: 280px;
   }
 }
+
+/* ==========================================
+   ATTENDANCE EXPORT MODAL
+========================================== */
+
+.admin-attendance-page .attendance-export-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(1, 20, 81, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+
+.admin-attendance-page .attendance-export-modal {
+  width: 100%;
+  max-width: 480px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.admin-attendance-page .attendance-export-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.admin-attendance-page .attendance-export-modal-header h2 {
+  margin: 0 0 7px;
+  color: #011451;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.admin-attendance-page .attendance-export-modal-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.admin-attendance-page .attendance-export-close {
+  border: none;
+  background: #f1f5f9;
+  color: #011451;
+  border-radius: 8px;
+  padding: 7px;
+  cursor: pointer;
+}
+
+.admin-attendance-page .attendance-export-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+}
+
+.admin-attendance-page .attendance-export-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.admin-attendance-page .attendance-export-field.full {
+  grid-column: 1 / -1;
+}
+
+.admin-attendance-page .attendance-export-field label {
+  color: #011451;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-attendance-page .attendance-export-field input,
+.admin-attendance-page .attendance-export-field select {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #fff;
+  color: #011451;
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+}
+
+.admin-attendance-page .attendance-export-field input:focus,
+.admin-attendance-page .attendance-export-field select:focus {
+  border-color: #f6af1d;
+  box-shadow: 0 0 0 3px rgba(246, 175, 29, 0.12);
+}
+
+.admin-attendance-page .attendance-export-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 12px;
+  background: #fff8e8;
+  color: #805400;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.admin-attendance-page .attendance-export-info svg {
+  flex-shrink: 0;
+}
+
+.admin-attendance-page .attendance-export-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.admin-attendance-page .attendance-export-modal-actions button {
+  min-height: 42px;
+  padding: 0 17px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-attendance-page .attendance-export-cancel {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+}
+
+.admin-attendance-page .attendance-export-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  background: #f6af1d;
+  color: #011451;
+}
+
+.admin-attendance-page .attendance-export-modal-actions button:disabled,
+.admin-attendance-page .attendance-export-close:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .admin-attendance-page .attendance-export-modal {
+    padding: 19px;
+  }
+
+  .admin-attendance-page .attendance-export-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-attendance-page .attendance-export-field.full {
+    grid-column: auto;
+  }
+
+  .admin-attendance-page .attendance-export-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .admin-attendance-page .attendance-export-modal-actions button {
+    width: 100%;
+  }
+}

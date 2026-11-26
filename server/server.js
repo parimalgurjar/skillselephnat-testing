@@ -19,8 +19,6 @@ app.set("trust proxy", 1);
 app.use(helmet());
 /* ================= RATE LIMITER ================= */
 
-/* ================= RATE LIMITERS ================= */
-
 // Student / Teacher registration
 const registerLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

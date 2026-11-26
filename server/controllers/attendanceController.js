@@ -2204,6 +2204,91 @@ below90,
   };
 
 /* =====================================================
+   ADMIN - EXPORT ATTENDANCE BY DATE RANGE
+===================================================== */
+
+const exportAttendance = async (req, res) => {
+  try {
+    const { startDate, endDate, batchId } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        message: "Start date and end date are required",
+      });
+    }
+
+    const startRange = getDateRange(startDate);
+    const endRange = getDateRange(endDate);
+
+    if (!startRange || !endRange) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date format",
+      });
+    }
+
+    if (startRange.start > endRange.start) {
+      return res.status(400).json({
+        success: false,
+        message: "Start date cannot be greater than end date",
+      });
+    }
+
+    const filter = {
+      date: {
+        $gte: startRange.start,
+        $lt: endRange.end,
+      },
+    };
+
+    // Optional batch filter
+    if (batchId && batchId !== "All") {
+      if (!mongoose.Types.ObjectId.isValid(batchId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid batch ID",
+        });
+      }
+
+      filter.batchId = batchId;
+    }
+
+    const records = await Attendance.find(filter)
+      .populate("studentId", "name email")
+      .populate(
+        "batchId",
+        "name code batchTiming startTime endTime"
+      )
+      .sort({ date: 1 })
+      .lean();
+
+    const exportRecords = records.map((record) => ({
+      studentName: record.studentId?.name || "",
+      email: record.studentId?.email || "",
+      batchName: record.batchId?.name || "",
+      batchTiming: record.batchId?.batchTiming || "",
+      date: record.date,
+      status: record.status,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      totalRecords: exportRecords.length,
+      records: exportRecords,
+    });
+
+  } catch (error) {
+    console.error("Export Attendance Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to export attendance",
+    });
+  }
+};
+
+/* =====================================================
    EXPORTS
 ===================================================== */
 
@@ -2215,4 +2300,5 @@ module.exports = {
   markAttendance,
   getMyAttendance,
   getAttendanceReport,
+    exportAttendance,
 };
