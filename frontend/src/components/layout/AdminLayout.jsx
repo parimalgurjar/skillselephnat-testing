@@ -22,6 +22,7 @@ import {
   Video,
   Wallet,
   FolderOpen,
+   Wrench,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -124,6 +125,11 @@ const AdminLayout = () => {
       path: "/admin/resources",
       icon: FolderOpen,
     },
+    {
+  name: "Tools",
+  path: "/admin/tools",
+  icon: Wrench,
+},
     {
       name: "Video Tutorials",
       path: "/admin/video-tutorials",

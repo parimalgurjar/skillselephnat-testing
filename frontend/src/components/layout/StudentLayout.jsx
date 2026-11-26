@@ -17,6 +17,7 @@ import {
   X,
   Video,
   FolderOpen,
+  Wrench
 } from "lucide-react";
 
 import NotificationBell from "../common/NotificationBell";
@@ -64,6 +65,11 @@ const StudentLayout = () => {
       path: "/student/resources",
       icon: FolderOpen,
     },
+    {
+  name: "Tools",
+  path: "/student/tools",
+  icon: Wrench,
+},
     {
       name: "Attendance",
       path: "/student/attendance",

@@ -41,7 +41,7 @@ import AdminFees from "../pages/admin/AdminFees";
 import AdminVideoTutorials from "../pages/admin/AdminVideoTutorials";
 import AdminLeaves from "../pages/admin/AdminLeaves";
 import AdminResources from "../pages/admin/AdminResources";
-
+import Tools from "../pages/Tools";
 /* =====================================================
    TEACHER PAGES
 ===================================================== */
@@ -154,6 +154,7 @@ const AppRoutes = () => {
           <Route path="educators" element={<AdminEducators />} />
           <Route path="batches" element={<AdminBatches />} />
           <Route path="attendance" element={<AdminAttendance />} />
+          <Route path="tools" element={<Tools />} />
           <Route path="leaves" element={<AdminLeaves />} />
           <Route path="tasks" element={<AdminTasks />} />
           <Route path="task-report" element={<AdminTaskReport />} />
@@ -197,6 +198,7 @@ const AppRoutes = () => {
           />
           <Route path="announcements" element={<TeacherAnnouncements />} />
           <Route path="resources" element={<TeacherResources />} />
+          <Route path="tools" element={<Tools />} />
           <Route path="profile" element={<TeacherProfile />} />
         </Route>
 
@@ -225,6 +227,7 @@ const AppRoutes = () => {
           />
           <Route path="announcements" element={<Announcements />} />
           <Route path="resources" element={<StudentResources />} />
+          <Route path="tools" element={<Tools />} />
           <Route path="profile" element={<Profile />} />
         </Route>
 
