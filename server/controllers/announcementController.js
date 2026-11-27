@@ -1,77 +1,44 @@
+
 const Announcement = require("../models/Announcement");
 const mongoose = require("mongoose");
 const Batch = require("../models/Batch");
 const { notify } = require("../services/notificationService");
 
-/* =====================================================
-   GET ALL ANNOUNCEMENTS
-   ADMIN ONLY
+// =====================================================
+// GET ALL ANNOUNCEMENTS - ADMIN
+// =====================================================
 
-   Admin can see:
-   - Published announcements
-   - Draft announcements
-   - All audiences
-===================================================== */
-
-const getAnnouncements = async (
-  req,
-  res
-) => {
+const getAnnouncements = async (req, res) => {
   try {
-    const announcements =
-      await Announcement.find()
-        .populate(
-          "createdBy",
-          "name email"
-        )
-        .populate(
-          "batchId",
-          "name code batchTiming startTime endTime status"
-        )
-        .sort({
-          pinned: -1,
-          createdAt: -1,
-        })
-        .lean();
+    const announcements = await Announcement.find()
+      .populate("createdBy", "name email")
+      .populate(
+        "batchId",
+        "name code batchTiming startTime endTime status"
+      )
+      .sort({ pinned: -1, createdAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
-      count:
-        announcements.length,
+      count: announcements.length,
       announcements,
     });
-
   } catch (error) {
-    console.error(
-      "Get Announcements Error:",
-      error
-    );
+    console.error("Get Announcements Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Server error while fetching announcements",
+      message: "Server error while fetching announcements",
     });
   }
 };
 
+// =====================================================
+// GET STUDENT ANNOUNCEMENTS
+// =====================================================
 
-/* =====================================================
-   GET STUDENT ANNOUNCEMENTS
-   STUDENT ONLY
-
-   Student can see only:
-   - PUBLISHED announcements
-   - EVERYONE audience
-   - STUDENTS audience
-
-   Pinned announcements appear first.
-===================================================== */
-
-const getStudentAnnouncements = async (
-  req,
-  res
-) => {
+const getStudentAnnouncements = async (req, res) => {
   try {
     const User = require("../models/User");
 
@@ -86,72 +53,50 @@ const getStudentAnnouncements = async (
     if (!student) {
       return res.status(404).json({
         success: false,
-        message:
-          "Student not found or inactive",
+        message: "Student not found or inactive",
       });
     }
 
-    const announcements =
-      await Announcement.find({
-        status: "PUBLISHED",
+    const announcements = await Announcement.find({
+      status: "PUBLISHED",
 
-        audience: {
-          $in: [
-            "EVERYONE",
-            "STUDENTS",
-          ],
-        },
+      audience: {
+        $in: ["EVERYONE", "STUDENTS"],
+      },
 
-        $or: [
-          {
-            batchId: null,
-          },
-
-          {
-            batchId: student.batchId,
-          },
-        ],
-      })
-        .populate(
-          "createdBy",
-          "name"
-        )
-        .populate(
-          "batchId",
-          "name code batchTiming startTime endTime"
-        )
-        .sort({
-          pinned: -1,
-          createdAt: -1,
-        })
-        .lean();
+      // null batchId = all batches
+      // matching batchId = selected batch only
+      $or: [
+        { batchId: null },
+        { batchId: student.batchId },
+      ],
+    })
+      .populate("createdBy", "name")
+      .populate(
+        "batchId",
+        "name code batchTiming startTime endTime"
+      )
+      .sort({ pinned: -1, createdAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
-      count:
-        announcements.length,
+      count: announcements.length,
       announcements,
     });
-
   } catch (error) {
-    console.error(
-      "Get Student Announcements Error:",
-      error
-    );
+    console.error("Get Student Announcements Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Server error while fetching announcements",
+      message: "Server error while fetching announcements",
     });
   }
 };
 
-
-/* =====================================================
-   CREATE ANNOUNCEMENT
-   ADMIN ONLY
-===================================================== */
+// =====================================================
+// CREATE ANNOUNCEMENT - ADMIN
+// =====================================================
 
 const createAnnouncement = async (req, res) => {
   try {
@@ -159,32 +104,37 @@ const createAnnouncement = async (req, res) => {
       title,
       description,
       audience,
+      batchId,
       priority,
       pinned,
       status,
     } = req.body;
 
-    /* ===============================================
-       VALIDATION
-    =============================================== */
+    // TITLE VALIDATION
 
-    if (!title || !title.trim()) {
+    if (
+      typeof title !== "string" ||
+      !title.trim()
+    ) {
       return res.status(400).json({
         success: false,
         message: "Title is required",
       });
     }
 
-    if (!description || !description.trim()) {
+    // DESCRIPTION VALIDATION
+
+    if (
+      typeof description !== "string" ||
+      !description.trim()
+    ) {
       return res.status(400).json({
         success: false,
         message: "Description is required",
       });
     }
 
-    /* ===============================================
-       VALID ENUM VALUES
-    =============================================== */
+    // ENUM VALIDATION
 
     const validAudiences = [
       "STUDENTS",
@@ -204,7 +154,7 @@ const createAnnouncement = async (req, res) => {
     ];
 
     if (
-      audience &&
+      audience !== undefined &&
       !validAudiences.includes(audience)
     ) {
       return res.status(400).json({
@@ -214,7 +164,7 @@ const createAnnouncement = async (req, res) => {
     }
 
     if (
-      priority &&
+      priority !== undefined &&
       !validPriorities.includes(priority)
     ) {
       return res.status(400).json({
@@ -224,7 +174,7 @@ const createAnnouncement = async (req, res) => {
     }
 
     if (
-      status &&
+      status !== undefined &&
       !validStatuses.includes(status)
     ) {
       return res.status(400).json({
@@ -233,32 +183,63 @@ const createAnnouncement = async (req, res) => {
       });
     }
 
-    /* ===============================================
-       CREATE
-    =============================================== */
+    const finalAudience = audience || "EVERYONE";
 
-    const announcement =
-      await Announcement.create({
-        title: title.trim(),
+    // =================================================
+    // BATCH VALIDATION
+    // =================================================
 
-        description: description.trim(),
+    let validBatchId = null;
 
-        audience:
-          audience || "EVERYONE",
+    // Batch restriction applies only to STUDENTS.
+    // Empty batchId means all students across all batches.
 
-        priority:
-          priority || "NORMAL",
+    if (finalAudience === "STUDENTS" && batchId) {
+      if (!mongoose.Types.ObjectId.isValid(batchId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid batch ID",
+        });
+      }
 
-        pinned:
-          typeof pinned === "boolean"
-            ? pinned
-            : false,
+      const batch = await Batch.findOne({
+        _id: batchId,
+        status: "ACTIVE",
+      }).select("_id");
 
-        status:
-          status || "PUBLISHED",
+      if (!batch) {
+        return res.status(404).json({
+          success: false,
+          message: "Selected batch not found or inactive",
+        });
+      }
 
-        createdBy: req.user._id,
-      });
+      validBatchId = batch._id;
+    }
+
+    // =================================================
+    // CREATE
+    // =================================================
+
+    const announcement = await Announcement.create({
+      title: title.trim(),
+      description: description.trim(),
+
+      audience: finalAudience,
+
+      batchId: validBatchId,
+
+      priority: priority || "NORMAL",
+
+      pinned:
+        typeof pinned === "boolean"
+          ? pinned
+          : false,
+
+      status: status || "PUBLISHED",
+
+      createdBy: req.user._id,
+    });
 
     await notify("ANNOUNCEMENT", {
       actor: req.user._id,
@@ -267,37 +248,35 @@ const createAnnouncement = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message:
-        "Announcement created successfully",
+      message: "Announcement created successfully",
       announcement,
     });
-
   } catch (error) {
-    console.error(
-      "Create Announcement Error:",
-      error
-    );
+    console.error("Create Announcement Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Server error while creating announcement",
+      message: "Server error while creating announcement",
     });
   }
 };
 
-
-/* =====================================================
-   UPDATE ANNOUNCEMENT
-   ADMIN ONLY
-===================================================== */
+// =====================================================
+// UPDATE ANNOUNCEMENT - ADMIN
+// =====================================================
 
 const updateAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const announcement =
-      await Announcement.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid announcement ID",
+      });
+    }
+
+    const announcement = await Announcement.findById(id);
 
     if (!announcement) {
       return res.status(404).json({
@@ -306,13 +285,11 @@ const updateAnnouncement = async (req, res) => {
       });
     }
 
-    /* ===============================================
-       TITLE
-    =============================================== */
+    // TITLE
 
     if (req.body.title !== undefined) {
       if (
-        !req.body.title ||
+        typeof req.body.title !== "string" ||
         !req.body.title.trim()
       ) {
         return res.status(400).json({
@@ -321,23 +298,19 @@ const updateAnnouncement = async (req, res) => {
         });
       }
 
-      announcement.title =
-        req.body.title.trim();
+      announcement.title = req.body.title.trim();
     }
 
-    /* ===============================================
-       DESCRIPTION
-    =============================================== */
+    // DESCRIPTION
 
     if (req.body.description !== undefined) {
       if (
-        !req.body.description ||
+        typeof req.body.description !== "string" ||
         !req.body.description.trim()
       ) {
         return res.status(400).json({
           success: false,
-          message:
-            "Description cannot be empty",
+          message: "Description cannot be empty",
         });
       }
 
@@ -345,9 +318,7 @@ const updateAnnouncement = async (req, res) => {
         req.body.description.trim();
     }
 
-    /* ===============================================
-       AUDIENCE VALIDATION
-    =============================================== */
+    // AUDIENCE VALIDATION
 
     if (req.body.audience !== undefined) {
       const validAudiences = [
@@ -356,24 +327,65 @@ const updateAnnouncement = async (req, res) => {
         "EVERYONE",
       ];
 
-      if (
-        !validAudiences.includes(
-          req.body.audience
-        )
-      ) {
+      if (!validAudiences.includes(req.body.audience)) {
         return res.status(400).json({
           success: false,
           message: "Invalid audience",
         });
       }
 
-      announcement.audience =
-        req.body.audience;
+      announcement.audience = req.body.audience;
     }
 
-    /* ===============================================
-       PRIORITY VALIDATION
-    =============================================== */
+    // =================================================
+    // BATCH VALIDATION / UPDATE
+    // =================================================
+
+    const targetAudience =
+      req.body.audience !== undefined
+        ? req.body.audience
+        : announcement.audience;
+
+    // Teachers and Everyone do not need batch restriction.
+
+    if (
+      ["TEACHERS", "EVERYONE"].includes(targetAudience)
+    ) {
+      announcement.batchId = null;
+    } else if (req.body.batchId !== undefined) {
+      // Empty batchId = all students across all batches.
+
+      if (!req.body.batchId) {
+        announcement.batchId = null;
+      } else {
+        if (
+          !mongoose.Types.ObjectId.isValid(
+            req.body.batchId
+          )
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid batch ID",
+          });
+        }
+
+        const batch = await Batch.findOne({
+          _id: req.body.batchId,
+          status: "ACTIVE",
+        }).select("_id");
+
+        if (!batch) {
+          return res.status(404).json({
+            success: false,
+            message: "Selected batch not found or inactive",
+          });
+        }
+
+        announcement.batchId = batch._id;
+      }
+    }
+
+    // PRIORITY VALIDATION
 
     if (req.body.priority !== undefined) {
       const validPriorities = [
@@ -383,9 +395,7 @@ const updateAnnouncement = async (req, res) => {
       ];
 
       if (
-        !validPriorities.includes(
-          req.body.priority
-        )
+        !validPriorities.includes(req.body.priority)
       ) {
         return res.status(400).json({
           success: false,
@@ -393,13 +403,10 @@ const updateAnnouncement = async (req, res) => {
         });
       }
 
-      announcement.priority =
-        req.body.priority;
+      announcement.priority = req.body.priority;
     }
 
-    /* ===============================================
-       STATUS VALIDATION
-    =============================================== */
+    // STATUS VALIDATION
 
     if (req.body.status !== undefined) {
       const validStatuses = [
@@ -408,31 +415,24 @@ const updateAnnouncement = async (req, res) => {
       ];
 
       if (
-        !validStatuses.includes(
-          req.body.status
-        )
+        !validStatuses.includes(req.body.status)
       ) {
         return res.status(400).json({
           success: false,
-          message:
-            "Invalid announcement status",
+          message: "Invalid announcement status",
         });
       }
 
-      announcement.status =
-        req.body.status;
+      announcement.status = req.body.status;
     }
 
-    /* ===============================================
-       PINNED
-    =============================================== */
+    // PINNED
 
-    if (
-      typeof req.body.pinned === "boolean"
-    ) {
-      announcement.pinned =
-        req.body.pinned;
+    if (typeof req.body.pinned === "boolean") {
+      announcement.pinned = req.body.pinned;
     }
+
+    // SAVE
 
     await announcement.save();
 
@@ -446,33 +446,32 @@ const updateAnnouncement = async (req, res) => {
       message: "Announcement updated successfully",
       announcement,
     });
-
   } catch (error) {
-    console.error(
-      "Update Announcement Error:",
-      error
-    );
+    console.error("Update Announcement Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Server error while updating announcement",
+      message: "Server error while updating announcement",
     });
   }
 };
 
-
-/* =====================================================
-   DELETE ANNOUNCEMENT
-   ADMIN ONLY
-===================================================== */
+// =====================================================
+// DELETE ANNOUNCEMENT
+// =====================================================
 
 const deleteAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const announcement =
-      await Announcement.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid announcement ID",
+      });
+    }
+
+    const announcement = await Announcement.findById(id);
 
     if (!announcement) {
       return res.status(404).json({
@@ -485,39 +484,34 @@ const deleteAnnouncement = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message:
-        "Announcement deleted successfully",
+      message: "Announcement deleted successfully",
     });
-
   } catch (error) {
-    console.error(
-      "Delete Announcement Error:",
-      error
-    );
+    console.error("Delete Announcement Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Server error while deleting announcement",
+      message: "Server error while deleting announcement",
     });
   }
 };
 
+// =====================================================
+// TOGGLE PIN ANNOUNCEMENT
+// =====================================================
 
-/* =====================================================
-   TOGGLE PIN ANNOUNCEMENT
-   ADMIN ONLY
-===================================================== */
-
-const togglePinAnnouncement = async (
-  req,
-  res
-) => {
+const togglePinAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const announcement =
-      await Announcement.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid announcement ID",
+      });
+    }
+
+    const announcement = await Announcement.findById(id);
 
     if (!announcement) {
       return res.status(404).json({
@@ -526,8 +520,7 @@ const togglePinAnnouncement = async (
       });
     }
 
-    announcement.pinned =
-      !announcement.pinned;
+    announcement.pinned = !announcement.pinned;
 
     await announcement.save();
 
@@ -540,85 +533,62 @@ const togglePinAnnouncement = async (
 
       announcement,
     });
-
   } catch (error) {
-    console.error(
-      "Toggle Pin Announcement Error:",
-      error
-    );
+    console.error("Toggle Pin Announcement Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Server error while updating announcement",
+      message: "Server error while updating announcement",
     });
   }
 };
 
+// =====================================================
+// GET MY ANNOUNCEMENTS
+// =====================================================
 
-/* =====================================================
-   GET MY ANNOUNCEMENTS
-===================================================== */
-
-const getMyAnnouncements = async (
-  req,
-  res
-) => {
+const getMyAnnouncements = async (req, res) => {
   try {
-    const announcements =
-      await Announcement.find({
-        $or: [
-          {
-            createdBy: req.user._id,
+    const announcements = await Announcement.find({
+      $or: [
+        {
+          createdBy: req.user._id,
+        },
+        {
+          status: "PUBLISHED",
+          audience: {
+            $in: ["TEACHERS", "EVERYONE"],
           },
-          {
-            status: "PUBLISHED",
-            audience: {
-              $in: ["TEACHERS", "EVERYONE"],
-            },
-          },
-        ],
-      })
-        .populate(
-          "batchId",
-          "name code batchTiming startTime endTime status"
-        )
-        .sort({
-          pinned: -1,
-          createdAt: -1,
-        })
-        .lean();
+        },
+      ],
+    })
+      .populate(
+        "batchId",
+        "name code batchTiming startTime endTime status"
+      )
+      .sort({ pinned: -1, createdAt: -1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
-      count:
-        announcements.length,
+      count: announcements.length,
       announcements,
     });
-
   } catch (error) {
-    console.error(
-      "Get My Announcements Error:",
-      error
-    );
+    console.error("Get My Announcements Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Unable to fetch your announcements",
+      message: "Unable to fetch your announcements",
     });
   }
 };
 
+// =====================================================
+// CREATE TEACHER ANNOUNCEMENT
+// =====================================================
 
-/* =====================================================
-   CREATE TEACHER ANNOUNCEMENT
-===================================================== */
-
-const createTeacherAnnouncement = async (
-  req,
-  res
-) => {
+const createTeacherAnnouncement = async (req, res) => {
   try {
     const {
       title,
@@ -628,28 +598,31 @@ const createTeacherAnnouncement = async (
       priority,
     } = req.body;
 
-    /* ===============================================
-       VALIDATION
-    =============================================== */
+    // TITLE
 
-    if (!title || !title.trim()) {
+    if (
+      typeof title !== "string" ||
+      !title.trim()
+    ) {
       return res.status(400).json({
         success: false,
-        message:
-          "Title is required",
+        message: "Title is required",
       });
     }
 
+    // DESCRIPTION
+
     if (
-      !description ||
+      typeof description !== "string" ||
       !description.trim()
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "Description is required",
+        message: "Description is required",
       });
     }
+
+    // PRIORITY
 
     const validPriorities = [
       "NORMAL",
@@ -667,92 +640,63 @@ const createTeacherAnnouncement = async (
       });
     }
 
-    /* ===============================================
-       VALIDATE BATCH
-    =============================================== */
+    // BATCH VALIDATION
 
     let validBatchId = null;
 
     if (batchId) {
-      if (
-        !mongoose.Types.ObjectId.isValid(
-          batchId
-        )
-      ) {
+      if (!mongoose.Types.ObjectId.isValid(batchId)) {
         return res.status(400).json({
           success: false,
-          message:
-            "Invalid batch ID",
+          message: "Invalid batch ID",
         });
       }
 
-      const batch =
-        await Batch.findById(batchId);
+      const batch = await Batch.findById(batchId);
 
       if (!batch) {
         return res.status(404).json({
           success: false,
-          message:
-            "Selected batch not found",
+          message: "Selected batch not found",
         });
       }
 
-      validBatchId =
-        batch._id;
+      validBatchId = batch._id;
     }
 
-    /* ===============================================
-       CREATE
-    =============================================== */
+    // CREATE
 
-    const announcement =
-      await Announcement.create({
-        title:
-          title.trim(),
+    const announcement = await Announcement.create({
+      title: title.trim(),
 
-        description:
-          description.trim(),
+      description: description.trim(),
 
-        audience:
-          "STUDENTS",
+      audience: "STUDENTS",
 
-        /*
-          CANONICAL RELATION
-        */
+      batchId: validBatchId,
 
-        batchId:
-          validBatchId,
+      priority: priority || "NORMAL",
 
-        priority:
-          priority || "NORMAL",
+      pinned:
+        typeof pinned === "boolean"
+          ? pinned
+          : false,
 
-        pinned:
-          typeof pinned ===
-          "boolean"
-            ? pinned
-            : false,
+      status: "PUBLISHED",
 
-        status:
-          "PUBLISHED",
+      createdBy: req.user._id,
+    });
 
-        createdBy:
-          req.user._id,
-      });
-
-    /*
-      Populate before response
-    */
+    // POPULATE RESPONSE
 
     await announcement.populate([
       {
         path: "batchId",
-        select:
-          "name code batchTiming startTime endTime",
+        select: "name code batchTiming startTime endTime",
       },
       {
         path: "createdBy",
-        select:
-          "name",
+        select: "name",
       },
     ]);
 
@@ -763,29 +707,22 @@ const createTeacherAnnouncement = async (
 
     return res.status(201).json({
       success: true,
-      message:
-        "Announcement created successfully",
+      message: "Announcement created successfully",
       announcement,
     });
-
   } catch (error) {
-    console.error(
-      "Create Teacher Announcement Error:",
-      error
-    );
+    console.error("Create Teacher Announcement Error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Unable to create announcement",
+      message: "Unable to create announcement",
     });
   }
 };
 
-
-/* =====================================================
-   EXPORTS
-===================================================== */
+// =====================================================
+// EXPORTS
+// =====================================================
 
 module.exports = {
   getAnnouncements,

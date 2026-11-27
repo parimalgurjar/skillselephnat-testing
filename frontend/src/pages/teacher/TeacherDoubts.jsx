@@ -11,7 +11,7 @@ import {
 
 import AlertModal from "../../components/common/AlertModal";
 import { getDoubts } from "../../services/doubtApi";
-import { formatBatchTimingString } from "../../utils/batchUtils";
+import { getBatchLabel } from "../../utils/batchUtils";
 import "./TeacherDoubts.css";
 import ProfileAvatar from "../../components/common/ProfileAvatar";
 const TeacherDoubts = () => {
@@ -271,13 +271,17 @@ const TeacherDoubts = () => {
                     {doubt.studentId?.name || "Student"}
                   </strong>
 
-                  <span>
-                    {doubt.studentId?.batchTiming
-                      ? formatBatchTimingString(
-                          doubt.studentId.batchTiming
-                        )
-                      : "Student"}
-                  </span>
+                 <span>
+  {doubt.studentId?.batch &&
+  typeof doubt.studentId.batch === "object"
+    ? getBatchLabel(doubt.studentId.batch)
+    : doubt.studentId?.batchTiming
+      ? getBatchLabel({
+          name: doubt.studentId?.batchName || "",
+          batchTiming: doubt.studentId.batchTiming,
+        })
+      : "Batch not assigned"}
+</span>
                 </div>
               </div>
 

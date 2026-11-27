@@ -12,7 +12,7 @@ Clock3,
 } from "lucide-react";
 
 import api from "../../services/api";
-import { formatBatchTimingString } from "../../utils/batchUtils";
+import { getBatchLabel } from "../../utils/batchUtils";
 import {
 updateProfile,
 changePassword,
@@ -509,9 +509,13 @@ student._id ||
 student.id ||
 "Not assigned";
 
-const batchTiming = student.batchTiming
-  ? formatBatchTimingString(student.batchTiming)
-  : "Not assigned";
+const batchTiming = student.batch
+  ? getBatchLabel(student.batch)
+  : student.batchTiming
+    ? getBatchLabel({
+        batchTiming: student.batchTiming,
+      })
+    : "Not assigned";
 
 const courseName =
 student.course?.name || "Not assigned";

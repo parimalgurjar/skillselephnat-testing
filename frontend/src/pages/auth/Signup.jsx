@@ -15,7 +15,7 @@ import {
   Check,
   ChevronDown,
 } from "lucide-react";
-import { getBatchTiming } from "../../utils/batchUtils";
+import { getBatchLabel } from "../../utils/batchUtils";
 import { registerUser } from "../../services/authApi";
 import { getActiveSpecializations } from "../../services/specializationApi";
 
@@ -488,20 +488,14 @@ const Signup = () => {
                           : "Select Batch Timing"}
                       </option>
 
-                      {batches.map((batch) => (
-                        <option
-                          key={batch._id}
-                          value={batch._id}
-                        >
-                          {getBatchTiming(batch) !== "-"
-  ? getBatchTiming(batch)
-  : "Timing not set"}
-
-                          {batch.name
-                            ? ` (${batch.name})`
-                            : ""}
-                        </option>
-                      ))}
+                     {batches.map((batch) => (
+  <option
+    key={batch._id}
+    value={batch._id}
+  >
+    {getBatchLabel(batch)}
+  </option>
+))}
                     </select>
                   </div>
                 )}

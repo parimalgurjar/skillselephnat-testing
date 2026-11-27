@@ -18,7 +18,7 @@ import {
 
 import api from "../../services/api";
 import "./AdminLeaves.css";
-
+import { getBatchLabel } from "../../utils/batchUtils";
 const FILTERS = [
   { label: "All Requests", value: "ALL" },
   { label: "Pending", value: "PENDING" },
@@ -83,17 +83,7 @@ const getBatchName = (batch) => {
     return "Batch not available";
   }
 
-  const timing =
-    batch.batchTiming ||
-    (batch.startTime && batch.endTime
-      ? `${batch.startTime} - ${batch.endTime}`
-      : "");
-
-  return (
-    [batch.name, timing].filter(Boolean).join(" • ") ||
-    batch.code ||
-    "Batch"
-  );
+  return getBatchLabel(batch);
 };
 
 const getBatchId = (batch) => {
@@ -624,13 +614,9 @@ const handleDeleteLeave = async () => {
                 <CalendarDays size={17} />
               </span>
 
-              <span className="admin-leaves-batch-option-text">
-                <strong>{batch.name || "Unnamed Batch"}</strong>
-                <small>
-                  {batch.batchTiming ||
-                    `${batch.startTime || ""} - ${batch.endTime || ""}`}
-                </small>
-              </span>
+             <span className="admin-leaves-batch-option-text">
+  <strong>{getBatchLabel(batch)}</strong>
+</span>
 
               {selected && <CheckCircle2 size={17} />}
             </button>

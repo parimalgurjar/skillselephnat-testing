@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { getMyAttendance } from "../../services/attendanceApi";
-import { formatBatchTimingString } from "../../utils/batchUtils";
+import { getBatchLabel } from "../../utils/batchUtils";
 import "./Attendance.css";
 
 const DEFAULT_STATS = {
@@ -162,20 +162,15 @@ const Attendance = () => {
     totalClasses > 0 &&
     attendancePercentage >= requiredAttendance;
 
-  /* BATCH INFORMATION */
-  const batchName = batch?.name || "Not Assigned";
+  
+ /* BATCH INFORMATION */
+const batchName = batch
+  ? getBatchLabel(batch)
+  : student?.batch
+    ? getBatchLabel(student.batch)
+    : "Not Assigned";
 
-  const batchCode = batch?.code || student?.batch?.code || "";
-
-  const rawBatchTiming =
-    batch?.displayTiming ||
-    batch?.batchTiming ||
-    student?.batchTiming ||
-    "";
-
-  const batchTiming = rawBatchTiming
-    ? formatBatchTimingString(rawBatchTiming)
-    : "";
+const batchCode = batch?.code || student?.batch?.code || "";
 
   /* ATTENDANCE STATS */
   const attendanceStats = [
@@ -453,22 +448,16 @@ const Attendance = () => {
 
           <div className="attendance-history-meta">
             {batchName !== "Not Assigned" && (
-              <div className="attendance-batch-info">
-                <div className="batch-info-text">
-                  <span className="batch-info-label">
-                    BATCH
-                  </span>
+              <div className="batch-info-text">
+  <span className="batch-info-label">
+    BATCH
+  </span>
 
-                  <strong>
-                    {batchName}
-                    {batchCode ? ` • ${batchCode}` : ""}
-                  </strong>
-
-                  {batchTiming && (
-                    <small>{batchTiming}</small>
-                  )}
-                </div>
-              </div>
+  <strong>
+    {batchName}
+    {batchCode ? ` • ${batchCode}` : ""}
+  </strong>
+</div>
             )}
 
             <span className="attendance-record-count">

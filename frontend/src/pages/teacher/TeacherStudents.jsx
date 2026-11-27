@@ -5,7 +5,7 @@ import { Search, Users, Mail, TrendingUp } from "lucide-react";
 import api from "../../services/api";
 import "./TeacherStudents.css";
 import {
-  formatSingleTime,
+  getBatchLabel as getCommonBatchLabel,
   formatBatchTimingString,
 } from "../../utils/batchUtils";
 import ProfileAvatar from "../../components/common/ProfileAvatar";
@@ -17,26 +17,7 @@ import ProfileAvatar from "../../components/common/ProfileAvatar";
 
 const getBatchLabel = (batch) => {
   if (!batch) return "Unnamed Batch";
-
-  const timing =
-    batch.batchTiming ||
-    (batch.startTime && batch.endTime
-      ? `${batch.startTime} - ${batch.endTime}`
-      : "");
-
-  const formattedTiming = timing
-    ? formatBatchTimingString(timing)
-    : "";
-
-  if (batch.name && formattedTiming) {
-    return `${batch.name} (${formattedTiming})`;
-  }
-
-  if (batch.code && formattedTiming) {
-    return `${batch.code} (${formattedTiming})`;
-  }
-
-  return batch.name || batch.code || formattedTiming || "Unnamed Batch";
+  return getCommonBatchLabel(batch);
 };
 
 

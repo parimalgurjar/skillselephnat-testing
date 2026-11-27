@@ -21,6 +21,7 @@ import AlertModal from "../../components/common/AlertModal";
 import {
   formatSingleTime,
   formatBatchTimingString,
+    getBatchLabel,
 } from "../../utils/batchUtils";
 import "./AdminStudents.css";
 
@@ -228,29 +229,38 @@ const AdminStudents = () => {
   ===================================================== */
 
   const getStudentBatchDetails = (student) => {
-    const studentBatchId = getBatchId(student);
+  const studentBatchId = getBatchId(student);
 
-    let batch = batchMap[studentBatchId];
+  let batch = batchMap[studentBatchId];
 
-    if (!batch && typeof student.batchId === "object") {
-      batch = student.batchId;
-    }
+  if (!batch && typeof student.batchId === "object") {
+    batch = student.batchId;
+  }
 
-    const batchName =
-      batch?.name ||
-      batch?.code ||
-      student.batchName ||
-      "Not Assigned";
+  const batchName =
+    batch?.name ||
+    batch?.code ||
+    student.batchName ||
+    "Not Assigned";
 
-    const batchTiming =
-      getBatchTimingDisplay(batch) || student.batchTiming || "";
+  const batchTiming =
+    getBatchTimingDisplay(batch) ||
+    student.batchTiming ||
+    "";
 
-    return {
-      batch,
-      batchName,
-      batchTiming,
-    };
+  const batchLabel = getBatchLabel({
+    ...(batch || {}),
+    name: batchName,
+    batchTiming: batchTiming,
+  });
+
+  return {
+    batch,
+    batchName,
+    batchTiming,
+    batchLabel,
   };
+};
 
   /* =====================================================
      OPEN ADD MODAL
@@ -789,19 +799,19 @@ const AdminStudents = () => {
                 All Batches
               </option>
 
-              {batches.map((batch) => {
-                const timing = getBatchTimingDisplay(batch);
-
-                return (
-                  <option
-                    key={batch._id}
-                    value={batch._id}
-                  >
-                    {batch.name || batch.code || "Unnamed Batch"}
-                    {timing ? ` (${timing})` : ""}
-                  </option>
-                );
-              })}
+             {batches.map((batch) => (
+  <option
+    key={batch._id}
+    value={batch._id}
+  >
+    {getBatchLabel({
+      ...batch,
+      batchTiming:
+        getBatchTimingDisplay(batch) ||
+        batch.batchTiming,
+    })}
+  </option>
+))}
             </select>
 
           </div>
@@ -906,17 +916,15 @@ const AdminStudents = () => {
 
                       {/* BATCH */}
 
-                      <td>
-                        <div className="batch-details">
-                          <span className="batch-badge">
-                            {batchName}
-                          </span>
+                   {/* BATCH */}
 
-                          {batchTiming && (
-                            <small>{batchTiming}</small>
-                          )}
-                        </div>
-                      </td>
+<td>
+  <div className="batch-details">
+    <span className="batch-badge">
+      {getStudentBatchDetails(student).batchLabel}
+    </span>
+  </div>
+</td>
 
                       {/* JOINING DATE */}
 

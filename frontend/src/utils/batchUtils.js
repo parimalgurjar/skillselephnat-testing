@@ -1,5 +1,8 @@
 
-// Convert a single time into a consistent 12-hour AM/PM format.
+// ==========================================
+// FORMAT SINGLE TIME
+// ==========================================
+
 export const formatSingleTime = (time) => {
   if (time === null || time === undefined || time === "") {
     return "";
@@ -7,7 +10,7 @@ export const formatSingleTime = (time) => {
 
   const value = String(time).trim();
 
-  // Supports both "03:30 PM" and "15:30".
+  // Supports 09:30 AM, 15:30 and 9:30
   const match = value.match(
     /^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i
   );
@@ -30,12 +33,9 @@ export const formatSingleTime = (time) => {
   let period;
 
   if (existingPeriod) {
-    // Explicit AM/PM means the hour is already in 12-hour format.
     if (hours < 1 || hours > 12) return value;
-
     period = existingPeriod;
   } else {
-    // No suffix means the input is in 24-hour format.
     period = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12;
   }
@@ -44,8 +44,10 @@ export const formatSingleTime = (time) => {
 };
 
 
-// Format time values inside a complete batch timing string.
-// Example: "09:30 AM to 20:00" -> "9:30 AM to 8:00 PM"
+// ==========================================
+// FORMAT BATCH TIMING STRING
+// ==========================================
+
 export const formatBatchTimingString = (timing) => {
   if (!timing) return "-";
 
@@ -56,16 +58,21 @@ export const formatBatchTimingString = (timing) => {
 };
 
 
-// Get a consistently formatted batch timing.
+// ==========================================
+// GET COMPLETE BATCH TIMING
+// ==========================================
+
 export const getBatchTiming = (batch) => {
   if (!batch) return "-";
 
+  // Prefer canonical startTime and endTime
   if (batch.startTime && batch.endTime) {
     return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
       batch.endTime
     )}`;
   }
 
+  // Fallback to existing batchTiming
   if (batch.batchTiming) {
     return formatBatchTimingString(batch.batchTiming);
   }
@@ -74,13 +81,69 @@ export const getBatchTiming = (batch) => {
 };
 
 
-// Get the complete batch label.
+// ==========================================
+// REMOVE EMBEDDED TIMING FROM BATCH NAME
+// ==========================================
+
+export const normalizeBatchName = (name) => {
+  if (!name) return "";
+
+  let cleanName = String(name).trim();
+
+  const timePattern =
+    String.raw`\d{1,2}(?::\d{2})?\s*(?:AM|PM)`;
+
+  // Remove complete time ranges
+  const rangeRegex = new RegExp(
+    `${timePattern}\\s*(?:to|-|–|—)\\s*${timePattern}`,
+    "gi"
+  );
+
+  cleanName = cleanName.replace(rangeRegex, "");
+
+  // Remove remaining standalone times such as 11 AM
+  const singleTimeRegex = new RegExp(
+    `\\b${timePattern}\\b`,
+    "gi"
+  );
+
+  cleanName = cleanName.replace(singleTimeRegex, "");
+
+  // Clean empty brackets and extra separators
+  cleanName = cleanName
+    .replace(/\(\s*\)/g, "")
+    .replace(/\[\s*\]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+([,)])/g, "$1")
+    .replace(/,\s*,/g, ",")
+    .replace(/\s*[-–—]\s*$/g, "")
+    .trim();
+
+  return cleanName;
+};
+
+
+// ==========================================
+// GET COMPLETE BATCH LABEL
+// ==========================================
+
 export const getBatchLabel = (batch) => {
   if (!batch) return "Unnamed Batch";
 
+  const originalName = String(
+    batch.name || batch.code || ""
+  ).trim();
+
   const timing = getBatchTiming(batch);
 
-  return batch.name
-    ? `${batch.name} (${timing})`
+  // If timing is unavailable, preserve original name
+  if (!timing || timing === "-") {
+    return originalName || "Unnamed Batch";
+  }
+
+  const cleanName = normalizeBatchName(originalName);
+
+  return cleanName
+    ? `${cleanName} (${timing})`
     : timing;
 };

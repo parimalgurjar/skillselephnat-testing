@@ -19,6 +19,7 @@ import {
 import {
   formatSingleTime,
   formatBatchTimingString,
+  getBatchLabel as getCommonBatchLabel,
 } from "../../utils/batchUtils";
 
 import api from "../../services/api";
@@ -59,28 +60,13 @@ const AdminAttendance = () => {
     return "";
   };
 
-  /* GET BATCH LABEL */
  
 /* GET BATCH LABEL */
+
 const getBatchLabel = (batch) => {
   if (!batch) return "Unnamed Batch";
 
-  const name = String(batch.name || batch.code || "").trim();
-  const timing = formatBatchTiming(batch).trim();
-
-  if (!name) return timing || "Unnamed Batch";
-
-  // Check whether batch name already contains a time range
-  const timeMatches = name.match(
-    /\b\d{1,2}:\d{2}\s*(?:AM|PM)\b/gi
-  );
-
-  // If timing already exists in batch name, don't append again
-  if (timeMatches && timeMatches.length >= 2) {
-    return name;
-  }
-
-  return timing ? `${name} (${timing})` : name;
+  return getCommonBatchLabel(batch);
 };
 
 
@@ -1270,12 +1256,11 @@ const handleExport = async () => {
                 <Users size={17} />
               </span>
 
-              <span className="attendance-option-text">
-                <strong>{batch.name || batch.code || "Unnamed Batch"}</strong>
-                <small>
-                  {formatBatchTiming(batch) || batch.batchTiming || "Timing not set"}
-                </small>
-              </span>
+            <span className="attendance-option-text">
+  <strong>
+    {getBatchLabel(batch)}
+  </strong>
+</span>
 
               {isSelected && (
                 <Check size={17} className="attendance-option-check" />

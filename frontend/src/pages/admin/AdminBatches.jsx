@@ -15,6 +15,7 @@ import {
 import {
   formatSingleTime,
   formatBatchTimingString,
+  getBatchLabel
 } from "../../utils/batchUtils";
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
@@ -691,7 +692,7 @@ const getBatchTiming = (batch) => {
                   </div>
 
                   <div>
-                    <h3>{batch.name}</h3>
+                    <h3>{getBatchLabel(batch)}</h3>
 
                     <span>{batch.code}</span>
                   </div>

@@ -16,10 +16,7 @@ import {
 import ProfileAvatar from "../../components/common/ProfileAvatar";
 import api from "../../services/api";
 import "./TeacherAttendance.css";
-import {
-  formatSingleTime,
-  formatBatchTimingString,
-} from "../../utils/batchUtils";
+import { getBatchLabel as getCommonBatchLabel } from "../../utils/batchUtils";
 
 const DEFAULT_ATTENDANCE_META = {
   isMarked: false,
@@ -118,28 +115,10 @@ const TeacherAttendance = () => {
     });
   };
 
-  const getBatchLabel = (batch) => {
-    if (!batch) return "Unnamed Batch";
-
-    if (batch.name) return batch.name;
-    if (batch.code) return batch.code;
-
-    if (batch.displayTiming) {
-      return formatBatchTimingString(batch.displayTiming);
-    }
-
-    if (batch.batchTiming) {
-      return formatBatchTimingString(batch.batchTiming);
-    }
-
-    if (batch.startTime && batch.endTime) {
-      return `${formatSingleTime(batch.startTime)} - ${formatSingleTime(
-        batch.endTime
-      )}`;
-    }
-
-    return "Unnamed Batch";
-  };
+ const getBatchLabel = (batch) => {
+  if (!batch) return "Unnamed Batch";
+  return getCommonBatchLabel(batch);
+};
 
   // LOAD BATCHES
   useEffect(() => {
@@ -698,14 +677,9 @@ const attendanceRate =
                 <Users size={17} />
               </span>
 
-              <span className="attendance-custom-batch-text">
-                <strong>{getBatchLabel(batch)}</strong>
-                <small>
-                  {batch.displayTiming ||
-                    batch.batchTiming ||
-                    "Batch timing"}
-                </small>
-              </span>
+           <span className="attendance-custom-batch-text">
+  <strong>{getBatchLabel(batch)}</strong>
+</span>
 
               {isSelected && (
                 <Check

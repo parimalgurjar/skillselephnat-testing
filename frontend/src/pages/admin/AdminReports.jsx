@@ -15,7 +15,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { formatBatchTimingString } from "../../utils/batchUtils";
+import { getBatchLabel } from "../../utils/batchUtils";
 import api from "../../services/api";
 
 import "./AdminReports.css";
@@ -628,39 +628,26 @@ const AdminReports = () => {
 
                       {/* BATCH */}
 
-                      <td>
+                    {/* BATCH */}
 
-                        <div className="batch-name">
+<td>
+  <div className="batch-name">
 
-                          <div className="batch-icon">
+    <div className="batch-icon">
+      <Users size={16} />
+    </div>
 
-                            <Users
-                              size={16}
-                            />
+    <div>
+      <strong>
+        {getBatchLabel({
+          name: batch.batch,
+          batchTiming: batch.batchTiming,
+        })}
+      </strong>
+    </div>
 
-                          </div>
-
-                          <div>
-
-                            <strong>
-                              {batch.batch}
-                            </strong>
-
-                            {batch.batchTiming && (
-
-                              <span className="batch-timing">
-
-                                {formatBatchTimingString(batch.batchTiming)}
-
-                              </span>
-
-                            )}
-
-                          </div>
-
-                        </div>
-
-                      </td>
+  </div>
+</td>
 
                       {/* STUDENTS */}
 

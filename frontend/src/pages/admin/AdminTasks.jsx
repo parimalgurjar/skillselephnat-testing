@@ -20,7 +20,7 @@ import {
 import api from "../../services/api";
 import AlertModal from "../../components/common/AlertModal";
 import "./AdminTasks.css";
-import { getBatchTiming } from "../../utils/batchUtils";
+import { getBatchLabel } from "../../utils/batchUtils";
 
 /* =====================================================
    INITIAL FORM STATE
@@ -1131,17 +1131,11 @@ const handleDeleteTask = async (task) => {
                       </option>
 
              
-{batchTimings.map((batch) => {
-  const timing = getBatchTiming(batch);
-
-  return (
-    <option key={batch._id} value={batch._id}>
-      {batch.name && timing !== "-"
-        ? `${batch.name} (${timing})`
-        : batch.name || timing}
-    </option>
-  );
-})}
+{batchTimings.map((batch) => (
+  <option key={batch._id} value={batch._id}>
+    {getBatchLabel(batch)}
+  </option>
+))}
 
 
                     </select>

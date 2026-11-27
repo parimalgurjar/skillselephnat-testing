@@ -13,7 +13,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import { formatBatchTimingString } from "../../utils/batchUtils";
+import { getBatchLabel as getCommonBatchLabel } from "../../utils/batchUtils";
 import api from "../../services/api";
 import "./TeacherFees.css";
 
@@ -45,23 +45,40 @@ const getBatchId = (student) => {
 
 
 const getBatchLabel = (student) => {
-  const batch = student?.batchId;
+  if (!student) return "Batch not assigned";
+
+  const batch = student.batchId;
 
   if (batch && typeof batch === "object") {
-    const timing = batch.startTime && batch.endTime
-      ? `${batch.startTime} - ${batch.endTime}`
-      : batch.batchTiming || student?.batchTiming;
-
-    if (timing) {
-      return formatBatchTimingString(timing);
-    }
-
-    return batch.name || "Batch not assigned";
+    return getCommonBatchLabel({
+      ...batch,
+      batchTiming:
+        batch.batchTiming ||
+        student.batchTiming ||
+        "",
+      startTime:
+        batch.startTime ||
+        student.startTime ||
+        "",
+      endTime:
+        batch.endTime ||
+        student.endTime ||
+        "",
+      name:
+        batch.name ||
+        student.batchName ||
+        "",
+    });
   }
 
-  return student?.batchTiming
-    ? formatBatchTimingString(student.batchTiming)
-    : "Batch not assigned";
+  if (student.batchTiming) {
+    return getCommonBatchLabel({
+      name: student.batchName || "",
+      batchTiming: student.batchTiming,
+    });
+  }
+
+  return "Batch not assigned";
 };
 
 

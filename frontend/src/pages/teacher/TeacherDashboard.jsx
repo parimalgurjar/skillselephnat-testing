@@ -351,9 +351,11 @@ const TeacherDashboard = () => {
     : "Scheduled Class"}
 </h3>
 
-                    <span>
-                      {classItem.batch || ""}
-                    </span>
+ <span>
+  {classItem.batch
+    ? formatBatchTimingString(classItem.batch)
+    : ""}
+</span>
                   </div>
 
                   <div className="class-status">

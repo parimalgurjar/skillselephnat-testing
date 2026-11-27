@@ -13,8 +13,7 @@ import {
   Link2,
   ExternalLink,
 } from "lucide-react";
-
-import { formatBatchTimingString } from "../../utils/batchUtils";
+import { getBatchLabel as getCommonBatchLabel } from "../../utils/batchUtils";
 import api from "../../services/api";
 import "./TeacherTaskReports.css";
 import ProfileAvatar from "../../components/common/ProfileAvatar";
@@ -42,24 +41,29 @@ const TeacherTaskReport = () => {
 
   /* BATCH HELPERS */
 
-  const getBatchLabel = (student) => {
-    if (!student) return "No Batch";
+const getBatchLabel = (student) => {
+  if (!student) return "No Batch";
 
-    if (student.batch?.name) return student.batch.name;
-    if (student.batch?.code) return student.batch.code;
+  const batch =
+    student.batch && typeof student.batch === "object"
+      ? student.batch
+      : student.batchId && typeof student.batchId === "object"
+        ? student.batchId
+        : null;
 
-    if (student.batch?.batchTiming) {
-      return formatBatchTimingString(student.batch.batchTiming);
-    }
+  if (batch) {
+    return getCommonBatchLabel(batch);
+  }
 
-    if (student.batchTiming) {
-      return formatBatchTimingString(student.batchTiming);
-    }
+  if (student.batchTiming) {
+    return getCommonBatchLabel({
+      name: student.batchName || "",
+      batchTiming: student.batchTiming,
+    });
+  }
 
-    if (student.batchName) return student.batchName;
-
-    return "No Batch";
-  };
+  return student.batchName || "No Batch";
+};
 
   const getBatchId = (student) => {
     if (!student) return "";
